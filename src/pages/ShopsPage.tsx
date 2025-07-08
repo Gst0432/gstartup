@@ -239,8 +239,8 @@ export default function ShopsPage() {
                   
                   {/* Logo overlay */}
                   {vendor.logo_url && (
-                    <div className="absolute -bottom-6 left-4">
-                      <div className="w-12 h-12 rounded-full border-4 border-background overflow-hidden shadow-lg">
+                    <div className="absolute -bottom-8 left-4 z-10">
+                      <div className="w-16 h-16 rounded-full border-4 border-background overflow-hidden shadow-lg bg-background">
                         <img
                           src={vendor.logo_url}
                           alt={`Logo de ${vendor.business_name}`}
@@ -261,12 +261,12 @@ export default function ShopsPage() {
                   )}
                 </div>
 
-                <CardHeader className="pt-8">
-                  <CardTitle className="line-clamp-1 group-hover:text-primary transition-colors">
+                <CardHeader className="pt-12 pb-4">
+                  <CardTitle className="line-clamp-1 group-hover:text-primary transition-colors text-lg font-semibold">
                     {vendor.business_name}
                   </CardTitle>
                   
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
                     {vendor.rating && vendor.rating > 0 && (
                       <div className="flex items-center gap-1">
                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
@@ -283,16 +283,16 @@ export default function ShopsPage() {
                   </div>
                 </CardHeader>
 
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-4 px-6 pb-6">
                   {vendor.description && (
-                    <p className="text-sm text-muted-foreground line-clamp-2">
+                    <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
                       {vendor.description}
                     </p>
                   )}
 
                   {vendor.address && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <MapPin className="h-4 w-4 flex-shrink-0" />
+                    <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                      <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />
                       <span className="line-clamp-1">{vendor.address}</span>
                     </div>
                   )}
