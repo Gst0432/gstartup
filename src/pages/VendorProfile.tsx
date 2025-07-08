@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/components/DashboardLayout';
+import { ImageUploader } from '@/components/ImageUploader';
 import { 
   Store, 
   User,
@@ -20,7 +21,9 @@ import {
   Globe,
   Shield,
   Key,
-  Lock
+  Lock,
+  Eye,
+  ExternalLink
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -33,6 +36,7 @@ interface VendorData {
   address: string | null;
   phone: string | null;
   website_url: string | null;
+  subdomain: string | null;
   is_active: boolean;
   is_verified: boolean;
   rating: number | null;
@@ -52,6 +56,7 @@ export default function VendorProfile() {
     address: '',
     phone: '',
     website_url: '',
+    subdomain: '',
     logo_url: '',
     cover_image_url: '',
     api_key: '',
@@ -90,6 +95,7 @@ export default function VendorProfile() {
         address: data.address || '',
         phone: data.phone || '',
         website_url: data.website_url || '',
+        subdomain: data.subdomain || '',
         logo_url: data.logo_url || '',
         cover_image_url: data.cover_image_url || '',
         api_key: data.api_key || '',
@@ -370,36 +376,162 @@ export default function VendorProfile() {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Images</CardTitle>
+                    <CardTitle>Images de la Boutique</CardTitle>
                     <CardDescription>
-                      Logo et image de couverture de votre boutique
+                      Logo et image de couverture pour personnaliser votre boutique
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <ImageUploader
+                        label="Logo de la boutique"
+                        value={formData.logo_url}
+                        onChange={(url) => handleInputChange('logo_url', url)}
+                        aspectRatio="square"
+                        description="Recommandé: 200x200px, format carré. Utilisé comme photo de profil."
+                      />
+                      
+                      <ImageUploader
+                        label="Image de couverture"
+                        value={formData.cover_image_url}
+                        onChange={(url) => handleInputChange('cover_image_url', url)}
+                        aspectRatio="cover"
+                        description="Recommandé: 1200x400px. Image d'en-tête de votre boutique."
+                      />
+                    </div>
+                    
+                    {/* Aperçu de la boutique */}
+                    {(formData.logo_url || formData.cover_image_url || formData.business_name) && (
+                      <div className="space-y-3 pt-4 border-t">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-medium">Aperçu de votre boutique</h4>
+                          {vendor && (
+                            <Button variant="outline" size="sm" className="gap-2" asChild>
+                              <a href={`/store/${vendor.id}`} target="_blank" rel="noopener noreferrer">
+                                <Eye className="h-3 w-3" />
+                                Voir la boutique
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            </Button>
+                          )}
+                        </div>
+                        
+                        {/* Mini aperçu */}
+                        <div className="p-4 bg-muted/30 rounded-lg border">
+                          <div className="flex items-center gap-4">
+                            {formData.logo_url ? (
+                              <img 
+                                src={formData.logo_url} 
+                                alt="Logo aperçu"
+                                className="w-16 h-16 rounded-full object-cover border-2 border-background shadow-sm"
+                              />
+                            ) : (
+                              <div className="w-16 h-16 rounded-full bg-gradient-primary flex items-center justify-center border-2 border-background shadow-sm">
+                                <span className="text-white font-bold text-lg">
+                                  {formData.business_name?.charAt(0) || '?'}
+                                </span>
+                              </div>
+                            )}
+                            
+                            <div className="flex-1 min-w-0">
+                              <h5 className="font-semibold truncate">
+                                {formData.business_name || 'Nom de votre boutique'}
+                              </h5>
+                              <p className="text-sm text-muted-foreground truncate">
+                                {formData.description || 'Description de votre boutique...'}
+                              </p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge variant="outline" className="text-xs">
+                                  {vendor?.is_verified ? 'Vérifié' : 'En attente'}
+                                </Badge>
+                                {vendor?.is_verified && (
+                                  <Shield className="h-3 w-3 text-green-500" />
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {formData.cover_image_url && (
+                            <div className="mt-3 h-20 rounded overflow-hidden">
+                              <img 
+                                src={formData.cover_image_url} 
+                                alt="Couverture aperçu"
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Globe className="h-5 w-5" />
+                      Domaine Personnalisé
+                    </CardTitle>
+                    <CardDescription>
+                      Configurez votre sous-domaine ou connectez votre domaine personnalisé
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <Label htmlFor="logo_url">URL du logo</Label>
-                      <Input
-                        id="logo_url"
-                        value={formData.logo_url}
-                        onChange={(e) => handleInputChange('logo_url', e.target.value)}
-                        placeholder="https://..."
-                      />
+                      <Label htmlFor="subdomain">Sous-domaine</Label>
+                      <div className="flex items-center space-x-2">
+                        <Input
+                          id="subdomain"
+                          value={formData.subdomain}
+                          onChange={(e) => handleInputChange('subdomain', e.target.value)}
+                          placeholder="votre-nom"
+                          className="flex-1"
+                        />
+                        <span className="text-sm text-muted-foreground">.gstartup.pro</span>
+                      </div>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Recommandé: 200x200px
+                        Votre boutique sera accessible via: {formData.subdomain || 'votre-nom'}.gstartup.pro
                       </p>
                     </div>
                     
-                    <div>
-                      <Label htmlFor="cover_image_url">URL de l'image de couverture</Label>
-                      <Input
-                        id="cover_image_url"
-                        value={formData.cover_image_url}
-                        onChange={(e) => handleInputChange('cover_image_url', e.target.value)}
-                        placeholder="https://..."
-                      />
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Recommandé: 1200x400px
-                      </p>
+                    <div className="p-4 bg-blue-50 rounded-lg border">
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                          <Globe className="h-4 w-4 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-medium text-blue-900">Domaine Hostinger</h4>
+                          <p className="text-sm text-blue-700 mb-3">
+                            Vous avez un domaine Hostinger ? Connectez-le à votre boutique
+                          </p>
+                          <div className="space-y-2">
+                            <Input
+                              placeholder="votre-domaine.com"
+                              className="bg-white"
+                            />
+                            <Button variant="outline" size="sm" className="text-blue-700">
+                              Connecter le domaine
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-amber-50 rounded-lg border">
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-amber-600 rounded-lg flex items-center justify-center">
+                          <Shield className="h-4 w-4 text-white" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-amber-900">Configuration DNS</h4>
+                          <p className="text-sm text-amber-700">
+                            Pour connecter votre domaine, ajoutez un enregistrement CNAME:
+                          </p>
+                          <div className="mt-2 p-2 bg-white rounded border text-xs font-mono">
+                            CNAME: www → shop.gstartup.pro
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
