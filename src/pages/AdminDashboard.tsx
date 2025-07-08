@@ -17,7 +17,8 @@ import {
   XCircle,
   Eye,
   Edit,
-  Trash
+  Trash,
+  CreditCard
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -219,6 +220,14 @@ export default function AdminDashboard() {
       icon: Settings,
       href: '/admin/categories',
       color: 'bg-red-500',
+      count: null
+    },
+    {
+      title: 'Paramètres de Paiement',
+      description: 'Configurer les passerelles',
+      icon: CreditCard,
+      href: '/admin/settings',
+      color: 'bg-yellow-500',
       count: null
     },
     {

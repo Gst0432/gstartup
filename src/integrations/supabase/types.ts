@@ -334,6 +334,51 @@ export type Database = {
           },
         ]
       }
+      payment_gateways: {
+        Row: {
+          api_key: string | null
+          api_secret: string | null
+          config: Json | null
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          supported_currencies: string[]
+          test_mode: boolean
+          type: string
+          updated_at: string
+          webhook_secret: string | null
+        }
+        Insert: {
+          api_key?: string | null
+          api_secret?: string | null
+          config?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          supported_currencies?: string[]
+          test_mode?: boolean
+          type: string
+          updated_at?: string
+          webhook_secret?: string | null
+        }
+        Update: {
+          api_key?: string | null
+          api_secret?: string | null
+          config?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          supported_currencies?: string[]
+          test_mode?: boolean
+          type?: string
+          updated_at?: string
+          webhook_secret?: string | null
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number

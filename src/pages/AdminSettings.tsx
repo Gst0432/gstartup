@@ -14,7 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface PaymentGateway {
   id: string;
   name: string;
-  type: 'moneroo' | 'stripe' | 'paypal' | 'orange_money' | 'mtn_money';
+  type: string;
   is_active: boolean;
   api_key?: string;
   api_secret?: string;
