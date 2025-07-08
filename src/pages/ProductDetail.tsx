@@ -11,6 +11,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useToast } from '@/hooks/use-toast';
 import { usePendingPurchase } from '@/hooks/usePendingPurchase';
+import { ReviewForm } from '@/components/ReviewForm';
+import { ReviewsList } from '@/components/ReviewsList';
 
 interface Product {
   id: string;
@@ -44,6 +46,7 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+  const [reviewsRefreshTrigger, setReviewsRefreshTrigger] = useState(0);
 
   useEffect(() => {
     if (id) {
@@ -357,6 +360,23 @@ export default function ProductDetail() {
               </Button>
             </div>
 
+            {/* Add Review Button for authenticated users */}
+            {isAuthenticated && (
+              <div className="pt-4 border-t">
+                <ReviewForm
+                  productId={product.id}
+                  productName={product.name}
+                  onReviewSubmitted={() => {
+                    setReviewsRefreshTrigger(prev => prev + 1);
+                    toast({
+                      title: "Avis ajouté",
+                      description: "Merci pour votre avis !"
+                    });
+                  }}
+                />
+              </div>
+            )}
+
             {/* Stock */}
             <div className="text-sm text-muted-foreground">
               Stock disponible: {product.quantity} unités
@@ -376,6 +396,14 @@ export default function ProductDetail() {
             />
           </CardContent>
         </Card>
+
+        {/* Reviews Section */}
+        <div className="mt-12">
+          <ReviewsList 
+            productId={product.id} 
+            refreshTrigger={reviewsRefreshTrigger}
+          />
+        </div>
       </div>
     </div>
   );

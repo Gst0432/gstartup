@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/components/DashboardLayout';
+import { ReviewForm } from '@/components/ReviewForm';
 import { 
   Package, 
   Search,
@@ -17,7 +19,9 @@ import {
   CheckCircle,
   Clock,
   XCircle,
-  Truck
+  Truck,
+  Trash2,
+  MessageSquare
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -32,6 +36,7 @@ interface Order {
   created_at: string;
   items: Array<{
     id: string;
+    product_id: string;
     product_name: string;
     variant_name: string | null;
     quantity: number;
@@ -62,6 +67,7 @@ export default function Orders() {
           *,
           order_items(
             id,
+            product_id,
             product_name,
             variant_name,
             quantity,
@@ -87,6 +93,39 @@ export default function Orders() {
       console.error('Error fetching orders:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteOrder = async (orderId: string) => {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .delete()
+        .eq('id', orderId);
+
+      if (error) {
+        toast({
+          title: "Erreur",
+          description: "Impossible de supprimer la commande",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Commande supprimée",
+        description: "L'historique de la commande a été supprimé"
+      });
+
+      // Refresh orders list
+      fetchOrders();
+    } catch (error) {
+      console.error('Error deleting order:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue",
+        variant: "destructive"
+      });
     }
   };
 
@@ -338,21 +377,60 @@ export default function Orders() {
                             <Button variant="outline" size="sm">
                               <Download className="h-4 w-4" />
                             </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Supprimer la commande</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Êtes-vous sûr de vouloir supprimer cette commande ? Cette action est irréversible.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={() => handleDeleteOrder(order.id)}
+                                    className="bg-destructive hover:bg-destructive/90"
+                                  >
+                                    Supprimer
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </div>
                         </div>
                         
                         <div className="space-y-2">
                           <p className="text-sm font-medium text-muted-foreground">Articles:</p>
                           {order.items.map((item) => (
-                            <div key={item.id} className="flex items-center justify-between text-sm bg-muted/50 p-2 rounded">
-                              <div>
+                            <div key={item.id} className="flex items-center justify-between text-sm bg-muted/50 p-3 rounded">
+                              <div className="flex-1">
                                 <span className="font-medium">{item.product_name}</span>
                                 {item.variant_name && (
                                   <span className="text-muted-foreground"> ({item.variant_name})</span>
                                 )}
                                 <span className="text-muted-foreground"> × {item.quantity}</span>
                               </div>
-                              <span className="font-medium">{item.total.toLocaleString()} FCFA</span>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">{item.total.toLocaleString()} FCFA</span>
+                                {order.payment_status === 'completed' && (
+                                  <ReviewForm
+                                    productId={item.product_id}
+                                    productName={item.product_name}
+                                    orderItemId={item.id}
+                                    onReviewSubmitted={() => {
+                                      toast({
+                                        title: "Avis ajouté",
+                                        description: "Merci pour votre avis !"
+                                      });
+                                    }}
+                                  />
+                                )}
+                              </div>
                             </div>
                           ))}
                         </div>
