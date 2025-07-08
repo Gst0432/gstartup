@@ -151,21 +151,21 @@ export default function ShopsPage() {
           {/* Search and Filters */}
           <div className="flex flex-col md:flex-row gap-4 max-w-4xl mx-auto">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 z-10" />
               <Input
                 placeholder="Rechercher une boutique..."
                 value={searchTerm}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="pl-10"
+                className="pl-10 bg-background"
               />
             </div>
 
             <div className="flex gap-2">
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-48 bg-background">
                   <SelectValue placeholder="Trier par" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-background border shadow-lg z-50">
                   <SelectItem value="name">Nom A-Z</SelectItem>
                   <SelectItem value="rating">Meilleures notes</SelectItem>
                   <SelectItem value="sales">Plus vendues</SelectItem>
@@ -179,7 +179,7 @@ export default function ShopsPage() {
                   setFilterVerified(!filterVerified);
                   setCurrentPage(1);
                 }}
-                className="gap-2"
+                className="gap-2 bg-background hover:bg-accent"
               >
                 <Filter className="h-4 w-4" />
                 Vérifiées
