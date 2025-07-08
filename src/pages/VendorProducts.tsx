@@ -145,20 +145,20 @@ export default function VendorProducts() {
       <div className="min-h-screen bg-muted/30">
         <header className="bg-background border-b">
           <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-bold">Mes Produits</h1>
-                <p className="text-muted-foreground">
+                <h1 className="text-xl sm:text-2xl font-bold">Mes Produits</h1>
+                <p className="text-muted-foreground text-sm sm:text-base">
                   Gérer votre catalogue de produits
                 </p>
               </div>
-              <div className="flex items-center gap-4">
-                <Badge variant="outline" className="gap-2">
-                  <Package className="h-4 w-4" />
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+                <Badge variant="outline" className="gap-2 text-xs sm:text-sm">
+                  <Package className="h-3 w-3 sm:h-4 sm:w-4" />
                   {totalItems} produit{totalItems > 1 ? 's' : ''}
                 </Badge>
-                <Link to="/vendor/products/new">
-                  <Button className="gap-2">
+                <Link to="/vendor/products/new" className="w-full sm:w-auto">
+                  <Button className="gap-2 w-full sm:w-auto">
                     <Plus className="h-4 w-4" />
                     Ajouter un produit
                   </Button>
@@ -168,7 +168,7 @@ export default function VendorProducts() {
           </div>
         </header>
 
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-4 sm:py-8">
           {/* Recherche */}
           <Card className="mb-6">
             <CardHeader>
@@ -209,62 +209,66 @@ export default function VendorProducts() {
               ) : (
                  <div className="grid gap-4">
                    {paginatedProducts.map((product) => (
-                    <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center gap-4">
-                        {product.images?.[0] ? (
-                          <img
-                            src={product.images[0]}
-                            alt={product.name}
-                            className="w-16 h-16 object-cover rounded-lg"
-                          />
-                        ) : (
-                          <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center">
-                            <Package className="h-8 w-8 text-muted-foreground" />
-                          </div>
-                        )}
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-medium">{product.name}</h3>
-                            {product.is_featured && (
-                              <Badge variant="secondary">
-                                <Star className="h-3 w-3 mr-1" />
-                                Mis en avant
-                              </Badge>
-                            )}
-                            <Badge variant={product.is_active ? "default" : "secondary"}>
-                              {product.is_active ? "Actif" : "Inactif"}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground mb-1">
-                            Catégorie: {product.category.name}
-                          </p>
-                          <p className="text-sm font-medium">
-                            Prix: {product.price.toLocaleString()} FCFA
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            Stock: {product.quantity} | Créé le {new Date(product.created_at).toLocaleDateString('fr-FR')}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant={product.is_active ? "outline" : "default"}
-                          size="sm"
-                          onClick={() => toggleProductStatus(product.id, product.is_active)}
-                        >
-                          {product.is_active ? 'Désactiver' : 'Activer'}
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Trash className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
+                     <div key={product.id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 border rounded-lg">
+                       <div className="flex items-center gap-4 flex-1">
+                         {product.images?.[0] ? (
+                           <img
+                             src={product.images[0]}
+                             alt={product.name}
+                             className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-lg flex-shrink-0"
+                           />
+                         ) : (
+                           <div className="w-12 h-12 sm:w-16 sm:h-16 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+                             <Package className="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" />
+                           </div>
+                         )}
+                         <div className="flex-1 min-w-0">
+                           <div className="flex flex-wrap items-center gap-2 mb-1">
+                             <h3 className="font-medium text-sm sm:text-base truncate">{product.name}</h3>
+                             {product.is_featured && (
+                               <Badge variant="secondary" className="text-xs">
+                                 <Star className="h-3 w-3 mr-1" />
+                                 Mis en avant
+                               </Badge>
+                             )}
+                             <Badge variant={product.is_active ? "default" : "secondary"} className="text-xs">
+                               {product.is_active ? "Actif" : "Inactif"}
+                             </Badge>
+                           </div>
+                           <p className="text-xs sm:text-sm text-muted-foreground mb-1 truncate">
+                             Catégorie: {product.category.name}
+                           </p>
+                           <p className="text-xs sm:text-sm font-medium">
+                             Prix: {product.price.toLocaleString()} FCFA
+                           </p>
+                           <p className="text-xs text-muted-foreground">
+                             Stock: {product.quantity} | Créé le {new Date(product.created_at).toLocaleDateString('fr-FR')}
+                           </p>
+                         </div>
+                       </div>
+                       <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                         <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+                           <Eye className="h-4 w-4 sm:mr-0 mr-2" />
+                           <span className="sm:hidden">Voir</span>
+                         </Button>
+                         <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+                           <Edit className="h-4 w-4 sm:mr-0 mr-2" />
+                           <span className="sm:hidden">Modifier</span>
+                         </Button>
+                         <Button
+                           variant={product.is_active ? "outline" : "default"}
+                           size="sm"
+                           onClick={() => toggleProductStatus(product.id, product.is_active)}
+                           className="flex-1 sm:flex-none text-xs sm:text-sm"
+                         >
+                           {product.is_active ? 'Désactiver' : 'Activer'}
+                         </Button>
+                         <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+                           <Trash className="h-4 w-4 sm:mr-0 mr-2" />
+                           <span className="sm:hidden">Supprimer</span>
+                         </Button>
+                       </div>
+                     </div>
                   ))}
                    {paginatedProducts.length === 0 && filteredProducts.length === 0 && (
                      <div className="text-center py-8">

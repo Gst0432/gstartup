@@ -130,16 +130,16 @@ export default function Dashboard() {
         {/* Header */}
         <header className="bg-background border-b">
           <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-bold">Tableau de Bord Client</h1>
-                <p className="text-muted-foreground">
+                <h1 className="text-xl sm:text-2xl font-bold">Tableau de Bord Client</h1>
+                <p className="text-muted-foreground text-sm sm:text-base">
                   Bienvenue, {profile?.display_name}
                 </p>
               </div>
               <div className="flex items-center gap-4">
-                <Badge variant="secondary" className="gap-2">
-                  <User className="h-4 w-4" />
+                <Badge variant="secondary" className="gap-2 text-xs sm:text-sm">
+                  <User className="h-3 w-3 sm:h-4 sm:w-4" />
                   {profile?.role}
                 </Badge>
               </div>
@@ -147,26 +147,26 @@ export default function Dashboard() {
           </div>
         </header>
 
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-4 sm:py-8">
           {/* Welcome Card */}
-          <Card className="mb-8 bg-gradient-primary text-white">
-            <CardHeader>
-              <CardTitle className="text-white">
+          <Card className="mb-6 sm:mb-8 bg-gradient-primary text-white">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-white text-lg sm:text-xl">
                 Bienvenue sur G-STARTUP LTD
               </CardTitle>
-              <CardDescription className="text-white/80">
+              <CardDescription className="text-white/80 text-sm sm:text-base">
                 Votre marketplace numérique pour scripts, thèmes et solutions digitales
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                 <div className="flex-1">
-                  <p className="text-white/90">
+                  <p className="text-white/90 text-sm sm:text-base">
                     Explorez notre vaste collection de produits numériques professionnels
                   </p>
                 </div>
-                <Button variant="secondary" size="lg">
-                  <Store className="mr-2 h-5 w-5" />
+                <Button variant="secondary" size="sm" className="sm:size-lg w-full sm:w-auto">
+                  <Store className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                   Explorer le Marketplace
                 </Button>
               </div>
@@ -174,7 +174,7 @@ export default function Dashboard() {
           </Card>
 
           {/* Quick Stats */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
@@ -222,9 +222,9 @@ export default function Dashboard() {
           </div>
 
           {/* Quick Actions */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Actions Rapides</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4">Actions Rapides</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {quickActions.map((action, index) => (
                 <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
                   <CardHeader className="pb-3">
@@ -240,7 +240,7 @@ export default function Dashboard() {
           </div>
 
           {/* Account Management */}
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">

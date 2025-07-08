@@ -152,27 +152,27 @@ export default function VendorDashboard() {
         {/* Header */}
         <header className="bg-background border-b">
           <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-bold">Tableau de Bord Vendeur</h1>
-                <p className="text-muted-foreground">
+                <h1 className="text-xl sm:text-2xl font-bold">Tableau de Bord Vendeur</h1>
+                <p className="text-muted-foreground text-sm sm:text-base">
                   {vendor?.business_name || profile?.display_name}
                 </p>
               </div>
-              <div className="flex items-center gap-4">
-                <Badge variant="secondary" className="gap-2">
-                  <Store className="h-4 w-4" />
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+                <Badge variant="secondary" className="gap-2 text-xs sm:text-sm">
+                  <Store className="h-3 w-3 sm:h-4 sm:w-4" />
                   Vendeur
-                  {vendor?.is_verified && (
-                    <Badge variant="default" className="ml-1">Vérifié</Badge>
-                  )}
                 </Badge>
+                {vendor?.is_verified && (
+                  <Badge variant="default" className="text-xs sm:text-sm">Vérifié</Badge>
+                )}
               </div>
             </div>
           </div>
         </header>
 
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-4 sm:py-8">
           {/* Welcome Card */}
           {!vendor ? (
             <Card className="mb-8 border-blue-200 bg-blue-50">
@@ -218,7 +218,7 @@ export default function VendorDashboard() {
           )}
 
           {/* Quick Stats */}
-          <div className="grid md:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
@@ -281,9 +281,9 @@ export default function VendorDashboard() {
           </div>
 
           {/* Quick Actions */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Actions Rapides</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4">Actions Rapides</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {quickActions.map((action, index) => (
                 <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
                   <CardHeader className="pb-3">
@@ -299,7 +299,7 @@ export default function VendorDashboard() {
           </div>
 
           {/* Recent Activity & Performance */}
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">

@@ -246,16 +246,16 @@ export default function AdminDashboard() {
         {/* Header */}
         <header className="bg-background border-b">
           <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-bold">Tableau de Bord Administrateur</h1>
-                <p className="text-muted-foreground">
+                <h1 className="text-xl sm:text-2xl font-bold">Tableau de Bord Administrateur</h1>
+                <p className="text-muted-foreground text-sm sm:text-base">
                   Administration G-STARTUP LTD
                 </p>
               </div>
               <div className="flex items-center gap-4">
-                <Badge variant="destructive" className="gap-2">
-                  <Shield className="h-4 w-4" />
+                <Badge variant="destructive" className="gap-2 text-xs sm:text-sm">
+                  <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
                   Administrateur
                 </Badge>
               </div>
@@ -263,7 +263,7 @@ export default function AdminDashboard() {
           </div>
         </header>
 
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-4 sm:py-8">
           {/* Welcome Card */}
           <Card className="mb-8 bg-gradient-to-r from-red-500 to-pink-500 text-white">
             <CardHeader>
@@ -290,7 +290,7 @@ export default function AdminDashboard() {
           </Card>
 
           {/* Quick Stats */}
-          <div className="grid md:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
@@ -357,9 +357,9 @@ export default function AdminDashboard() {
           </div>
 
           {/* Management Sections */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Gestion de la Plateforme</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4">Gestion de la Plateforme</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {managementSections.map((section, index) => (
                 <Card 
                   key={index} 
@@ -482,7 +482,7 @@ export default function AdminDashboard() {
           )}
 
           {/* Recent Activity & System Status */}
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">

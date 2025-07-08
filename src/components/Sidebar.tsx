@@ -29,9 +29,11 @@ import { cn } from '@/lib/utils';
 
 interface SidebarProps {
   role: 'customer' | 'vendor' | 'admin';
+  onClose?: () => void;
+  isMobile?: boolean;
 }
 
-export const Sidebar = ({ role }: SidebarProps) => {
+export const Sidebar = ({ role, onClose, isMobile = false }: SidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
   const { profile, signOut } = useAuth();
@@ -104,12 +106,12 @@ export const Sidebar = ({ role }: SidebarProps) => {
   return (
     <div className={cn(
       "h-screen bg-background border-r border-border flex flex-col transition-all duration-300",
-      isCollapsed ? "w-16" : "w-64"
+      isMobile ? "w-64" : (isCollapsed ? "w-16" : "w-64")
     )}>
       {/* Header */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between">
-          {!isCollapsed && (
+          {(!isCollapsed || isMobile) && (
             <div className="flex items-center justify-center">
               <img 
                 src="/lovable-uploads/c72d66fa-2175-4b64-b34b-5754d320f178.png" 
@@ -118,19 +120,30 @@ export const Sidebar = ({ role }: SidebarProps) => {
               />
             </div>
           )}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-2"
-          >
-            {isCollapsed ? <Menu className="h-4 w-4" /> : <X className="h-4 w-4" />}
-          </Button>
+          {isMobile ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="p-2"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="p-2"
+            >
+              {isCollapsed ? <Menu className="h-4 w-4" /> : <X className="h-4 w-4" />}
+            </Button>
+          )}
         </div>
       </div>
 
       {/* User Info */}
-      {!isCollapsed && (
+      {(!isCollapsed || isMobile) && (
         <div className="p-4 border-b border-border">
           <div className="space-y-2">
             <p className="text-sm font-medium truncate">{profile?.display_name}</p>
@@ -155,12 +168,13 @@ export const Sidebar = ({ role }: SidebarProps) => {
                   className={cn(
                     "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
                     "hover:bg-muted",
-                    isCollapsed && "justify-center"
+                    (isCollapsed && !isMobile) && "justify-center"
                   )}
-                  title={isCollapsed ? item.title : undefined}
+                  title={(isCollapsed && !isMobile) ? item.title : undefined}
+                  onClick={isMobile ? onClose : undefined}
                 >
                   <item.icon className="h-4 w-4 flex-shrink-0" />
-                  {!isCollapsed && <span>{item.title}</span>}
+                  {(!isCollapsed || isMobile) && <span>{item.title}</span>}
                 </a>
               );
             }
@@ -174,12 +188,13 @@ export const Sidebar = ({ role }: SidebarProps) => {
                   isActive 
                     ? "bg-primary text-primary-foreground" 
                     : "hover:bg-muted",
-                  isCollapsed && "justify-center"
+                  (isCollapsed && !isMobile) && "justify-center"
                 )}
-                title={isCollapsed ? item.title : undefined}
+                title={(isCollapsed && !isMobile) ? item.title : undefined}
+                onClick={isMobile ? onClose : undefined}
               >
                 <item.icon className="h-4 w-4 flex-shrink-0" />
-                {!isCollapsed && <span>{item.title}</span>}
+                {(!isCollapsed || isMobile) && <span>{item.title}</span>}
               </NavLink>
             );
           })}
@@ -187,7 +202,7 @@ export const Sidebar = ({ role }: SidebarProps) => {
       </nav>
 
       {/* Language and Currency Selector */}
-      {!isCollapsed && (
+      {(!isCollapsed || isMobile) && (
         <div className="p-2 border-t border-border">
           <div className="mb-2">
             <LanguageSelector />
@@ -203,12 +218,12 @@ export const Sidebar = ({ role }: SidebarProps) => {
           onClick={() => signOut()}
           className={cn(
             "w-full justify-start gap-3",
-            isCollapsed && "justify-center px-2"
+            (isCollapsed && !isMobile) && "justify-center px-2"
           )}
-          title={isCollapsed ? "Déconnexion" : undefined}
+          title={(isCollapsed && !isMobile) ? "Déconnexion" : undefined}
         >
           <LogOut className="h-4 w-4 flex-shrink-0" />
-          {!isCollapsed && <span>Déconnexion</span>}
+          {(!isCollapsed || isMobile) && <span>Déconnexion</span>}
         </Button>
       </div>
     </div>
