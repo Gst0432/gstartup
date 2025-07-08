@@ -15,7 +15,8 @@ import {
   LogOut,
   Menu,
   X,
-  Star
+  Star,
+  CreditCard
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
@@ -57,6 +58,7 @@ export const Sidebar = ({ role }: SidebarProps) => {
     { title: 'Produits', url: '/admin/products', icon: Package },
     { title: 'Commandes', url: '/admin/orders', icon: ShoppingCart },
     { title: 'Catégories', url: '/admin/categories', icon: Settings },
+    { title: 'Paiements', url: '/admin/settings', icon: CreditCard },
     { title: 'Analytics', url: '/admin/analytics', icon: TrendingUp },
   ];
 

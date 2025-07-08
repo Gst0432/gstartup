@@ -364,7 +364,13 @@ export default function AdminDashboard() {
                 <Card 
                   key={index} 
                   className="hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={section.title === 'Gestion des Utilisateurs' ? handleUserManagementClick : undefined}
+                  onClick={() => {
+                    if (section.title === 'Gestion des Utilisateurs') {
+                      handleUserManagementClick();
+                    } else if (section.href) {
+                      window.location.href = section.href;
+                    }
+                  }}
                 >
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
