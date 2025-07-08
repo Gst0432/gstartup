@@ -86,47 +86,85 @@ export default function AdminUsers() {
       if (newRole === 'vendor') {
         const user = users.find(u => u.user_id === userId);
         if (user) {
-          // Vérifier si l'enregistrement vendeur existe déjà
-          const { data: existingVendor } = await supabase
-            .from('vendors')
-            .select('id')
-            .eq('user_id', userId)
-            .single();
-
-          // Créer un enregistrement vendeur s'il n'existe pas
-          if (!existingVendor) {
-            const { error: vendorError } = await supabase
+          console.log('Creating vendor profile for user:', user.display_name);
+          
+          try {
+            // Vérifier si l'enregistrement vendeur existe déjà
+            const { data: existingVendor, error: checkError } = await supabase
               .from('vendors')
-              .insert({
-                user_id: userId,
-                business_name: user.display_name || 'Mon Commerce',
-                description: 'Nouveau vendeur sur la plateforme',
-                is_active: true,
-                is_verified: false
-              });
+              .select('id')
+              .eq('user_id', userId)
+              .maybeSingle();
 
-            if (vendorError) {
-              console.error('Error creating vendor profile:', vendorError);
+            if (checkError) {
+              console.error('Error checking existing vendor:', checkError);
+            }
+
+            // Créer un enregistrement vendeur s'il n'existe pas
+            if (!existingVendor) {
+              const { data: newVendor, error: vendorError } = await supabase
+                .from('vendors')
+                .insert({
+                  user_id: userId,
+                  business_name: (user.display_name || 'Mon Commerce') + ' Business',
+                  description: 'Nouveau vendeur sur G-STARTUP LTD',
+                  is_active: true,
+                  is_verified: true // On vérifie automatiquement les vendeurs ajoutés par admin
+                })
+                .select()
+                .single();
+
+              if (vendorError) {
+                console.error('Error creating vendor profile:', vendorError);
+                toast({
+                  title: "Erreur",
+                  description: "Rôle mis à jour mais impossible de créer le profil vendeur: " + vendorError.message,
+                  variant: "destructive"
+                });
+                // On ne return pas ici pour que l'état local soit quand même mis à jour
+              } else {
+                console.log('Vendor profile created successfully:', newVendor);
+                toast({
+                  title: "Succès",
+                  description: `${user.display_name} est maintenant vendeur avec profil créé`,
+                });
+              }
+            } else {
+              console.log('Vendor profile already exists');
               toast({
-                title: "Avertissement",
-                description: "Rôle mis à jour mais erreur lors de la création du profil vendeur",
-                variant: "destructive"
+                title: "Succès",
+                description: `${user.display_name} est maintenant vendeur`,
               });
             }
+          } catch (vendorErr) {
+            console.error('Vendor creation error:', vendorErr);
+            toast({
+              title: "Avertissement",
+              description: "Rôle mis à jour mais erreur lors de la gestion du profil vendeur",
+              variant: "destructive"
+            });
           }
         }
+      } else {
+        // Pour les autres rôles, afficher un message de succès simple
+        toast({
+          title: "Succès",
+          description: "Rôle utilisateur mis à jour avec succès",
+        });
       }
 
+      // Mettre à jour l'état local
       setUsers(users.map(user => 
         user.user_id === userId ? { ...user, role: newRole } : user
       ));
 
-      toast({
-        title: "Succès",
-        description: "Rôle utilisateur mis à jour avec succès",
-      });
     } catch (error) {
       console.error('Error updating user role:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur inattendue s'est produite",
+        variant: "destructive"
+      });
     }
   };
 
