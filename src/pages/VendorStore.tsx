@@ -45,20 +45,58 @@ export default function VendorStore() {
   const [vendor, setVendor] = useState<Vendor | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSubdomain, setIsSubdomain] = useState(false);
 
   useEffect(() => {
-    if (vendorId) {
-      fetchVendorData();
-    }
+    // Check if we're on a subdomain
+    const checkSubdomain = async () => {
+      const hostname = window.location.hostname;
+      if (hostname.endsWith('.gstartup.pro') && hostname !== 'gstartup.pro') {
+        const subdomain = hostname.replace('.gstartup.pro', '');
+        setIsSubdomain(true);
+        
+        // Fetch vendor by subdomain
+        try {
+          const { data: vendor, error } = await supabase
+            .from('vendors')
+            .select('id')
+            .eq('subdomain', subdomain)
+            .eq('is_active', true)
+            .single();
+          
+          if (error || !vendor) {
+            toast({
+              title: "Erreur",
+              description: "Boutique introuvable",
+              variant: "destructive"
+            });
+            return;
+          }
+          
+          // Update URL without reloading
+          window.history.replaceState({}, '', `/store/${vendor.id}`);
+          fetchVendorData(vendor.id);
+        } catch (error) {
+          console.error('Error fetching vendor by subdomain:', error);
+        }
+      } else if (vendorId) {
+        fetchVendorData(vendorId);
+      }
+    };
+    
+    checkSubdomain();
   }, [vendorId]);
 
-  const fetchVendorData = async () => {
+  const fetchVendorData = async (id?: string) => {
+    const targetVendorId = id || vendorId;
+    if (!targetVendorId) return;
+    
     try {
       // Récupérer les informations du vendeur
       const { data: vendorData, error: vendorError } = await supabase
         .from('vendors')
         .select('*')
-        .eq('id', vendorId)
+        .eq('id', targetVendorId)
         .eq('is_active', true)
         .single();
 
@@ -69,7 +107,9 @@ export default function VendorStore() {
           description: "Vendeur introuvable",
           variant: "destructive"
         });
-        navigate('/marketplace');
+        if (!isSubdomain) {
+          navigate('/marketplace');
+        }
         return;
       }
 
@@ -79,7 +119,7 @@ export default function VendorStore() {
       const { data: productsData, error: productsError } = await supabase
         .from('products')
         .select('*')
-        .eq('vendor_id', vendorId)
+        .eq('vendor_id', targetVendorId)
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
@@ -112,9 +152,11 @@ export default function VendorStore() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Boutique introuvable</h1>
-          <Button onClick={() => navigate('/marketplace')}>
-            Retour à la marketplace
-          </Button>
+          {!isSubdomain && (
+            <Button onClick={() => navigate('/marketplace')}>
+              Retour à la marketplace
+            </Button>
+          )}
         </div>
       </div>
     );
@@ -122,27 +164,29 @@ export default function VendorStore() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header avec bouton retour */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/marketplace')}
-              className="gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Retour à la marketplace
-            </Button>
-            {vendor.subdomain && (
-              <Badge variant="outline" className="gap-2">
-                <Globe className="h-3 w-3" />
-                {vendor.subdomain}.gstartup.pro
-              </Badge>
-            )}
+      {/* Header avec bouton retour (seulement si pas sur sous-domaine) */}
+      {!isSubdomain && (
+        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate('/marketplace')}
+                className="gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Retour à la marketplace
+              </Button>
+              {vendor.subdomain && (
+                <Badge variant="outline" className="gap-2">
+                  <Globe className="h-3 w-3" />
+                  {vendor.subdomain}.gstartup.pro
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Cover Image */}
       <div className="relative">
