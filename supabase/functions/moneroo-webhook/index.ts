@@ -19,28 +19,65 @@ serve(async (req) => {
     );
 
     const webhookData = await req.json();
-    console.log("Moneroo webhook received:", webhookData);
+    console.log("Moneroo webhook received:", JSON.stringify(webhookData, null, 2));
 
-    // Vérifier la signature du webhook (si implémentée par Moneroo)
-    const signature = req.headers.get("x-moneroo-signature");
-    // TODO: Implémenter la vérification de signature selon la documentation Moneroo
+    // Selon la documentation Moneroo, les webhooks contiennent directement les données
+    // Le transaction_id est maintenant dans webhookData.id (selon la structure de leur API)
+    const transactionId = webhookData.id;
+    const status = webhookData.status;
+    const metadata = webhookData.metadata || {};
 
-    const { data: transaction } = await supabase
+    if (!transactionId) {
+      console.error("Transaction ID not found in webhook data");
+      return new Response("Transaction ID not found", { status: 400 });
+    }
+
+    // Trouver la transaction Moneroo correspondante
+    const { data: transaction, error: transactionError } = await supabase
       .from("moneroo_transactions")
       .select("*, orders(*)")
-      .eq("transaction_id", webhookData.id)
+      .eq("transaction_id", transactionId)
       .single();
 
-    if (!transaction) {
-      console.error("Transaction not found:", webhookData.id);
+    if (transactionError || !transaction) {
+      console.error("Transaction not found:", transactionId, transactionError);
       return new Response("Transaction not found", { status: 404 });
     }
 
-    // Mettre à jour le statut de la transaction
-    const newStatus = webhookData.status === "completed" ? "success" : 
-                     webhookData.status === "failed" ? "failed" : 
-                     webhookData.status === "cancelled" ? "cancelled" : "pending";
+    // Mapper les statuts Moneroo aux statuts internes
+    let newStatus = "pending";
+    let orderStatus = "pending";
+    let paymentStatus = "pending";
 
+    switch (status) {
+      case "success":
+      case "completed":
+      case "paid":
+        newStatus = "success";
+        orderStatus = "confirmed";
+        paymentStatus = "paid";
+        break;
+      case "failed":
+      case "error":
+        newStatus = "failed";
+        orderStatus = "cancelled";
+        paymentStatus = "failed";
+        break;
+      case "cancelled":
+      case "canceled":
+        newStatus = "cancelled";
+        orderStatus = "cancelled";
+        paymentStatus = "cancelled";
+        break;
+      default:
+        newStatus = "pending";
+        orderStatus = "pending";
+        paymentStatus = "pending";
+    }
+
+    console.log(`Updating transaction ${transactionId} from status to ${newStatus}`);
+
+    // Mettre à jour le statut de la transaction Moneroo
     const { error: updateError } = await supabase
       .from("moneroo_transactions")
       .update({
@@ -56,17 +93,6 @@ serve(async (req) => {
     }
 
     // Mettre à jour le statut de la commande
-    let orderStatus = "pending";
-    let paymentStatus = "pending";
-
-    if (newStatus === "success") {
-      orderStatus = "confirmed";
-      paymentStatus = "paid";
-    } else if (newStatus === "failed" || newStatus === "cancelled") {
-      orderStatus = "cancelled";
-      paymentStatus = "failed";
-    }
-
     const { error: orderUpdateError } = await supabase
       .from("orders")
       .update({
@@ -81,22 +107,41 @@ serve(async (req) => {
       return new Response("Failed to update order", { status: 500 });
     }
 
-    // Si le paiement est réussi, on peut envoyer un email de confirmation
+    // Log selon le statut
     if (newStatus === "success") {
-      console.log(`Payment successful for order ${transaction.orders.reference_code}`);
-      // TODO: Envoyer email de confirmation
+      console.log(`✅ Payment successful for order ${transaction.orders?.order_number || transaction.orders?.reference_code}`);
+      // TODO: Envoyer email de confirmation si nécessaire
+    } else if (newStatus === "failed") {
+      console.log(`❌ Payment failed for order ${transaction.orders?.order_number || transaction.orders?.reference_code}`);
+    } else if (newStatus === "cancelled") {
+      console.log(`🚫 Payment cancelled for order ${transaction.orders?.order_number || transaction.orders?.reference_code}`);
     }
 
-    return new Response("Webhook processed", { 
-      headers: corsHeaders,
-      status: 200 
-    });
+    return new Response(
+      JSON.stringify({ 
+        success: true, 
+        message: "Webhook processed successfully",
+        transaction_id: transactionId,
+        new_status: newStatus
+      }), 
+      { 
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200 
+      }
+    );
 
   } catch (error) {
     console.error("Webhook processing error:", error);
-    return new Response("Webhook processing failed", { 
-      headers: corsHeaders,
-      status: 500 
-    });
+    return new Response(
+      JSON.stringify({ 
+        success: false, 
+        error: "Webhook processing failed",
+        details: error.message 
+      }), 
+      { 
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500 
+      }
+    );
   }
 });
