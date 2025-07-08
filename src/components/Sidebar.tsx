@@ -16,10 +16,13 @@ import {
   Menu,
   X,
   Star,
-  CreditCard
+  CreditCard,
+  Languages,
+  DollarSign
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
+import { LanguageSelector } from './LanguageSelector';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 
@@ -178,6 +181,15 @@ export const Sidebar = ({ role }: SidebarProps) => {
           })}
         </div>
       </nav>
+
+      {/* Language and Currency Selector */}
+      {!isCollapsed && (
+        <div className="p-2 border-t border-border">
+          <div className="mb-2">
+            <LanguageSelector />
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <div className="p-2 border-t border-border">
