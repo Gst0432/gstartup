@@ -23,8 +23,8 @@ const translations = {
     login: 'Connexion',
     
     // Hero Section
-    heroTitle: 'ENTREPRISE NUMÉRIQUE',
-    heroSubtitle: 'Fournir les solutions optimales.',
+    heroTitle: 'Fournisseur #1 de Produits Digitaux et Solutions Web Innovantes en Afrique',
+    heroSubtitle: 'Plus de 20 millions de produits digitaux, Plateforme, formations digital, Code, Templates, Logiciel, SaaS',
     heroDescription: 'Nous nous concentrons entièrement sur la fourniture de services Cloud et de solutions logicielles de haute qualité. Nous avons terminé des projets de développement pour des clients internationaux dans de nombreux secteurs de marché.',
     getStarted: 'Commencer',
     
