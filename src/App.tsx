@@ -31,6 +31,7 @@ import AdminProductNew from "./pages/AdminProductNew";
 import AdminOrders from "./pages/AdminOrders";
 import AdminCategories from "./pages/AdminCategories";
 import AdminAnalytics from "./pages/AdminAnalytics";
+import AdminAdvertisements from "./pages/AdminAdvertisements";
 import AdminSettings from "./pages/AdminSettings";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancelled from "./pages/PaymentCancelled";
@@ -158,6 +159,11 @@ const App = () => (
           <Route path="/admin/analytics" element={
             <ProtectedRoute requiredRole="admin">
               <AdminAnalytics />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/advertisements" element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminAdvertisements />
             </ProtectedRoute>
           } />
           <Route path="/admin/settings" element={

@@ -2,7 +2,7 @@ import { Header } from '../components/Header';
 import { HeroSection } from '../components/HeroSection';
 import { AboutSection } from '../components/AboutSection';
 import { ProductsSection } from '../components/ProductsSection';
-import { TestimonialsSection } from '../components/TestimonialsSection';
+import { AdvertisementSection } from '../components/AdvertisementSection';
 import { Footer } from '../components/Footer';
 import { OrderTracker } from '../components/OrderTracker';
 
@@ -13,7 +13,7 @@ const Index = () => {
       <main>
         <HeroSection />
         <ProductsSection />
-        <TestimonialsSection />
+        <AdvertisementSection />
         
         {/* Section de suivi des commandes */}
         <section className="py-16 bg-muted/30">
