@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/components/DashboardLayout';
+import { RichTextEditor } from '@/components/RichTextEditor';
 import { Plus, Upload, X, FileText, Eye, Monitor, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -377,7 +378,7 @@ export default function VendorProductNew() {
                     Les informations essentielles de votre produit numérique
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6">
                   <div>
                     <Label htmlFor="name">Nom du produit *</Label>
                     <Input
@@ -401,14 +402,16 @@ export default function VendorProductNew() {
                   
                   <div>
                     <Label htmlFor="description">Description détaillée *</Label>
-                    <Textarea
-                      id="description"
-                      value={formData.description}
-                      onChange={(e) => handleInputChange('description', e.target.value)}
-                      rows={4}
-                      required
-                      placeholder="Décrivez votre produit en détail..."
-                    />
+                    <div className="mt-2">
+                      <RichTextEditor
+                        value={formData.description}
+                        onChange={(value) => handleInputChange('description', value)}
+                        placeholder="Décrivez votre produit en détail : fonctionnalités, avantages, utilisation..."
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Utilisez la barre d'outils pour formater votre texte (gras, italique, listes, etc.)
+                    </p>
                   </div>
                   
                   <div>
@@ -719,8 +722,11 @@ export default function VendorProductNew() {
                             value={formData.meta_description}
                             onChange={(e) => handleInputChange('meta_description', e.target.value)}
                             rows={3}
-                            placeholder="Description pour les moteurs de recherche"
+                            placeholder="Description pour les moteurs de recherche (texte simple uniquement)"
                           />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Cette description apparaîtra dans les résultats de recherche Google
+                          </p>
                         </div>
                       </div>
                     </div>
