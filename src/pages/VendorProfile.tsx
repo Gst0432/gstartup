@@ -436,7 +436,7 @@ export default function VendorProfile() {
                           maxLength={50}
                         />
                         <span className="text-sm text-muted-foreground whitespace-nowrap">
-                          .g-startup.com
+                          .gstartup.pro
                         </span>
                       </div>
                       
@@ -468,13 +468,13 @@ export default function VendorProfile() {
                           <p className="text-sm font-medium mb-2">Votre lien de boutique :</p>
                           <div className="flex items-center gap-2">
                             <code className="px-2 py-1 bg-background rounded text-sm">
-                              https://{formData.subdomain}.g-startup.com
+                              https://{formData.subdomain}.gstartup.pro
                             </code>
                             <Button
                               type="button"
                               variant="outline"
                               size="sm"
-                              onClick={() => navigator.clipboard.writeText(`https://${formData.subdomain}.g-startup.com`)}
+                              onClick={() => navigator.clipboard.writeText(`https://${formData.subdomain}.gstartup.pro`)}
                             >
                               Copier
                             </Button>

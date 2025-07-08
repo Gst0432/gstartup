@@ -50,7 +50,7 @@ export function isVendorSubdomain(): string | null {
  * Generate vendor store URL from subdomain
  */
 export function getVendorStoreUrl(subdomain: string, isProduction = false): string {
-  const baseUrl = isProduction ? 'g-startup.com' : window.location.host.replace(/^[^.]+\./, '');
+  const baseUrl = isProduction ? 'gstartup.pro' : window.location.host.replace(/^[^.]+\./, '');
   return `https://${subdomain}.${baseUrl}`;
 }
 
