@@ -107,13 +107,12 @@ export const Sidebar = ({ role }: SidebarProps) => {
       <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between">
           {!isCollapsed && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center">
               <img 
                 src="/lovable-uploads/c72d66fa-2175-4b64-b34b-5754d320f178.png" 
                 alt="G-STARTUP Logo"
                 className="h-8 w-auto"
               />
-              <span className="font-bold text-sm">G-STARTUP</span>
             </div>
           )}
           <Button
