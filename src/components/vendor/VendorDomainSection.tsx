@@ -110,15 +110,33 @@ export function VendorDomainSection({ formData, vendor, onInputChange }: VendorD
           {formData.custom_domain && (
             <Alert>
               <Info className="h-4 w-4" />
-              <AlertDescription className="space-y-2">
-                <p><strong>Configuration DNS requise :</strong></p>
-                <ul className="text-xs space-y-1 list-disc list-inside ml-2">
-                  <li>Ajoutez un enregistrement CNAME : <code className="bg-muted px-1 rounded">{formData.custom_domain} → 1fede4c8-7360-4c03-b899-417a8204f812.lovableproject.com</code></li>
-                  <li>Pour www : <code className="bg-muted px-1 rounded">www.{formData.custom_domain} → 1fede4c8-7360-4c03-b899-417a8204f812.lovableproject.com</code></li>
-                </ul>
-                <p className="text-xs text-muted-foreground mt-2">
-                  La propagation peut prendre jusqu'à 48 heures.
-                </p>
+              <AlertDescription className="space-y-3">
+                <p><strong>Configuration DNS sur Hostinger :</strong></p>
+                
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Étapes à suivre :</p>
+                  <ol className="text-xs space-y-1 list-decimal list-inside ml-2">
+                    <li>Connectez-vous à votre compte Hostinger</li>
+                    <li>Allez dans <strong>Domaines</strong> → Sélectionnez votre domaine</li>
+                    <li>Cliquez sur <strong>Gérer</strong> puis <strong>Zone DNS</strong></li>
+                    <li>Ajoutez/modifiez ces enregistrements :</li>
+                  </ol>
+                </div>
+
+                <div className="bg-muted/50 p-3 rounded text-xs font-mono space-y-1">
+                  <div><strong>Type:</strong> CNAME | <strong>Nom:</strong> @ | <strong>Pointe vers:</strong> 1fede4c8-7360-4c03-b899-417a8204f812.lovableproject.com</div>
+                  <div><strong>Type:</strong> CNAME | <strong>Nom:</strong> www | <strong>Pointe vers:</strong> 1fede4c8-7360-4c03-b899-417a8204f812.lovableproject.com</div>
+                </div>
+
+                <div className="space-y-1">
+                  <p className="text-xs"><strong>Notes importantes :</strong></p>
+                  <ul className="text-xs space-y-1 list-disc list-inside ml-2 text-muted-foreground">
+                    <li>Supprimez tous les anciens enregistrements A ou AAAA pour @ et www</li>
+                    <li>La propagation DNS prend généralement 2-24h sur Hostinger</li>
+                    <li>Vous pouvez vérifier avec <code className="bg-muted px-1 rounded">nslookup {formData.custom_domain}</code></li>
+                    <li>Contactez le support Hostinger si vous rencontrez des difficultés</li>
+                  </ul>
+                </div>
               </AlertDescription>
             </Alert>
           )}
