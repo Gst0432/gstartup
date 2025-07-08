@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { Navigate } from 'react-router-dom';
 
 interface DashboardStats {
   ordersCount: number;
@@ -25,13 +26,23 @@ interface DashboardStats {
 }
 
 export default function Dashboard() {
-  const { profile } = useAuth();
+  const { profile, loading: authLoading } = useAuth();
   const { t } = useLanguage();
   const [stats, setStats] = useState<DashboardStats>({
     ordersCount: 0,
     wishlistCount: 0,
     cartCount: 0
   });
+
+  // Rediriger les utilisateurs vers leur tableau de bord approprié
+  if (!authLoading && profile) {
+    if (profile.role === 'vendor') {
+      return <Navigate to="/vendor" replace />;
+    }
+    if (profile.role === 'admin') {
+      return <Navigate to="/admin" replace />;
+    }
+  }
 
   useEffect(() => {
     if (profile) {

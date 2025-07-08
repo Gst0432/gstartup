@@ -66,19 +66,55 @@ export default function AdminUsers() {
 
   const updateUserRole = async (userId: string, newRole: 'customer' | 'vendor' | 'admin') => {
     try {
-      const { error } = await supabase
+      // Mettre à jour le rôle dans profiles
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({ role: newRole })
         .eq('user_id', userId);
 
-      if (error) {
-        console.error('Error updating user role:', error);
+      if (profileError) {
+        console.error('Error updating user role:', profileError);
         toast({
           title: "Erreur",
           description: "Impossible de mettre à jour le rôle de l'utilisateur",
           variant: "destructive"
         });
         return;
+      }
+
+      // Si le nouveau rôle est 'vendor', créer un enregistrement vendeur s'il n'existe pas
+      if (newRole === 'vendor') {
+        const user = users.find(u => u.user_id === userId);
+        if (user) {
+          // Vérifier si l'enregistrement vendeur existe déjà
+          const { data: existingVendor } = await supabase
+            .from('vendors')
+            .select('id')
+            .eq('user_id', userId)
+            .single();
+
+          // Créer un enregistrement vendeur s'il n'existe pas
+          if (!existingVendor) {
+            const { error: vendorError } = await supabase
+              .from('vendors')
+              .insert({
+                user_id: userId,
+                business_name: user.display_name || 'Mon Commerce',
+                description: 'Nouveau vendeur sur la plateforme',
+                is_active: true,
+                is_verified: false
+              });
+
+            if (vendorError) {
+              console.error('Error creating vendor profile:', vendorError);
+              toast({
+                title: "Avertissement",
+                description: "Rôle mis à jour mais erreur lors de la création du profil vendeur",
+                variant: "destructive"
+              });
+            }
+          }
+        }
       }
 
       setUsers(users.map(user => 
