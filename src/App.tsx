@@ -4,9 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { isVendorSubdomain } from "./utils/subdomain";
 import Index from "./pages/Index";
-import VendorSubdomainStore from "./pages/VendorSubdomainStore";
 import Auth from "./pages/Auth";
 import ProductDetail from "./pages/ProductDetail";
 import Marketplace from "./pages/Marketplace";
@@ -38,35 +36,13 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => {
-  // Check if this is a vendor subdomain
-  const vendorSubdomain = typeof window !== 'undefined' ? isVendorSubdomain() : null;
-  
-  // If it's a vendor subdomain, show the vendor store
-  if (vendorSubdomain) {
-    return (
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="*" element={<VendorSubdomainStore />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </QueryClientProvider>
-    );
-  }
-  
-  // Regular app routes
-  return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/auth" element={<Auth />} />
@@ -184,7 +160,6 @@ const App = () => {
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-  );
-};
+);
 
 export default App;

@@ -45,7 +45,7 @@ export default function Contact() {
     {
       icon: Mail,
       title: "Email",
-      details: ["contact@gstartup.pro", "support@gstartup.pro"]
+      details: ["contact@g-startup.com", "support@g-startup.com"]
     },
     {
       icon: Clock,
