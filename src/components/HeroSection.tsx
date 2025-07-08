@@ -36,7 +36,7 @@ export const HeroSection = () => {
                   {t('heroTitle')}
                 </span>
               </h1>
-              <h2 className="text-2xl lg:text-3xl font-semibold text-foreground">
+              <h2 className="text-2xl lg:text-3xl font-semibold text-primary">
                 {t('heroSubtitle')}
               </h2>
             </div>

@@ -22,7 +22,7 @@ const Index = () => {
           <div className="container mx-auto px-4">
             <div className="max-w-2xl mx-auto">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-4">Suivre votre commande</h2>
+                <h2 className="text-3xl font-bold mb-4 text-primary">Suivre votre commande</h2>
                 <p className="text-muted-foreground">
                   Entrez votre code de référence pour suivre l'état de votre commande en temps réel
                 </p>
