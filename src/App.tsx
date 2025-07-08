@@ -35,6 +35,7 @@ import AdminSettings from "./pages/AdminSettings";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancelled from "./pages/PaymentCancelled";
 import VendorStore from "./pages/VendorStore";
+import StorePage from "./pages/StorePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -162,8 +163,9 @@ const App = () => (
               <AdminSettings />
             </ProtectedRoute>
           } />
+          <Route path="/boutique/:storeSlug" element={<StorePage />} />
           <Route path="/store/:vendorId" element={<VendorStore />} />
-          <Route path="/" element={<VendorStore />} />
+          
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-cancelled" element={<PaymentCancelled />} />
           <Route path="*" element={<NotFound />} />
