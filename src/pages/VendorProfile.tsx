@@ -264,6 +264,7 @@ export default function VendorProfile() {
                 
                 <VendorDomainSection 
                   formData={formData} 
+                  vendor={vendor}
                   onInputChange={handleInputChange} 
                 />
                 
