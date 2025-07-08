@@ -496,6 +496,7 @@ export type Database = {
           compare_price: number | null
           cost_price: number | null
           created_at: string
+          demo_url: string | null
           description: string
           digital_file_url: string | null
           id: string
@@ -506,6 +507,7 @@ export type Database = {
           meta_description: string | null
           meta_title: string | null
           name: string
+          preview_url: string | null
           price: number
           quantity: number | null
           requires_shipping: boolean | null
@@ -525,6 +527,7 @@ export type Database = {
           compare_price?: number | null
           cost_price?: number | null
           created_at?: string
+          demo_url?: string | null
           description: string
           digital_file_url?: string | null
           id?: string
@@ -535,6 +538,7 @@ export type Database = {
           meta_description?: string | null
           meta_title?: string | null
           name: string
+          preview_url?: string | null
           price: number
           quantity?: number | null
           requires_shipping?: boolean | null
@@ -554,6 +558,7 @@ export type Database = {
           compare_price?: number | null
           cost_price?: number | null
           created_at?: string
+          demo_url?: string | null
           description?: string
           digital_file_url?: string | null
           id?: string
@@ -564,6 +569,7 @@ export type Database = {
           meta_description?: string | null
           meta_title?: string | null
           name?: string
+          preview_url?: string | null
           price?: number
           quantity?: number | null
           requires_shipping?: boolean | null

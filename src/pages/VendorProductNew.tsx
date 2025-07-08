@@ -261,46 +261,46 @@ export default function VendorProductNew() {
 
         <div className="container mx-auto px-4 py-8">
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Informations générales */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Informations Générales</CardTitle>
-                  <CardDescription>
-                    Les informations de base de votre produit
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="name">Nom du produit *</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="short_description">Description courte</Label>
-                    <Input
-                      id="short_description"
-                      value={formData.short_description}
-                      onChange={(e) => handleInputChange('short_description', e.target.value)}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="description">Description *</Label>
-                    <Textarea
-                      id="description"
-                      value={formData.description}
-                      onChange={(e) => handleInputChange('description', e.target.value)}
-                      rows={4}
-                      required
-                    />
-                  </div>
-                  
+            {/* Informations générales */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Informations Générales</CardTitle>
+                <CardDescription>
+                  Les informations de base de votre produit numérique
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="name">Nom du produit *</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="short_description">Description courte</Label>
+                  <Input
+                    id="short_description"
+                    value={formData.short_description}
+                    onChange={(e) => handleInputChange('short_description', e.target.value)}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="description">Description *</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => handleInputChange('description', e.target.value)}
+                    rows={4}
+                    required
+                  />
+                </div>
+                
+                <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="category">Catégorie *</Label>
                     <Select value={formData.category_id} onValueChange={(value) => handleInputChange('category_id', value)}>
@@ -318,92 +318,29 @@ export default function VendorProductNew() {
                   </div>
                   
                   <div>
-                    <Label htmlFor="tags">Tags (séparés par des virgules)</Label>
-                    <Input
-                      id="tags"
-                      value={formData.tags}
-                      onChange={(e) => handleInputChange('tags', e.target.value)}
-                      placeholder="web, design, template"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Prix et inventaire */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Prix et Inventaire</CardTitle>
-                  <CardDescription>
-                    Configuration des prix et du stock
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="price">Prix de vente *</Label>
+                    <Label htmlFor="price">Prix (FCFA) *</Label>
                     <Input
                       id="price"
                       type="number"
-                      step="0.01"
+                      step="1"
                       value={formData.price}
                       onChange={(e) => handleInputChange('price', e.target.value)}
                       required
                     />
                   </div>
-                  
-                  <div>
-                    <Label htmlFor="compare_price">Prix de comparaison</Label>
-                    <Input
-                      id="compare_price"
-                      type="number"
-                      step="0.01"
-                      value={formData.compare_price}
-                      onChange={(e) => handleInputChange('compare_price', e.target.value)}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="cost_price">Prix de revient</Label>
-                    <Input
-                      id="cost_price"
-                      type="number"
-                      step="0.01"
-                      value={formData.cost_price}
-                      onChange={(e) => handleInputChange('cost_price', e.target.value)}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="quantity">Quantité en stock</Label>
-                    <Input
-                      id="quantity"
-                      type="number"
-                      value={formData.quantity}
-                      onChange={(e) => handleInputChange('quantity', e.target.value)}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="sku">SKU</Label>
-                    <Input
-                      id="sku"
-                      value={formData.sku}
-                      onChange={(e) => handleInputChange('sku', e.target.value)}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="weight">Poids (kg)</Label>
-                    <Input
-                      id="weight"
-                      type="number"
-                      step="0.01"
-                      value={formData.weight}
-                      onChange={(e) => handleInputChange('weight', e.target.value)}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+                
+                <div>
+                  <Label htmlFor="tags">Tags (séparés par des virgules)</Label>
+                  <Input
+                    id="tags"
+                    value={formData.tags}
+                    onChange={(e) => handleInputChange('tags', e.target.value)}
+                    placeholder="web, design, template, php, script"
+                  />
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Images du produit */}
             <Card>
