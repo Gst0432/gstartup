@@ -19,7 +19,7 @@ export const AboutSection = () => {
           {/* Left Content */}
           <div className="space-y-8">
             <div className="space-y-4">
-              <h2 className="text-4xl lg:text-5xl font-bold text-primary">
+              <h2 className="text-4xl lg:text-5xl font-bold">
                 {t('aboutTitle')}
               </h2>
               <p className="text-lg text-muted-foreground leading-relaxed">

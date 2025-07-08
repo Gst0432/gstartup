@@ -1,59 +1,40 @@
-import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-
-// Eager load critical pages
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import ProductDetail from "./pages/ProductDetail";
 import Marketplace from "./pages/Marketplace";
-
-// Lazy load secondary pages for better performance
-const About = lazy(() => import("./pages/About"));
-const Services = lazy(() => import("./pages/Services"));
-const Contact = lazy(() => import("./pages/Contact"));
-const Documentation = lazy(() => import("./pages/Documentation"));
-const ProductDetail = lazy(() => import("./pages/ProductDetail"));
-const Dashboard = lazy(() => import("./pages/Dashboard"));
-const VendorDashboard = lazy(() => import("./pages/VendorDashboard"));
-const VendorProducts = lazy(() => import("./pages/VendorProducts"));
-const VendorProductNew = lazy(() => import("./pages/VendorProductNew"));
-const VendorOrders = lazy(() => import("./pages/VendorOrders"));
-const VendorAnalytics = lazy(() => import("./pages/VendorAnalytics"));
-const VendorReviews = lazy(() => import("./pages/VendorReviews"));
-const VendorProfile = lazy(() => import("./pages/VendorProfile"));
-const Cart = lazy(() => import("./pages/Cart"));
-const Wishlist = lazy(() => import("./pages/Wishlist"));
-const Orders = lazy(() => import("./pages/Orders"));
-const Profile = lazy(() => import("./pages/Profile"));
-const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
-const AdminUsers = lazy(() => import("./pages/AdminUsers"));
-const AdminVendors = lazy(() => import("./pages/AdminVendors"));
-const AdminProducts = lazy(() => import("./pages/AdminProducts"));
-const AdminProductNew = lazy(() => import("./pages/AdminProductNew"));
-const AdminOrders = lazy(() => import("./pages/AdminOrders"));
-const AdminCategories = lazy(() => import("./pages/AdminCategories"));
-const AdminAnalytics = lazy(() => import("./pages/AdminAnalytics"));
-const AdminSettings = lazy(() => import("./pages/AdminSettings"));
-const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
-const PaymentCancelled = lazy(() => import("./pages/PaymentCancelled"));
-const VendorStore = lazy(() => import("./pages/VendorStore"));
-const NotFound = lazy(() => import("./pages/NotFound"));
+import Dashboard from "./pages/Dashboard";
+import VendorDashboard from "./pages/VendorDashboard";
+import VendorProducts from "./pages/VendorProducts";
+import VendorProductNew from "./pages/VendorProductNew";
+import VendorOrders from "./pages/VendorOrders";
+import VendorAnalytics from "./pages/VendorAnalytics";
+import VendorReviews from "./pages/VendorReviews";
+import VendorProfile from "./pages/VendorProfile";
+import Cart from "./pages/Cart";
+import Wishlist from "./pages/Wishlist";
+import Orders from "./pages/Orders";
+import Profile from "./pages/Profile";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminUsers from "./pages/AdminUsers";
+import AdminVendors from "./pages/AdminVendors";
+import AdminProducts from "./pages/AdminProducts";
+import AdminProductNew from "./pages/AdminProductNew";
+import AdminOrders from "./pages/AdminOrders";
+import AdminCategories from "./pages/AdminCategories";
+import AdminAnalytics from "./pages/AdminAnalytics";
+import AdminSettings from "./pages/AdminSettings";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCancelled from "./pages/PaymentCancelled";
+import VendorStore from "./pages/VendorStore";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
-
-// Loading component optimized for mobile
-const MobileLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-background">
-    <div className="flex flex-col items-center gap-4">
-      <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-      <p className="text-muted-foreground text-sm">Chargement...</p>
-    </div>
-  </div>
-);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -61,13 +42,8 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Suspense fallback={<MobileLoader />}>
-          <Routes>
-            <Route path="/" element={<Index />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/documentation" element={<Documentation />} />
+        <Routes>
+          <Route path="/" element={<Index />} />
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/product/:id" element={<ProductDetail />} />
@@ -179,9 +155,8 @@ const App = () => (
           <Route path="/store/:vendorId" element={<VendorStore />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-cancelled" element={<PaymentCancelled />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

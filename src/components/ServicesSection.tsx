@@ -55,7 +55,7 @@ export const ServicesSection = () => {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl lg:text-5xl font-bold mb-4 text-primary">
+          <h2 className="text-4xl lg:text-5xl font-bold mb-4">
             {t('servicesTitle')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -79,7 +79,7 @@ export const ServicesSection = () => {
 
                 {/* Content */}
                 <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-primary">
+                  <h3 className="text-xl font-semibold">
                     {t(service.titleKey)}
                   </h3>
                   
