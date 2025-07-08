@@ -18,7 +18,9 @@ import {
   MapPin,
   Phone,
   Globe,
-  Shield
+  Shield,
+  Key,
+  Lock
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -51,7 +53,10 @@ export default function VendorProfile() {
     phone: '',
     website_url: '',
     logo_url: '',
-    cover_image_url: ''
+    cover_image_url: '',
+    api_key: '',
+    api_secret: '',
+    webhook_secret: ''
   });
 
   useEffect(() => {
@@ -86,7 +91,10 @@ export default function VendorProfile() {
         phone: data.phone || '',
         website_url: data.website_url || '',
         logo_url: data.logo_url || '',
-        cover_image_url: data.cover_image_url || ''
+        cover_image_url: data.cover_image_url || '',
+        api_key: data.api_key || '',
+        api_secret: data.api_secret || '',
+        webhook_secret: data.webhook_secret || ''
       });
     } catch (error) {
       console.error('Error fetching vendor profile:', error);
@@ -392,6 +400,83 @@ export default function VendorProfile() {
                       <p className="text-sm text-muted-foreground mt-1">
                         Recommandé: 1200x400px
                       </p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Key className="h-5 w-5" />
+                      Clés API
+                    </CardTitle>
+                    <CardDescription>
+                      Configurez vos clés API pour les intégrations et paiements
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="api_key" className="flex items-center gap-2">
+                        <Key className="h-4 w-4" />
+                        Clé API
+                      </Label>
+                      <Input
+                        id="api_key"
+                        type="password"
+                        value={formData.api_key}
+                        onChange={(e) => handleInputChange('api_key', e.target.value)}
+                        placeholder="Votre clé API pour les intégrations"
+                      />
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Utilisée pour les intégrations tierces
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="api_secret" className="flex items-center gap-2">
+                        <Lock className="h-4 w-4" />
+                        Clé secrète API
+                      </Label>
+                      <Input
+                        id="api_secret"
+                        type="password"
+                        value={formData.api_secret}
+                        onChange={(e) => handleInputChange('api_secret', e.target.value)}
+                        placeholder="Votre clé secrète API"
+                      />
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Gardez cette clé confidentielle
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="webhook_secret" className="flex items-center gap-2">
+                        <Globe className="h-4 w-4" />
+                        Clé webhook
+                      </Label>
+                      <Input
+                        id="webhook_secret"
+                        type="password"
+                        value={formData.webhook_secret}
+                        onChange={(e) => handleInputChange('webhook_secret', e.target.value)}
+                        placeholder="Clé secrète pour les webhooks"
+                      />
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Pour sécuriser les notifications de paiement
+                      </p>
+                    </div>
+                    
+                    <div className="p-4 bg-muted/50 rounded-lg">
+                      <div className="flex items-start gap-3">
+                        <Shield className="h-5 w-5 text-orange-500 mt-0.5" />
+                        <div>
+                          <h4 className="text-sm font-medium text-orange-800">Sécurité importante</h4>
+                          <p className="text-sm text-orange-700 mt-1">
+                            Ces clés permettent d'accéder à vos intégrations de paiement. 
+                            Ne les partagez jamais et changez-les régulièrement.
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

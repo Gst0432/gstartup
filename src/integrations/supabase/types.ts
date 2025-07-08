@@ -711,6 +711,9 @@ export type Database = {
       vendors: {
         Row: {
           address: string | null
+          api_key: string | null
+          api_secret: string | null
+          api_settings: Json | null
           business_name: string
           cover_image_url: string | null
           created_at: string
@@ -719,15 +722,20 @@ export type Database = {
           is_active: boolean
           is_verified: boolean
           logo_url: string | null
+          payment_config: Json | null
           phone: string | null
           rating: number | null
           total_sales: number | null
           updated_at: string
           user_id: string
+          webhook_secret: string | null
           website_url: string | null
         }
         Insert: {
           address?: string | null
+          api_key?: string | null
+          api_secret?: string | null
+          api_settings?: Json | null
           business_name: string
           cover_image_url?: string | null
           created_at?: string
@@ -736,15 +744,20 @@ export type Database = {
           is_active?: boolean
           is_verified?: boolean
           logo_url?: string | null
+          payment_config?: Json | null
           phone?: string | null
           rating?: number | null
           total_sales?: number | null
           updated_at?: string
           user_id: string
+          webhook_secret?: string | null
           website_url?: string | null
         }
         Update: {
           address?: string | null
+          api_key?: string | null
+          api_secret?: string | null
+          api_settings?: Json | null
           business_name?: string
           cover_image_url?: string | null
           created_at?: string
@@ -753,11 +766,13 @@ export type Database = {
           is_active?: boolean
           is_verified?: boolean
           logo_url?: string | null
+          payment_config?: Json | null
           phone?: string | null
           rating?: number | null
           total_sales?: number | null
           updated_at?: string
           user_id?: string
+          webhook_secret?: string | null
           website_url?: string | null
         }
         Relationships: [
