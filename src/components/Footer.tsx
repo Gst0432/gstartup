@@ -70,6 +70,16 @@ export const Footer = () => {
             </ul>
           </div>
 
+          {/* Navigation */}
+          <div className="space-y-6">
+            <h4 className="font-semibold">Navigation</h4>
+            <ul className="space-y-1 text-sm text-muted-foreground">
+              <li><a href="#about" className="hover:text-primary transition-colors">{t('about')}</a></li>
+              <li><a href="#documentation" className="hover:text-primary transition-colors">{t('documentation')}</a></li>
+              <li><a href="#contact" className="hover:text-primary transition-colors">{t('contact')}</a></li>
+            </ul>
+          </div>
+
           {/* Resources */}
           <div className="space-y-6">
             <h4 className="font-semibold">{t('resources')}</h4>
