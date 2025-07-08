@@ -20,9 +20,6 @@ export const Footer = () => {
                 alt="G-STARTUP LTD Logo"
                 className="h-10 w-auto"
               />
-              <span className="font-bold text-xl bg-gradient-primary bg-clip-text text-transparent">
-                G-STARTUP LTD
-              </span>
             </div>
             
             <p className="text-muted-foreground leading-relaxed">

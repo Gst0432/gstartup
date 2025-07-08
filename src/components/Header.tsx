@@ -41,11 +41,6 @@ export const Header = () => {
               alt="G-STARTUP LTD Logo"
               className="h-8 w-auto"
             />
-            <div className="hidden sm:block">
-              <span className="font-bold text-lg bg-gradient-primary bg-clip-text text-transparent">
-                G-STARTUP LTD
-              </span>
-            </div>
           </div>
 
           {/* Desktop Navigation */}
