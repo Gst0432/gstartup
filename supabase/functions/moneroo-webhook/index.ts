@@ -107,10 +107,70 @@ serve(async (req) => {
       return new Response("Failed to update order", { status: 500 });
     }
 
-    // Log selon le statut
+    // Log selon le statut et envoyer des notifications
     if (newStatus === "success") {
       console.log(`✅ Payment successful for order ${transaction.orders?.order_number || transaction.orders?.reference_code}`);
-      // TODO: Envoyer email de confirmation si nécessaire
+      
+      // Send email notification to customer
+      if (transaction.orders) {
+        const { data: customerProfile } = await supabase
+          .from("profiles")
+          .select("email, display_name")
+          .eq("user_id", transaction.orders.user_id)
+          .single();
+
+        if (customerProfile) {
+          // Send order confirmation to customer
+          await supabase.functions.invoke('send-email-notifications', {
+            body: {
+              type: 'order_confirmation',
+              to: customerProfile.email,
+              data: {
+                customer_name: customerProfile.display_name,
+                order_number: transaction.orders.order_number,
+                total_amount: transaction.orders.total_amount,
+                currency: transaction.orders.currency,
+                status: 'confirmed'
+              }
+            }
+          });
+        }
+
+        // Get vendor info and send payment notification
+        const { data: orderItems } = await supabase
+          .from("order_items")
+          .select(`
+            vendor_id,
+            vendors(
+              business_name,
+              notification_email,
+              user_id,
+              profiles(email, display_name)
+            )
+          `)
+          .eq("order_id", transaction.order_id);
+
+        if (orderItems && orderItems.length > 0) {
+          const vendorInfo = orderItems[0].vendors;
+          if (vendorInfo?.notification_email || vendorInfo?.profiles?.email) {
+            const vendorEmail = vendorInfo.notification_email || vendorInfo.profiles?.email;
+            
+            await supabase.functions.invoke('send-email-notifications', {
+              body: {
+                type: 'payment_success',
+                to: vendorEmail,
+                data: {
+                  amount: transaction.amount,
+                  currency: transaction.currency,
+                  order_number: transaction.orders.order_number,
+                  customer_name: customerProfile?.display_name || 'Client',
+                  payment_method: 'Moneroo'
+                }
+              }
+            });
+          }
+        }
+      }
     } else if (newStatus === "failed") {
       console.log(`❌ Payment failed for order ${transaction.orders?.order_number || transaction.orders?.reference_code}`);
     } else if (newStatus === "cancelled") {

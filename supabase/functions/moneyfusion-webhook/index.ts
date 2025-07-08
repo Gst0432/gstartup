@@ -13,7 +13,7 @@ serve(async (req) => {
 
   try {
     // Initialize Supabase with service role
-    const supabase = createClient(
+    const supabaseServiceRole = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
@@ -31,7 +31,7 @@ serve(async (req) => {
     }
 
     // Find the MoneyFusion transaction with vendor information
-    const { data: transaction, error: transactionError } = await supabase
+    const { data: transaction, error: transactionError } = await supabaseServiceRole
       .from("moneyfusion_transactions")
       .select(`
         *,
@@ -106,7 +106,7 @@ serve(async (req) => {
     console.log(`Updating transaction ${tokenPay} from ${currentStatus} to ${newStatus}`);
 
     // Update the MoneyFusion transaction status
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseServiceRole
       .from("moneyfusion_transactions")
       .update({
         status: newStatus,
@@ -125,7 +125,7 @@ serve(async (req) => {
     }
 
     // Update the order status
-    const { error: orderUpdateError } = await supabase
+    const { error: orderUpdateError } = await supabaseServiceRole
       .from("orders")
       .update({
         status: orderStatus,
@@ -139,10 +139,51 @@ serve(async (req) => {
       return new Response("Failed to update order", { status: 500 });
     }
 
-    // Send email notification to vendor if configured and payment is completed
-    if (vendorInfo?.notification_email && newStatus === "paid") {
-      console.log(`Payment completed - sending notification to vendor: ${vendorInfo.notification_email}`);
-      // TODO: Implement email notification using Resend or other service
+    // Send email notifications if payment is completed
+    if (newStatus === "paid") {
+      console.log(`Payment completed - sending notifications`);
+      
+      // Send email notification to customer
+      const { data: customerProfile } = await supabaseServiceRole
+        .from("profiles")
+        .select("email, display_name")
+        .eq("user_id", transaction.orders.user_id)
+        .single();
+
+      if (customerProfile) {
+        // Send order confirmation to customer
+        await supabaseServiceRole.functions.invoke('send-email-notifications', {
+          body: {
+            type: 'order_confirmation',
+            to: customerProfile.email,
+            data: {
+              customer_name: customerProfile.display_name,
+              order_number: transaction.orders.order_number,
+              total_amount: transaction.orders.total_amount,
+              currency: transaction.orders.currency,
+              status: 'confirmed'
+            }
+          }
+        });
+      }
+
+      // Send payment notification to vendor if configured
+      if (vendorInfo?.notification_email) {
+        await supabaseServiceRole.functions.invoke('send-email-notifications', {
+          body: {
+            type: 'payment_success',
+            to: vendorInfo.notification_email,
+            data: {
+              amount: transaction.amount,
+              currency: transaction.currency,
+              order_number: transaction.orders.order_number,
+              customer_name: customerProfile?.display_name || transaction.nomclient,
+              payment_method: 'MoneyFusion'
+            }
+          }
+        });
+        console.log(`Payment notification sent to vendor: ${vendorInfo.notification_email}`);
+      }
     }
 
     // Forward webhook to vendor's custom webhook URL if configured

@@ -19,10 +19,10 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const moneyfusionApiUrl = Deno.env.get("MONEYFUSION_API_URL")!;
     
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabaseServiceRole = createClient(supabaseUrl, supabaseServiceKey);
 
     // Get order details with vendor information
-    const { data: order, error: orderError } = await supabase
+    const { data: order, error: orderError } = await supabaseServiceRole
       .from('orders')
       .select(`
         *,
@@ -106,7 +106,7 @@ serve(async (req) => {
     }
 
     // Save MoneyFusion transaction
-    const { error: transactionError } = await supabase
+    const { error: transactionError } = await supabaseServiceRole
       .from('moneyfusion_transactions')
       .insert({
         order_id: order.id,
@@ -127,8 +127,20 @@ serve(async (req) => {
 
     // Send email notification to vendor if configured
     if (vendorInfo.notification_email) {
-      console.log(`Sending payment notification to vendor: ${vendorInfo.notification_email}`);
-      // TODO: Implement email notification (could use Resend or other email service)
+      console.log(`Sending payment initiation notification to vendor: ${vendorInfo.notification_email}`);
+      await supabaseServiceRole.functions.invoke('send-email-notifications', {
+        body: {
+          type: 'payment_success',
+          to: vendorInfo.notification_email,
+          data: {
+            amount: amount,
+            currency: 'XAF',
+            order_number: order.order_number,
+            customer_name: customerName,
+            payment_method: 'MoneyFusion (En cours)'
+          }
+        }
+      });
     }
 
     // Return the payment URL
