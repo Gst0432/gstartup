@@ -10,6 +10,11 @@ export function extractSubdomain(hostname: string): string | null {
   // Remove port if present
   const cleanHostname = hostname.split(':')[0];
   
+  // Exclude Lovable preview domains
+  if (cleanHostname.includes('lovable.app')) {
+    return null;
+  }
+  
   // Split by dots
   const parts = cleanHostname.split('.');
   
