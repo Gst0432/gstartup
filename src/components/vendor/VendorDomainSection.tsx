@@ -12,17 +12,17 @@ interface VendorDomainSectionProps {
 }
 
 export function VendorDomainSection({ formData, vendor }: VendorDomainSectionProps) {
-  const previewStore = () => {
+  // Génération automatique de l'URL de preview
+  const getPreviewUrl = () => {
     if (formData.subdomain) {
-      // Utiliser l'URL courte basée sur le subdomain
-      const shortUrl = `https://${formData.subdomain}.gstartup.pro`;
-      window.open(shortUrl, '_blank');
+      return `https://${formData.subdomain}.gstartup.pro`;
     } else if (vendor?.id) {
-      // Fallback vers l'URL longue si pas de subdomain
-      const previewUrl = `${window.location.origin}/store/${vendor.id}`;
-      window.open(previewUrl, '_blank');
+      return `${window.location.origin}/store/${vendor.id}`;
     }
+    return null;
   };
+
+  const previewUrl = getPreviewUrl();
 
   return (
     <Card>
@@ -32,27 +32,34 @@ export function VendorDomainSection({ formData, vendor }: VendorDomainSectionPro
           Ma Boutique
         </CardTitle>
         <CardDescription>
-          Accédez à votre boutique en ligne
+          {previewUrl ? (
+            <a 
+              href={previewUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary hover:underline inline-flex items-center gap-1"
+            >
+              {previewUrl}
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          ) : (
+            'Votre lien de boutique sera généré automatiquement'
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {formData.subdomain && (
+        {previewUrl && (
           <div className="p-4 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-lg border border-primary/20">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">URL de votre boutique</p>
-                <code className="text-lg font-mono text-primary">
-                  {formData.subdomain}.gstartup.pro
-                </code>
-              </div>
-              <Button 
-                onClick={previewStore}
-                disabled={!vendor?.id}
-                className="gap-2"
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground mb-3">Votre boutique est accessible via :</p>
+              <a 
+                href={previewUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-lg font-mono text-primary hover:underline break-all"
               >
-                <ExternalLink className="h-4 w-4" />
-                Voir ma boutique
-              </Button>
+                {previewUrl}
+              </a>
             </div>
           </div>
         )}
