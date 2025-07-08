@@ -106,10 +106,20 @@ serve(async (req) => {
       throw new Error("Failed to create order items");
     }
 
-    // Préparer la requête Moneroo
-    const monerooApiKey = Deno.env.get("MONEROO_API_KEY");
-    if (!monerooApiKey) {
-      throw new Error("Moneroo API key not configured");
+    // Récupérer la configuration Moneroo depuis l'admin
+    const { data: monerooGateway, error: gatewayError } = await supabaseServiceRole
+      .from('payment_gateways')
+      .select('api_key, api_secret, is_active')
+      .eq('type', 'moneroo')
+      .eq('is_active', true)
+      .single();
+
+    if (gatewayError || !monerooGateway) {
+      throw new Error("Moneroo gateway not configured or inactive");
+    }
+
+    if (!monerooGateway.api_key) {
+      throw new Error("Moneroo API key not configured in admin settings");
     }
 
     const monerooPayload = {
@@ -135,7 +145,7 @@ serve(async (req) => {
     const monerooResponse = await fetch("https://api.moneroo.io/v1/payments", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${monerooApiKey}`,
+        "Authorization": `Bearer ${monerooGateway.api_key}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify(monerooPayload)
