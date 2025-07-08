@@ -164,12 +164,26 @@ export const ProductsSection = () => {
                   <Button 
                     size="sm" 
                     className="flex-1 gap-2"
-                    onClick={() => {
-                      const url = product.demo_url;
-                      if (url) {
-                        window.open(url, '_blank');
-                      } else {
-                        window.location.href = `/checkout?product=${product.id}`;
+                    onClick={async () => {
+                      try {
+                        const { data, error } = await supabase.functions.invoke('create-payment', {
+                          body: { 
+                            productId: product.id,
+                            quantity: 1 
+                          }
+                        });
+
+                        if (error) {
+                          console.error('Payment error:', error);
+                          return;
+                        }
+
+                        if (data.success && data.payment_url) {
+                          // Ouvrir la page de paiement dans un nouvel onglet
+                          window.open(data.payment_url, '_blank');
+                        }
+                      } catch (error) {
+                        console.error('Payment error:', error);
                       }
                     }}
                   >

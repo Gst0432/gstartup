@@ -99,11 +99,35 @@ export default function ProductDetail() {
     return `${convertedPrice} ${symbols[currency]}`;
   };
 
-  const handleBuy = () => {
-    if (product?.demo_url) {
-      window.open(product.demo_url, '_blank');
-    } else {
-      window.location.href = `/checkout?product=${product?.id}`;
+  const handleBuy = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('create-payment', {
+        body: { 
+          productId: product?.id,
+          quantity: 1 
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "Erreur",
+          description: "Impossible de créer le paiement",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (data.success && data.payment_url) {
+        // Ouvrir la page de paiement dans un nouvel onglet
+        window.open(data.payment_url, '_blank');
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast({
+        title: "Erreur", 
+        description: "Une erreur est survenue",
+        variant: "destructive"
+      });
     }
   };
 
