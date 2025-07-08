@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import gstartupLogo from '@/assets/gstartup-logo.png';
 import { Menu, X, User, LogOut } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
@@ -37,9 +36,11 @@ export const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">G</span>
-            </div>
+            <img 
+              src="/lovable-uploads/afcb3c11-f103-4e66-820b-6352b9ca0f46.png" 
+              alt="G-STARTUP LTD Logo"
+              className="h-8 w-auto"
+            />
             <div className="hidden sm:block">
               <span className="font-bold text-lg bg-gradient-primary bg-clip-text text-transparent">
                 G-STARTUP LTD

@@ -15,9 +15,11 @@ export const Footer = () => {
           {/* Company Info */}
           <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">G</span>
-              </div>
+              <img 
+                src="/lovable-uploads/afcb3c11-f103-4e66-820b-6352b9ca0f46.png" 
+                alt="G-STARTUP LTD Logo"
+                className="h-10 w-auto"
+              />
               <span className="font-bold text-xl bg-gradient-primary bg-clip-text text-transparent">
                 G-STARTUP LTD
               </span>
