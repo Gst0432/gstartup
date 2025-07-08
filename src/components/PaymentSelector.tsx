@@ -84,8 +84,8 @@ export default function PaymentSelector({ amount, currency, orderId, onPaymentCo
         case 'orange_money':
           await handleOrangeMoneyPayment(orderId, amount);
           break;
-        case 'mtn_money':
-          await handleMTNPayment(orderId, amount);
+        case 'moneyfusion_mobile':
+          await handleMoneyFusionMobilePayment(orderId, amount);
           break;
         default:
           throw new Error('Passerelle non supportée');
@@ -170,12 +170,9 @@ export default function PaymentSelector({ amount, currency, orderId, onPaymentCo
     });
   };
 
-  const handleMTNPayment = async (orderId: string, amount: number) => {
-    // TODO: Implémenter MTN Money
-    toast({
-      title: "En développement",
-      description: "MTN Mobile Money sera bientôt disponible",
-    });
+  const handleMoneyFusionMobilePayment = async (orderId: string, amount: number) => {
+    // Réutiliser la même logique que MoneyFusion standard
+    return handleMoneyFusionPayment(orderId, amount);
   };
 
   const getGatewayIcon = (type: string) => {
@@ -184,8 +181,8 @@ export default function PaymentSelector({ amount, currency, orderId, onPaymentCo
       case 'stripe':
         return CreditCard;
       case 'moneyfusion':
+      case 'moneyfusion_mobile':
       case 'orange_money':
-      case 'mtn_money':
         return Smartphone;
       default:
         return DollarSign;

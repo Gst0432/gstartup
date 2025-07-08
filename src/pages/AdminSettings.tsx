@@ -73,8 +73,8 @@ export default function AdminSettings() {
       config: {}
     },
     {
-      name: 'MTN Mobile Money',
-      type: 'mtn_money',
+      name: 'MoneyFusion Mobile',
+      type: 'moneyfusion_mobile',
       is_active: false,
       test_mode: true,
       supported_currencies: ['XAF'],
