@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Globe, Shield, CheckCircle, AlertCircle, Copy, RefreshCw, Link, Share2 } from 'lucide-react';
+import { Globe, CheckCircle, Copy, RefreshCw, Link, Share2, ExternalLink, ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -78,7 +76,7 @@ export function VendorDomainSection({ formData, vendor, onInputChange }: VendorD
       
       toast({
         title: "URL générée !",
-        description: `Votre boutique sera accessible via ${finalSlug}.gstartup.pro`
+        description: `Votre boutique est maintenant accessible via une URL personnalisée`
       });
       
     } catch (error) {
@@ -111,7 +109,7 @@ export function VendorDomainSection({ formData, vendor, onInputChange }: VendorD
     navigator.clipboard.writeText(text);
     toast({
       title: "Copié !",
-      description: "L'URL a été copiée dans le presse-papiers"
+      description: "L'URL de votre boutique a été copiée"
     });
   };
 
@@ -120,10 +118,18 @@ export function VendorDomainSection({ formData, vendor, onInputChange }: VendorD
     if (navigator.share) {
       navigator.share({
         title: `Boutique ${formData.business_name}`,
-        url: fullUrl
+        url: fullUrl,
+        text: `Découvrez ma boutique ${formData.business_name}`
       });
     } else {
       copyToClipboard(fullUrl);
+    }
+  };
+
+  const previewStore = () => {
+    if (vendor?.id) {
+      const previewUrl = `${window.location.origin}/store/${vendor.id}`;
+      window.open(previewUrl, '_blank');
     }
   };
 
@@ -134,10 +140,10 @@ export function VendorDomainSection({ formData, vendor, onInputChange }: VendorD
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Link className="h-5 w-5" />
-          URL de votre Boutique
+          URL de Partage
         </CardTitle>
         <CardDescription>
-          Nous générons automatiquement une adresse courte et mémorable pour votre boutique
+          Nous créons automatiquement une adresse web unique pour votre boutique
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -145,20 +151,21 @@ export function VendorDomainSection({ formData, vendor, onInputChange }: VendorD
         {/* URL générée automatiquement */}
         <div className="space-y-4">
           <div className="p-6 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-xl border border-primary/20">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <Globe className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg">Votre URL Boutique</h3>
-                <p className="text-sm text-muted-foreground">Adresse générée automatiquement</p>
-              </div>
-            </div>
             
             {generatedUrl ? (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 p-3 bg-background rounded-lg border">
-                  <Badge variant="secondary" className="shrink-0">HTTPS</Badge>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                    <Globe className="h-5 w-5 text-primary-foreground" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg">Votre Boutique en Ligne</h3>
+                    <p className="text-sm text-muted-foreground">Adresse web générée automatiquement</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2 p-4 bg-background rounded-lg border shadow-sm">
+                  <Badge variant="secondary" className="shrink-0">🔒 HTTPS</Badge>
                   <code className="text-lg font-mono text-primary flex-1 truncate">
                     {generatedUrl}.gstartup.pro
                   </code>
@@ -168,6 +175,7 @@ export function VendorDomainSection({ formData, vendor, onInputChange }: VendorD
                       variant="outline"
                       onClick={() => copyToClipboard(fullUrl)}
                       className="shrink-0"
+                      title="Copier l'URL"
                     >
                       <Copy className="h-4 w-4" />
                     </Button>
@@ -176,16 +184,17 @@ export function VendorDomainSection({ formData, vendor, onInputChange }: VendorD
                       variant="outline"
                       onClick={shareUrl}
                       className="shrink-0"
+                      title="Partager"
                     >
                       <Share2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
                 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between pt-2">
                   <div className="flex items-center gap-2 text-green-600">
                     <CheckCircle className="h-4 w-4" />
-                    <span className="text-sm font-medium">URL prête à utiliser</span>
+                    <span className="text-sm font-medium">Prêt à partager</span>
                   </div>
                   <Button 
                     size="sm" 
@@ -195,110 +204,89 @@ export function VendorDomainSection({ formData, vendor, onInputChange }: VendorD
                     className="text-muted-foreground hover:text-foreground"
                   >
                     <RefreshCw className="h-4 w-4 mr-1" />
-                    {isGenerating ? 'Génération...' : 'Régénérer'}
+                    {isGenerating ? 'Génération...' : 'Nouvelle URL'}
+                  </Button>
+                </div>
+
+                {/* Actions principales */}
+                <div className="flex gap-3 pt-4 border-t">
+                  <Button 
+                    onClick={previewStore}
+                    disabled={!vendor?.id}
+                    className="flex-1 gap-2"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Voir ma boutique
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={shareUrl}
+                    className="gap-2"
+                  >
+                    <Share2 className="h-4 w-4" />
+                    Partager
                   </Button>
                 </div>
               </div>
             ) : (
-              <div className="text-center py-6">
-                <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <Globe className="h-6 w-6 text-muted-foreground" />
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Globe className="h-8 w-8 text-muted-foreground" />
                 </div>
-                <p className="text-muted-foreground mb-3">
-                  Ajoutez un nom commercial pour générer votre URL
+                <h3 className="text-lg font-semibold mb-2">URL en cours de génération</h3>
+                <p className="text-muted-foreground mb-4">
+                  Ajoutez un nom commercial pour créer votre adresse web
                 </p>
                 <Button 
                   onClick={generateUniqueUrl}
                   disabled={!formData.business_name || isGenerating}
-                  size="sm"
+                  className="gap-2"
                 >
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  {isGenerating ? 'Génération...' : 'Générer mon URL'}
+                  <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
+                  {isGenerating ? 'Génération...' : 'Créer mon URL'}
                 </Button>
               </div>
             )}
           </div>
         </div>
 
-        {/* URL personnalisée (optionnelle) */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="custom_subdomain">URL personnalisée (optionnel)</Label>
-            <Badge variant="outline" className="text-xs">Avancé</Badge>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Input
-              id="custom_subdomain"
-              value={formData.subdomain}
-              onChange={(e) => onInputChange('subdomain', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-              placeholder="mon-nom-personnalise"
-              className="flex-1"
-            />
-            <span className="text-sm text-muted-foreground whitespace-nowrap">.gstartup.pro</span>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Vous pouvez personnaliser votre URL si vous le souhaitez
-          </p>
-        </div>
-
-        {/* Configuration DNS */}
-        <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Shield className="h-4 w-4 text-white" />
-            </div>
-            <div className="flex-1">
-              <h4 className="font-medium text-blue-900 dark:text-blue-100">Configuration DNS</h4>
-              <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
-                Pour activer votre sous-domaine, ajoutez cet enregistrement DNS :
-              </p>
-              <div className="space-y-2">
-                <div className="p-3 bg-white dark:bg-gray-900 rounded border font-mono text-sm">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <strong>Type:</strong> CNAME<br/>
-                      <strong>Nom:</strong> *<br/>
-                      <strong>Valeur:</strong> 1fede4c8-7360-4c03-b899-417a8204f812.lovableproject.com
+        {/* Informations techniques (repliées) */}
+        {generatedUrl && (
+          <details className="group">
+            <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground flex items-center gap-2 py-2">
+              <span>Configuration technique (optionnel)</span>
+              <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+            </summary>
+            <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <Globe className="h-4 w-4 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-medium text-blue-900 dark:text-blue-100">Domaine personnalisé</h4>
+                  <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
+                    Pour utiliser votre propre domaine, ajoutez cet enregistrement DNS :
+                  </p>
+                  <div className="p-3 bg-white dark:bg-gray-900 rounded border font-mono text-sm">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <strong>Type:</strong> CNAME<br/>
+                        <strong>Nom:</strong> *<br/>
+                        <strong>Valeur:</strong> 1fede4c8-7360-4c03-b899-417a8204f812.lovableproject.com
+                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        onClick={() => copyToClipboard('CNAME * 1fede4c8-7360-4c03-b899-417a8204f812.lovableproject.com')}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <Button 
-                      size="sm" 
-                      variant="ghost"
-                      onClick={() => copyToClipboard('CNAME * 1fede4c8-7360-4c03-b899-417a8204f812.lovableproject.com')}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
                   </div>
                 </div>
-                <p className="text-xs text-blue-600 dark:text-blue-400">
-                  Configuration à faire une seule fois chez votre hébergeur DNS
-                </p>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Aperçu de la boutique */}
-        {generatedUrl && (
-          <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-lg border border-green-200 dark:border-green-800">
-            <div className="flex items-center gap-3 mb-2">
-              <CheckCircle className="h-5 w-5 text-green-600" />
-              <span className="font-medium text-green-900 dark:text-green-100">
-                URL de boutique active
-              </span>
-            </div>
-            <p className="text-sm text-green-700 dark:text-green-300 mb-3">
-              Votre boutique sera accessible directement via cette adresse une fois la configuration DNS terminée.
-            </p>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => window.open(fullUrl, '_blank')}
-              className="gap-2"
-            >
-              <Globe className="h-4 w-4" />
-              Prévisualiser la boutique
-            </Button>
-          </div>
+          </details>
         )}
       </CardContent>
     </Card>
