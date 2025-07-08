@@ -17,8 +17,11 @@ export const ProtectedRoute = ({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex items-center justify-center bg-muted/30">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <p className="text-muted-foreground">Vérification des permissions...</p>
+        </div>
       </div>
     );
   }
@@ -27,7 +30,10 @@ export const ProtectedRoute = ({
     return <Navigate to={redirectTo} replace />;
   }
 
+  // Check if user has required role
   if (requiredRole && profile?.role !== requiredRole) {
+    console.log(`User role: ${profile?.role}, Required: ${requiredRole}`);
+    
     // Redirect based on user role
     const roleRedirects = {
       customer: '/dashboard',
@@ -35,7 +41,10 @@ export const ProtectedRoute = ({
       admin: '/admin'
     };
     
-    return <Navigate to={roleRedirects[profile?.role || 'customer']} replace />;
+    const redirectPath = roleRedirects[profile?.role || 'customer'];
+    console.log(`Redirecting to: ${redirectPath}`);
+    
+    return <Navigate to={redirectPath} replace />;
   }
 
   return <>{children}</>;

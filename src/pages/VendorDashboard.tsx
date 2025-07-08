@@ -48,13 +48,39 @@ export default function VendorDashboard() {
 
     try {
       // Get vendor profile
-      const { data: vendorData } = await supabase
+      let { data: vendorData, error: vendorError } = await supabase
         .from('vendors')
         .select('*')
         .eq('user_id', profile.user_id)
         .single();
 
-      setVendor(vendorData);
+      // If no vendor profile exists and user has vendor role, create one
+      if (vendorError && vendorError.code === 'PGRST116' && profile.role === 'vendor') {
+        const { data: newVendor, error: createError } = await supabase
+          .from('vendors')
+          .insert({
+            user_id: profile.user_id,
+            business_name: profile.display_name + " Business",
+            description: "Nouveau vendeur sur G-STARTUP LTD",
+            is_active: true,
+            is_verified: false
+          })
+          .select()
+          .single();
+
+        if (!createError && newVendor) {
+          setVendor(newVendor);
+          vendorData = newVendor;
+        } else {
+          console.error('Error creating vendor profile:', createError);
+          return;
+        }
+      } else if (vendorError) {
+        console.error('Error fetching vendor:', vendorError);
+        return;
+      } else {
+        setVendor(vendorData);
+      }
 
       if (vendorData) {
         // Fetch products count
@@ -149,20 +175,20 @@ export default function VendorDashboard() {
         <div className="container mx-auto px-4 py-8">
           {/* Welcome Card */}
           {!vendor ? (
-            <Card className="mb-8 border-orange-200 bg-orange-50">
+            <Card className="mb-8 border-blue-200 bg-blue-50">
               <CardHeader>
-                <CardTitle className="text-orange-800">
-                  Complétez votre profil vendeur
+                <CardTitle className="text-blue-800">
+                  Configuration du profil vendeur...
                 </CardTitle>
-                <CardDescription className="text-orange-700">
-                  Créez votre profil vendeur pour commencer à vendre sur G-STARTUP LTD
+                <CardDescription className="text-blue-700">
+                  Votre profil vendeur est en cours de création
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button className="bg-orange-500 hover:bg-orange-600">
-                  <Store className="mr-2 h-5 w-5" />
-                  Créer le Profil Vendeur
-                </Button>
+                <div className="flex items-center space-x-2">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                  <span className="text-blue-800">Configuration en cours...</span>
+                </div>
               </CardContent>
             </Card>
           ) : (

@@ -66,7 +66,13 @@ export const useAuth = () => {
 
       if (error) {
         console.error('Error fetching profile:', error);
+        
+        // If profile doesn't exist, this might be a newly created user
+        if (error.code === 'PGRST116') {
+          console.log('Profile not found, user might need to complete signup process');
+        }
       } else {
+        console.log('Profile loaded:', data);
         setProfile(data as Profile);
       }
     } catch (error) {
