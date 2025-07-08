@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import gstartupLogo from '@/assets/gstartup-logo.png';
 import { Menu, X, User, LogOut } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
