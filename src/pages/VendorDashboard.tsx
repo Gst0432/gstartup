@@ -3,6 +3,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { DashboardLayout } from '@/components/DashboardLayout';
 import { 
   Package, 
   TrendingUp, 
@@ -26,7 +27,7 @@ interface VendorStats {
 }
 
 export default function VendorDashboard() {
-  const { profile, signOut } = useAuth();
+  const { profile } = useAuth();
   const { t } = useLanguage();
   const [stats, setStats] = useState<VendorStats>({
     productsCount: 0,
@@ -120,231 +121,230 @@ export default function VendorDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      {/* Header */}
-      <header className="bg-background border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">Tableau de Bord Vendeur</h1>
-              <p className="text-muted-foreground">
-                {vendor?.business_name || profile?.display_name}
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <Badge variant="secondary" className="gap-2">
-                <Store className="h-4 w-4" />
-                Vendeur
-                {vendor?.is_verified && (
-                  <Badge variant="default" className="ml-1">Vérifié</Badge>
-                )}
-              </Badge>
-              <Button variant="outline" onClick={() => signOut()}>
-                Déconnexion
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-8">
-        {/* Welcome Card */}
-        {!vendor ? (
-          <Card className="mb-8 border-orange-200 bg-orange-50">
-            <CardHeader>
-              <CardTitle className="text-orange-800">
-                Complétez votre profil vendeur
-              </CardTitle>
-              <CardDescription className="text-orange-700">
-                Créez votre profil vendeur pour commencer à vendre sur G-STARTUP LTD
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button className="bg-orange-500 hover:bg-orange-600">
-                <Store className="mr-2 h-5 w-5" />
-                Créer le Profil Vendeur
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <Card className="mb-8 bg-gradient-primary text-white">
-            <CardHeader>
-              <CardTitle className="text-white">
-                Bienvenue {vendor.business_name}
-              </CardTitle>
-              <CardDescription className="text-white/80">
-                Gérez vos produits et suivez vos ventes sur G-STARTUP LTD
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-4">
-                <div className="flex-1">
-                  <p className="text-white/90">
-                    {vendor.description || "Développez votre business sur notre marketplace"}
-                  </p>
-                </div>
-                <Button variant="secondary" size="lg">
-                  <Plus className="mr-2 h-5 w-5" />
-                  Nouveau Produit
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Quick Stats */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Produits
-              </CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.productsCount}</div>
-              <p className="text-xs text-muted-foreground">
-                Produits actifs
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Commandes
-              </CardTitle>
-              <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.ordersCount}</div>
-              <p className="text-xs text-muted-foreground">
-                Commandes totales
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Revenus
-              </CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">${stats.totalRevenue.toFixed(2)}</div>
-              <p className="text-xs text-muted-foreground">
-                Revenus totaux
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Note Moyenne
-              </CardTitle>
-              <Star className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.avgRating.toFixed(1)}</div>
-              <p className="text-xs text-muted-foreground">
-                Sur 5 étoiles
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Actions Rapides</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {quickActions.map((action, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardHeader className="pb-3">
-                  <div className={`w-12 h-12 ${action.color} rounded-lg flex items-center justify-center mb-3`}>
-                    <action.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <CardTitle className="text-base">{action.title}</CardTitle>
-                  <CardDescription>{action.description}</CardDescription>
-                </CardHeader>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Recent Activity & Performance */}
-        <div className="grid md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Performance
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Ventes ce mois</span>
-                <span className="font-medium">{stats.ordersCount}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Produits populaires</span>
-                <span className="font-medium">{Math.min(stats.productsCount, 5)}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Taux de conversion</span>
-                <span className="font-medium">12.5%</span>
-              </div>
-              {vendor && (
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Total des ventes</span>
-                  <span className="font-medium">{vendor.total_sales}</span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5" />
-                Profil Vendeur
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {vendor ? (
-                <>
-                  <div>
-                    <p className="font-medium">Nom de l'entreprise</p>
-                    <p className="text-muted-foreground">{vendor.business_name}</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Statut</p>
-                    <Badge variant={vendor.is_verified ? "default" : "secondary"}>
-                      {vendor.is_verified ? "Vérifié" : "En attente"}
-                    </Badge>
-                  </div>
-                  <div>
-                    <p className="font-medium">Note</p>
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span>{vendor.rating?.toFixed(1) || "0.0"}</span>
-                    </div>
-                  </div>
-                </>
-              ) : (
+    <DashboardLayout>
+      <div className="min-h-screen bg-muted/30">
+        {/* Header */}
+        <header className="bg-background border-b">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold">Tableau de Bord Vendeur</h1>
                 <p className="text-muted-foreground">
-                  Créez votre profil vendeur pour commencer
+                  {vendor?.business_name || profile?.display_name}
                 </p>
-              )}
-              <Button variant="outline" className="w-full">
-                <Settings className="mr-2 h-4 w-4" />
-                Gérer le Profil
-              </Button>
-            </CardContent>
-          </Card>
+              </div>
+              <div className="flex items-center gap-4">
+                <Badge variant="secondary" className="gap-2">
+                  <Store className="h-4 w-4" />
+                  Vendeur
+                  {vendor?.is_verified && (
+                    <Badge variant="default" className="ml-1">Vérifié</Badge>
+                  )}
+                </Badge>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div className="container mx-auto px-4 py-8">
+          {/* Welcome Card */}
+          {!vendor ? (
+            <Card className="mb-8 border-orange-200 bg-orange-50">
+              <CardHeader>
+                <CardTitle className="text-orange-800">
+                  Complétez votre profil vendeur
+                </CardTitle>
+                <CardDescription className="text-orange-700">
+                  Créez votre profil vendeur pour commencer à vendre sur G-STARTUP LTD
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button className="bg-orange-500 hover:bg-orange-600">
+                  <Store className="mr-2 h-5 w-5" />
+                  Créer le Profil Vendeur
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="mb-8 bg-gradient-primary text-white">
+              <CardHeader>
+                <CardTitle className="text-white">
+                  Bienvenue {vendor.business_name}
+                </CardTitle>
+                <CardDescription className="text-white/80">
+                  Gérez vos produits et suivez vos ventes sur G-STARTUP LTD
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-4">
+                  <div className="flex-1">
+                    <p className="text-white/90">
+                      {vendor.description || "Développez votre business sur notre marketplace"}
+                    </p>
+                  </div>
+                  <Button variant="secondary" size="lg">
+                    <Plus className="mr-2 h-5 w-5" />
+                    Nouveau Produit
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Quick Stats */}
+          <div className="grid md:grid-cols-4 gap-6 mb-8">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Produits
+                </CardTitle>
+                <Package className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.productsCount}</div>
+                <p className="text-xs text-muted-foreground">
+                  Produits actifs
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Commandes
+                </CardTitle>
+                <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.ordersCount}</div>
+                <p className="text-xs text-muted-foreground">
+                  Commandes totales
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Revenus
+                </CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">${stats.totalRevenue.toFixed(2)}</div>
+                <p className="text-xs text-muted-foreground">
+                  Revenus totaux
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Note Moyenne
+                </CardTitle>
+                <Star className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.avgRating.toFixed(1)}</div>
+                <p className="text-xs text-muted-foreground">
+                  Sur 5 étoiles
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold mb-4">Actions Rapides</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {quickActions.map((action, index) => (
+                <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardHeader className="pb-3">
+                    <div className={`w-12 h-12 ${action.color} rounded-lg flex items-center justify-center mb-3`}>
+                      <action.icon className="h-6 w-6 text-white" />
+                    </div>
+                    <CardTitle className="text-base">{action.title}</CardTitle>
+                    <CardDescription>{action.description}</CardDescription>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Recent Activity & Performance */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Performance
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Ventes ce mois</span>
+                  <span className="font-medium">{stats.ordersCount}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Produits populaires</span>
+                  <span className="font-medium">{Math.min(stats.productsCount, 5)}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Taux de conversion</span>
+                  <span className="font-medium">12.5%</span>
+                </div>
+                {vendor && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Total des ventes</span>
+                    <span className="font-medium">{vendor.total_sales}</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5" />
+                  Profil Vendeur
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {vendor ? (
+                  <>
+                    <div>
+                      <p className="font-medium">Nom de l'entreprise</p>
+                      <p className="text-muted-foreground">{vendor.business_name}</p>
+                    </div>
+                    <div>
+                      <p className="font-medium">Statut</p>
+                      <Badge variant={vendor.is_verified ? "default" : "secondary"}>
+                        {vendor.is_verified ? "Vérifié" : "En attente"}
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="font-medium">Note</p>
+                      <div className="flex items-center gap-1">
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        <span>{vendor.rating?.toFixed(1) || "0.0"}</span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-muted-foreground">
+                    Créez votre profil vendeur pour commencer
+                  </p>
+                )}
+                <Button variant="outline" className="w-full">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Gérer le Profil
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
