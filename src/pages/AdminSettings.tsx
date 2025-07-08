@@ -49,6 +49,14 @@ export default function AdminSettings() {
       config: {}
     },
     {
+      name: 'MoneyFusion',
+      type: 'moneyfusion',
+      is_active: false,
+      test_mode: true,
+      supported_currencies: ['XAF'],
+      config: {}
+    },
+    {
       name: 'Stripe',
       type: 'stripe',
       is_active: false,

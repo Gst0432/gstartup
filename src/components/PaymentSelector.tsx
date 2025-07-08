@@ -75,6 +75,9 @@ export default function PaymentSelector({ amount, currency, orderId, onPaymentCo
         case 'moneroo':
           await handleMonerooPayment(orderId, amount);
           break;
+        case 'moneyfusion':
+          await handleMoneyFusionPayment(orderId, amount);
+          break;
         case 'stripe':
           await handleStripePayment(orderId, amount);
           break;
@@ -116,6 +119,41 @@ export default function PaymentSelector({ amount, currency, orderId, onPaymentCo
     }
   };
 
+  const handleMoneyFusionPayment = async (orderId: string, amount: number) => {
+    // Demander les informations du client
+    const customerPhone = prompt("Entrez votre numéro de téléphone:");
+    const customerName = prompt("Entrez votre nom complet:");
+    
+    if (!customerPhone || !customerName) {
+      toast({
+        title: "Informations requises",
+        description: "Le numéro de téléphone et le nom sont requis pour MoneyFusion",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('create-moneyfusion-payment', {
+        body: { 
+          orderId, 
+          amount,
+          customerPhone: customerPhone.trim(),
+          customerName: customerName.trim()
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.payment_url) {
+        window.open(data.payment_url, '_blank');
+        onPaymentComplete?.(true);
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const handleStripePayment = async (orderId: string, amount: number) => {
     // TODO: Implémenter Stripe
     toast({
@@ -145,6 +183,7 @@ export default function PaymentSelector({ amount, currency, orderId, onPaymentCo
       case 'moneroo':
       case 'stripe':
         return CreditCard;
+      case 'moneyfusion':
       case 'orange_money':
       case 'mtn_money':
         return Smartphone;
