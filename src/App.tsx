@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { SubdomainChecker } from "./components/SubdomainChecker";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ProductDetail from "./pages/ProductDetail";
@@ -43,7 +44,8 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
+        <SubdomainChecker>
+          <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/services" element={<Services />} />
           <Route path="/marketplace" element={<Marketplace />} />
@@ -155,10 +157,12 @@ const App = () => (
             </ProtectedRoute>
           } />
           <Route path="/store/:vendorId" element={<VendorStore />} />
+          <Route path="/" element={<VendorStore />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-cancelled" element={<PaymentCancelled />} />
           <Route path="*" element={<NotFound />} />
-        </Routes>
+          </Routes>
+        </SubdomainChecker>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

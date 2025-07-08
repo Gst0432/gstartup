@@ -1,1 +1,4 @@
 project_id = "lrmgewuhgekxsgzuqcja"
+
+[functions.subdomain-handler]
+verify_jwt = false
