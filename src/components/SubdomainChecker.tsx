@@ -13,10 +13,12 @@ export function SubdomainChecker({ children }: SubdomainCheckerProps) {
   useEffect(() => {
     const checkSubdomain = async () => {
       const hostname = window.location.hostname;
+      console.log('Checking hostname:', hostname);
       
       // Check if we're on a subdomain (*.gstartup.pro)
       if (hostname.endsWith('.gstartup.pro') && hostname !== 'gstartup.pro') {
         const subdomain = hostname.replace('.gstartup.pro', '');
+        console.log('Detected subdomain:', subdomain);
         
         try {
           // Find vendor by subdomain
@@ -27,13 +29,22 @@ export function SubdomainChecker({ children }: SubdomainCheckerProps) {
             .eq('is_active', true)
             .single();
           
+          console.log('Vendor found:', vendor, 'Error:', error);
+          
           if (!error && vendor) {
-            // Redirect to vendor store page
-            navigate(`/store/${vendor.id}`, { replace: true });
+            console.log('Redirecting to store:', `/store/${vendor.id}`);
+            // Only redirect if we're not already on the store page
+            if (!window.location.pathname.startsWith(`/store/${vendor.id}`)) {
+              navigate(`/store/${vendor.id}`, { replace: true });
+            }
+          } else {
+            console.log('No vendor found for subdomain:', subdomain);
           }
         } catch (error) {
           console.error('Error checking subdomain:', error);
         }
+      } else {
+        console.log('Not a gstartup.pro subdomain');
       }
       
       setIsChecking(false);
