@@ -16,6 +16,7 @@ import VendorProductNew from "./pages/VendorProductNew";
 import VendorOrders from "./pages/VendorOrders";
 import VendorAnalytics from "./pages/VendorAnalytics";
 import VendorReviews from "./pages/VendorReviews";
+import VendorPayments from "./pages/VendorPayments";
 import VendorProfile from "./pages/VendorProfile";
 import Cart from "./pages/Cart";
 import Wishlist from "./pages/Wishlist";
@@ -84,6 +85,11 @@ const App = () => (
           <Route path="/vendor/reviews" element={
             <ProtectedRoute requiredRole="vendor">
               <VendorReviews />
+            </ProtectedRoute>
+          } />
+          <Route path="/vendor/payments" element={
+            <ProtectedRoute requiredRole="vendor">
+              <VendorPayments />
             </ProtectedRoute>
           } />
           <Route path="/vendor/profile" element={

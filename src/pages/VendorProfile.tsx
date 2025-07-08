@@ -267,11 +267,6 @@ export default function VendorProfile() {
                   vendor={vendor}
                   onInputChange={handleInputChange} 
                 />
-                
-                <VendorPaymentSection 
-                  formData={formData} 
-                  onInputChange={handleInputChange} 
-                />
 
                 {/* Bouton de sauvegarde fixe */}
                 <div className="sticky bottom-6 z-30">

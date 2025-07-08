@@ -51,6 +51,7 @@ export const Sidebar = ({ role }: SidebarProps) => {
     { title: 'Commandes', url: '/vendor/orders', icon: ShoppingCart },
     { title: 'Statistiques', url: '/vendor/analytics', icon: BarChart3 },
     { title: 'Avis', url: '/vendor/reviews', icon: Star },
+    { title: 'Passerelles', url: '/vendor/payments', icon: CreditCard },
     { title: 'Profil Vendeur', url: '/vendor/profile', icon: Settings },
   ];
 
