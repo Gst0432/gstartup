@@ -22,6 +22,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminUsers from "./pages/AdminUsers";
 import AdminVendors from "./pages/AdminVendors";
 import AdminProducts from "./pages/AdminProducts";
+import AdminProductNew from "./pages/AdminProductNew";
 import AdminOrders from "./pages/AdminOrders";
 import AdminCategories from "./pages/AdminCategories";
 import AdminAnalytics from "./pages/AdminAnalytics";
@@ -118,6 +119,11 @@ const App = () => (
           <Route path="/admin/products" element={
             <ProtectedRoute requiredRole="admin">
               <AdminProducts />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/products/new" element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminProductNew />
             </ProtectedRoute>
           } />
           <Route path="/admin/orders" element={

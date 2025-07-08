@@ -16,8 +16,10 @@ import {
   Trash,
   CheckCircle,
   XCircle,
-  Star
+  Star,
+  Plus
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Product {
@@ -166,6 +168,12 @@ export default function AdminProducts() {
                   <Package className="h-4 w-4" />
                   {filteredProducts.length} produits
                 </Badge>
+                <Button asChild>
+                  <Link to="/admin/products/new" className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Ajouter un produit
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>
