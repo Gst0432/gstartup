@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { 
@@ -16,9 +18,25 @@ import {
   Truck,
   CheckCircle,
   Clock,
-  AlertCircle
+  AlertCircle,
+  MessageSquare,
+  Bell,
+  Calendar,
+  User,
+  Phone,
+  Mail,
+  MapPin
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+
+interface OrderItem {
+  id: string;
+  product_name: string;
+  variant_name: string | null;
+  quantity: number;
+  price: number;
+  total: number;
+}
 
 interface Order {
   id: string;
@@ -29,19 +47,27 @@ interface Order {
   total_amount: number;
   currency: string;
   created_at: string;
+  updated_at: string;
+  customer_notes: string | null;
+  shipping_address: any;
+  billing_address: any;
   profile?: {
     display_name: string;
     email: string;
+    phone: string | null;
   };
+  order_items?: OrderItem[];
 }
 
 export default function AdminOrders() {
   const { profile } = useAuth();
   const { toast } = useToast();
   const [orders, setOrders] = useState<Order[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [customerNote, setCustomerNote] = useState('');
 
   useEffect(() => {
     fetchOrders();
@@ -53,7 +79,8 @@ export default function AdminOrders() {
         .from('orders')
         .select(`
           *,
-          profile:profiles!orders_user_id_fkey(display_name, email)
+          profiles!orders_user_id_fkey(display_name, email, phone),
+          order_items(*)
         `)
         .order('created_at', { ascending: false });
 
@@ -62,7 +89,13 @@ export default function AdminOrders() {
         return;
       }
 
-      setOrders(data || []);
+      const transformedOrders = data?.map(order => ({
+        ...order,
+        profile: order.profiles,
+        order_items: order.order_items || []
+      })) || [];
+
+      setOrders(transformedOrders);
     } catch (error) {
       console.error('Error fetching orders:', error);
     } finally {
@@ -72,9 +105,20 @@ export default function AdminOrders() {
 
   const updateOrderStatus = async (orderId: string, field: 'status' | 'payment_status' | 'fulfillment_status', value: string) => {
     try {
+      const updateData: any = { 
+        [field]: value,
+        updated_at: new Date().toISOString()
+      };
+
+      // Envoyer une notification au client selon le changement de statut
+      const order = orders.find(o => o.id === orderId);
+      if (order && customerNote.trim()) {
+        updateData.customer_notes = customerNote.trim();
+      }
+
       const { error } = await supabase
         .from('orders')
-        .update({ [field]: value })
+        .update(updateData)
         .eq('id', orderId);
 
       if (error) {
@@ -88,13 +132,25 @@ export default function AdminOrders() {
       }
 
       setOrders(orders.map(order => 
-        order.id === orderId ? { ...order, [field]: value } : order
+        order.id === orderId ? { ...order, [field]: value, customer_notes: updateData.customer_notes || order.customer_notes } : order
       ));
+
+      // Message de notification selon le statut
+      let notificationMessage = '';
+      if (field === 'fulfillment_status') {
+        if (value === 'shipped') notificationMessage = 'Votre commande a été expédiée !';
+        if (value === 'delivered') notificationMessage = 'Votre commande a été livrée !';
+      }
+      if (field === 'status' && value === 'completed') {
+        notificationMessage = 'Votre commande est maintenant terminée !';
+      }
 
       toast({
         title: "Succès",
-        description: `Statut de la commande mis à jour avec succès`,
+        description: `Statut mis à jour${notificationMessage ? ` - ${notificationMessage}` : ''}`,
       });
+
+      setCustomerNote('');
     } catch (error) {
       console.error('Error updating order status:', error);
     }
@@ -150,6 +206,14 @@ export default function AdminOrders() {
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  const getOrderPriority = (order: Order) => {
+    const daysSinceCreated = Math.floor((Date.now() - new Date(order.created_at).getTime()) / (1000 * 60 * 60 * 24));
+    if (order.status === 'pending' && daysSinceCreated > 3) return 'high';
+    if (order.payment_status === 'failed') return 'high';
+    if (order.status === 'pending' && daysSinceCreated > 1) return 'medium';
+    return 'low';
+  };
 
   const stats = {
     total: orders.length,
@@ -296,50 +360,235 @@ export default function AdminOrders() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {filteredOrders.map((order) => (
-                    <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <p className="font-medium">#{order.order_number}</p>
-                            <p className="text-sm text-muted-foreground">
-                              Client: {order.profile?.display_name} ({order.profile?.email})
-                            </p>
-                            <p className="text-sm font-medium text-primary mt-1">
-                              {order.total_amount.toLocaleString('fr-FR')} {order.currency}
-                            </p>
+                  {filteredOrders.map((order) => {
+                    const priority = getOrderPriority(order);
+                    const priorityColors = {
+                      high: 'border-l-4 border-l-red-500 bg-red-50/50',
+                      medium: 'border-l-4 border-l-orange-500 bg-orange-50/50',
+                      low: 'border-l-4 border-l-green-500'
+                    };
+                    
+                    return (
+                      <div key={order.id} className={`flex items-center justify-between p-4 border rounded-lg ${priorityColors[priority]}`}>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="font-medium">#{order.order_number}</p>
+                                {priority === 'high' && (
+                                  <Badge variant="destructive" className="text-xs">
+                                    <AlertCircle className="h-3 w-3 mr-1" />
+                                    Urgent
+                                  </Badge>
+                                )}
+                                {priority === 'medium' && (
+                                  <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-800">
+                                    <Clock className="h-3 w-3 mr-1" />
+                                    Attention
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                <span className="flex items-center gap-1">
+                                  <User className="h-3 w-3" />
+                                  {order.profile?.display_name}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Mail className="h-3 w-3" />
+                                  {order.profile?.email}
+                                </span>
+                                {order.profile?.phone && (
+                                  <span className="flex items-center gap-1">
+                                    <Phone className="h-3 w-3" />
+                                    {order.profile.phone}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm font-medium text-primary mt-1">
+                                {order.total_amount.toLocaleString('fr-FR')} {order.currency}
+                              </p>
+                              {order.customer_notes && (
+                                <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200">
+                                  <p className="text-xs text-blue-800">
+                                    <MessageSquare className="h-3 w-3 inline mr-1" />
+                                    Note: {order.customer_notes}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex gap-2">
+                              {getStatusBadge(order.status, 'status')}
+                              {getStatusBadge(order.payment_status, 'payment')}
+                              {getStatusBadge(order.fulfillment_status, 'fulfillment')}
+                            </div>
                           </div>
-                          <div className="flex gap-2">
-                            {getStatusBadge(order.status, 'status')}
-                            {getStatusBadge(order.payment_status, 'payment')}
-                            {getStatusBadge(order.fulfillment_status, 'fulfillment')}
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground mt-2">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              Créée: {new Date(order.created_at).toLocaleDateString('fr-FR')}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              Modifiée: {new Date(order.updated_at).toLocaleDateString('fr-FR')}
+                            </span>
+                            <span>Articles: {order.order_items?.length || 0}</span>
                           </div>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-2">
-                          Créée le {new Date(order.created_at).toLocaleDateString('fr-FR')} à {new Date(order.created_at).toLocaleTimeString('fr-FR')}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm" onClick={() => setSelectedOrder(order)}>
+                                <Eye className="h-4 w-4 mr-1" />
+                                Détails
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                              <DialogHeader>
+                                <DialogTitle>Détails de la commande #{order.order_number}</DialogTitle>
+                              </DialogHeader>
+                              {selectedOrder && (
+                                <div className="space-y-6">
+                                  {/* Informations client */}
+                                  <Card>
+                                    <CardHeader>
+                                      <CardTitle className="text-lg flex items-center gap-2">
+                                        <User className="h-5 w-5" />
+                                        Informations Client
+                                      </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="grid md:grid-cols-2 gap-4">
+                                      <div>
+                                        <p className="font-medium">{selectedOrder.profile?.display_name}</p>
+                                        <p className="text-sm text-muted-foreground">{selectedOrder.profile?.email}</p>
+                                        {selectedOrder.profile?.phone && (
+                                          <p className="text-sm text-muted-foreground">{selectedOrder.profile.phone}</p>
+                                        )}
+                                      </div>
+                                      {selectedOrder.shipping_address && (
+                                        <div>
+                                          <p className="font-medium flex items-center gap-1">
+                                            <MapPin className="h-4 w-4" />
+                                            Adresse de livraison
+                                          </p>
+                                          <p className="text-sm text-muted-foreground">
+                                            {JSON.stringify(selectedOrder.shipping_address)}
+                                          </p>
+                                        </div>
+                                      )}
+                                    </CardContent>
+                                  </Card>
+
+                                  {/* Articles commandés */}
+                                  <Card>
+                                    <CardHeader>
+                                      <CardTitle className="text-lg flex items-center gap-2">
+                                        <Package className="h-5 w-5" />
+                                        Articles Commandés
+                                      </CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                      <div className="space-y-3">
+                                        {selectedOrder.order_items?.map((item) => (
+                                          <div key={item.id} className="flex items-center justify-between p-3 bg-muted/50 rounded">
+                                            <div>
+                                              <p className="font-medium">{item.product_name}</p>
+                                              {item.variant_name && (
+                                                <p className="text-sm text-muted-foreground">Variante: {item.variant_name}</p>
+                                              )}
+                                              <p className="text-sm">Quantité: {item.quantity}</p>
+                                            </div>
+                                            <div className="text-right">
+                                              <p className="font-medium">{item.total.toLocaleString()} FCFA</p>
+                                              <p className="text-sm text-muted-foreground">{item.price.toLocaleString()} FCFA/unité</p>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+
+                                  {/* Actions rapides */}
+                                  <Card>
+                                    <CardHeader>
+                                      <CardTitle className="text-lg">Actions Rapides</CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                      <div className="grid md:grid-cols-3 gap-4">
+                                        <Select
+                                          value={selectedOrder.status}
+                                          onValueChange={(value) => updateOrderStatus(selectedOrder.id, 'status', value)}
+                                        >
+                                          <SelectTrigger>
+                                            <SelectValue />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="pending">En attente</SelectItem>
+                                            <SelectItem value="confirmed">Confirmé</SelectItem>
+                                            <SelectItem value="completed">Complété</SelectItem>
+                                            <SelectItem value="cancelled">Annulé</SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                        <Select
+                                          value={selectedOrder.payment_status}
+                                          onValueChange={(value) => updateOrderStatus(selectedOrder.id, 'payment_status', value)}
+                                        >
+                                          <SelectTrigger>
+                                            <SelectValue />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="pending">Paiement en attente</SelectItem>
+                                            <SelectItem value="paid">Payé</SelectItem>
+                                            <SelectItem value="failed">Échec</SelectItem>
+                                            <SelectItem value="refunded">Remboursé</SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                        <Select
+                                          value={selectedOrder.fulfillment_status}
+                                          onValueChange={(value) => updateOrderStatus(selectedOrder.id, 'fulfillment_status', value)}
+                                        >
+                                          <SelectTrigger>
+                                            <SelectValue />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="unfulfilled">Non expédié</SelectItem>
+                                            <SelectItem value="shipped">Expédié</SelectItem>
+                                            <SelectItem value="delivered">Livré</SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
+                                      <div>
+                                        <label className="text-sm font-medium">Note pour le client:</label>
+                                        <Textarea
+                                          placeholder="Ajouter une note pour informer le client..."
+                                          value={customerNote}
+                                          onChange={(e) => setCustomerNote(e.target.value)}
+                                          className="mt-2"
+                                        />
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </div>
+                              )}
+                            </DialogContent>
+                          </Dialog>
+                          <Select
+                            value={order.status}
+                            onValueChange={(value) => updateOrderStatus(order.id, 'status', value)}
+                          >
+                            <SelectTrigger className="w-32">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="pending">En attente</SelectItem>
+                              <SelectItem value="confirmed">Confirmé</SelectItem>
+                              <SelectItem value="completed">Complété</SelectItem>
+                              <SelectItem value="cancelled">Annulé</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Select
-                          value={order.status}
-                          onValueChange={(value) => updateOrderStatus(order.id, 'status', value)}
-                        >
-                          <SelectTrigger className="w-32">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="pending">En attente</SelectItem>
-                            <SelectItem value="confirmed">Confirmé</SelectItem>
-                            <SelectItem value="completed">Complété</SelectItem>
-                            <SelectItem value="cancelled">Annulé</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Button variant="outline" size="sm">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   {filteredOrders.length === 0 && (
                     <div className="text-center py-8 text-muted-foreground">
                       Aucune commande trouvée

@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { 
@@ -15,7 +17,14 @@ import {
   Eye,
   CheckCircle,
   Clock,
-  XCircle
+  XCircle,
+  MessageSquare,
+  Calendar,
+  User,
+  Phone,
+  Mail,
+  AlertCircle,
+  Truck
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -35,9 +44,12 @@ interface OrderItem {
     fulfillment_status: string;
     total_amount: number;
     created_at: string;
-    user: {
+    updated_at: string;
+    customer_notes: string | null;
+    profiles: {
       display_name: string;
       email: string;
+      phone: string | null;
     };
   };
 }
@@ -46,9 +58,11 @@ export default function VendorOrders() {
   const { profile } = useAuth();
   const { toast } = useToast();
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const [selectedOrderItem, setSelectedOrderItem] = useState<OrderItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [deliveryNote, setDeliveryNote] = useState('');
 
   useEffect(() => {
     if (profile) {
@@ -86,9 +100,12 @@ export default function VendorOrders() {
             fulfillment_status,
             total_amount,
             created_at,
+            updated_at,
+            customer_notes,
             profiles!inner(
               display_name,
-              email
+              email,
+              phone
             )
           )
         `)
@@ -104,7 +121,7 @@ export default function VendorOrders() {
         ...item,
         order: {
           ...item.orders,
-          user: item.orders.profiles
+          profiles: item.orders.profiles
         }
       })) || [];
 
@@ -118,9 +135,19 @@ export default function VendorOrders() {
 
   const updateFulfillmentStatus = async (orderId: string, status: string) => {
     try {
+      const updateData: any = {
+        fulfillment_status: status,
+        updated_at: new Date().toISOString()
+      };
+
+      // Ajouter une note de livraison si fournie
+      if (deliveryNote.trim()) {
+        updateData.customer_notes = deliveryNote.trim();
+      }
+
       const { error } = await supabase
         .from('orders')
-        .update({ fulfillment_status: status })
+        .update(updateData)
         .eq('id', orderId);
 
       if (error) {
@@ -134,14 +161,28 @@ export default function VendorOrders() {
 
       setOrderItems(orderItems.map(item => 
         item.order.id === orderId 
-          ? { ...item, order: { ...item.order, fulfillment_status: status } }
+          ? { 
+              ...item, 
+              order: { 
+                ...item.order, 
+                fulfillment_status: status,
+                customer_notes: updateData.customer_notes || item.order.customer_notes
+              } 
+            }
           : item
       ));
 
+      // Messages personnalisés selon le statut
+      let message = "Statut mis à jour avec succès";
+      if (status === 'shipped') message = "Commande marquée comme expédiée";
+      if (status === 'delivered') message = "Commande marquée comme livrée";
+
       toast({
         title: "Succès",
-        description: "Statut mis à jour avec succès",
+        description: message,
       });
+
+      setDeliveryNote('');
     } catch (error) {
       console.error('Error updating fulfillment status:', error);
     }
@@ -169,16 +210,23 @@ export default function VendorOrders() {
     const matchesSearch = 
       item.order.order_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.order.user.display_name.toLowerCase().includes(searchTerm.toLowerCase());
+      item.order.profiles.display_name.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || item.order.fulfillment_status === statusFilter;
     
     return matchesSearch && matchesStatus;
   });
 
-  const totalRevenue = orderItems.reduce((sum, item) => sum + item.total, 0);
-  const pendingOrders = orderItems.filter(item => item.order.fulfillment_status === 'pending').length;
-  const fulfilledOrders = orderItems.filter(item => item.order.fulfillment_status === 'fulfilled').length;
+  const getOrderPriority = (item: OrderItem) => {
+    const daysSinceCreated = Math.floor((Date.now() - new Date(item.order.created_at).getTime()) / (1000 * 60 * 60 * 24));
+    if (item.order.fulfillment_status === 'unfulfilled' && daysSinceCreated > 3) return 'high';
+    if (item.order.payment_status === 'paid' && item.order.fulfillment_status === 'unfulfilled' && daysSinceCreated > 1) return 'medium';
+    return 'low';
+  };
+
+  const totalRevenue = orderItems.filter(item => item.order.payment_status === 'paid').reduce((sum, item) => sum + item.total, 0);
+  const pendingOrders = orderItems.filter(item => item.order.fulfillment_status === 'unfulfilled').length;
+  const fulfilledOrders = orderItems.filter(item => item.order.fulfillment_status === 'fulfilled' || item.order.fulfillment_status === 'delivered').length;
 
   return (
     <DashboardLayout>
@@ -208,14 +256,14 @@ export default function VendorOrders() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Revenus Totaux
+                  Revenus Confirmés
                 </CardTitle>
                 <Package className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{totalRevenue.toLocaleString()} FCFA</div>
                 <p className="text-xs text-muted-foreground">
-                  Depuis le début
+                  Commandes payées seulement
                 </p>
               </CardContent>
             </Card>
@@ -223,14 +271,14 @@ export default function VendorOrders() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Commandes en attente
+                  À Expédier
                 </CardTitle>
                 <Clock className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{pendingOrders}</div>
                 <p className="text-xs text-muted-foreground">
-                  À traiter
+                  Commandes non expédiées
                 </p>
               </CardContent>
             </Card>
@@ -238,14 +286,14 @@ export default function VendorOrders() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Commandes expédiées
+                  Expédiées/Livrées
                 </CardTitle>
                 <CheckCircle className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{fulfilledOrders}</div>
                 <p className="text-xs text-muted-foreground">
-                  Ce mois-ci
+                  Commandes terminées
                 </p>
               </CardContent>
             </Card>
@@ -272,17 +320,17 @@ export default function VendorOrders() {
                     />
                   </div>
                 </div>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Filtrer par statut" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tous les statuts</SelectItem>
-                    <SelectItem value="pending">En attente</SelectItem>
-                    <SelectItem value="fulfilled">Expédié</SelectItem>
-                    <SelectItem value="cancelled">Annulé</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Filtrer par statut" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tous les statuts</SelectItem>
+                      <SelectItem value="unfulfilled">Non expédié</SelectItem>
+                      <SelectItem value="shipped">Expédié</SelectItem>
+                      <SelectItem value="delivered">Livré</SelectItem>
+                    </SelectContent>
+                  </Select>
               </div>
             </CardContent>
           </Card>
@@ -305,55 +353,209 @@ export default function VendorOrders() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {filteredOrderItems.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <div>
-                            <p className="font-medium">#{item.order.order_number}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {item.product_name} {item.variant_name && `(${item.variant_name})`}
-                            </p>
+                  {filteredOrderItems.map((item) => {
+                    const priority = getOrderPriority(item);
+                    const priorityColors = {
+                      high: 'border-l-4 border-l-red-500 bg-red-50/50',
+                      medium: 'border-l-4 border-l-orange-500 bg-orange-50/50',
+                      low: 'border-l-4 border-l-green-500'
+                    };
+                    
+                    return (
+                      <div key={item.id} className={`flex items-center justify-between p-4 border rounded-lg ${priorityColors[priority]}`}>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="font-medium">#{item.order.order_number}</p>
+                                {priority === 'high' && (
+                                  <Badge variant="destructive" className="text-xs">
+                                    <AlertCircle className="h-3 w-3 mr-1" />
+                                    Urgent
+                                  </Badge>
+                                )}
+                                {priority === 'medium' && (
+                                  <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-800">
+                                    <Clock className="h-3 w-3 mr-1" />
+                                    Attention
+                                  </Badge>
+                                )}
+                                <Badge variant={getStatusBadgeVariant(item.order.fulfillment_status)}>
+                                  {getStatusLabel(item.order.fulfillment_status)}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                {item.product_name} {item.variant_name && `(${item.variant_name})`}
+                              </p>
+                              <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                                <span className="flex items-center gap-1">
+                                  <User className="h-3 w-3" />
+                                  {item.order.profiles.display_name}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Mail className="h-3 w-3" />
+                                  {item.order.profiles.email}
+                                </span>
+                                {item.order.profiles.phone && (
+                                  <span className="flex items-center gap-1">
+                                    <Phone className="h-3 w-3" />
+                                    {item.order.profiles.phone}
+                                  </span>
+                                )}
+                              </div>
+                              {item.order.customer_notes && (
+                                <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200">
+                                  <p className="text-xs text-blue-800">
+                                    <MessageSquare className="h-3 w-3 inline mr-1" />
+                                    Note: {item.order.customer_notes}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
                           </div>
-                          <Badge variant={getStatusBadgeVariant(item.order.fulfillment_status)}>
-                            {getStatusLabel(item.order.fulfillment_status)}
-                          </Badge>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">Quantité:</span>
+                              <p className="font-medium">{item.quantity}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Total:</span>
+                              <p className="font-medium">{item.total.toLocaleString()} FCFA</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                Créée:
+                              </span>
+                              <p className="font-medium">{new Date(item.order.created_at).toLocaleDateString('fr-FR')}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                Modifiée:
+                              </span>
+                              <p className="font-medium">{new Date(item.order.updated_at).toLocaleDateString('fr-FR')}</p>
+                            </div>
+                          </div>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                          <div>
-                            <span className="text-muted-foreground">Client:</span>
-                            <p className="font-medium">{item.order.user.display_name}</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Quantité:</span>
-                            <p className="font-medium">{item.quantity}</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Total:</span>
-                            <p className="font-medium">{item.total.toLocaleString()} FCFA</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Date:</span>
-                            <p className="font-medium">{new Date(item.order.created_at).toLocaleDateString('fr-FR')}</p>
-                          </div>
+                        <div className="flex items-center gap-2">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm" onClick={() => setSelectedOrderItem(item)}>
+                                <Eye className="h-4 w-4 mr-1" />
+                                Détails
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                              <DialogHeader>
+                                <DialogTitle>Détails de la commande #{item.order.order_number}</DialogTitle>
+                              </DialogHeader>
+                              {selectedOrderItem && (
+                                <div className="space-y-4">
+                                  <Card>
+                                    <CardHeader>
+                                      <CardTitle className="text-lg flex items-center gap-2">
+                                        <User className="h-5 w-5" />
+                                        Informations Client
+                                      </CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                      <div className="space-y-2">
+                                        <p><strong>Nom:</strong> {selectedOrderItem.order.profiles.display_name}</p>
+                                        <p><strong>Email:</strong> {selectedOrderItem.order.profiles.email}</p>
+                                        {selectedOrderItem.order.profiles.phone && (
+                                          <p><strong>Téléphone:</strong> {selectedOrderItem.order.profiles.phone}</p>
+                                        )}
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                  
+                                  <Card>
+                                    <CardHeader>
+                                      <CardTitle className="text-lg flex items-center gap-2">
+                                        <Package className="h-5 w-5" />
+                                        Produit Commandé
+                                      </CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                      <div className="space-y-2">
+                                        <p><strong>Produit:</strong> {selectedOrderItem.product_name}</p>
+                                        {selectedOrderItem.variant_name && (
+                                          <p><strong>Variante:</strong> {selectedOrderItem.variant_name}</p>
+                                        )}
+                                        <p><strong>Quantité:</strong> {selectedOrderItem.quantity}</p>
+                                        <p><strong>Prix unitaire:</strong> {selectedOrderItem.price.toLocaleString()} FCFA</p>
+                                        <p><strong>Total:</strong> {selectedOrderItem.total.toLocaleString()} FCFA</p>
+                                        <p><strong>Statut paiement:</strong> 
+                                          <Badge variant={selectedOrderItem.order.payment_status === 'paid' ? 'default' : 'secondary'} className="ml-2">
+                                            {selectedOrderItem.order.payment_status}
+                                          </Badge>
+                                        </p>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+
+                                  <Card>
+                                    <CardHeader>
+                                      <CardTitle className="text-lg">Actions de Livraison</CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                      <div>
+                                        <label className="text-sm font-medium">Statut d'expédition:</label>
+                                        <Select
+                                          value={selectedOrderItem.order.fulfillment_status}
+                                          onValueChange={(value) => updateFulfillmentStatus(selectedOrderItem.order.id, value)}
+                                        >
+                                          <SelectTrigger className="mt-2">
+                                            <SelectValue />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="unfulfilled">Non expédié</SelectItem>
+                                            <SelectItem value="shipped">Expédié</SelectItem>
+                                            <SelectItem value="delivered">Livré</SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
+                                      <div>
+                                        <label className="text-sm font-medium">Note de livraison:</label>
+                                        <Textarea
+                                          placeholder="Ajouter des informations de suivi ou des notes pour le client..."
+                                          value={deliveryNote}
+                                          onChange={(e) => setDeliveryNote(e.target.value)}
+                                          className="mt-2"
+                                        />
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </div>
+                              )}
+                            </DialogContent>
+                          </Dialog>
+                          
+                          {item.order.fulfillment_status === 'unfulfilled' && item.order.payment_status === 'paid' && (
+                            <Button
+                              size="sm"
+                              onClick={() => updateFulfillmentStatus(item.order.id, 'shipped')}
+                            >
+                              <Truck className="h-4 w-4 mr-1" />
+                              Marquer expédié
+                            </Button>
+                          )}
+                          
+                          {item.order.fulfillment_status === 'shipped' && (
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => updateFulfillmentStatus(item.order.id, 'delivered')}
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Marquer livré
+                            </Button>
+                          )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        {item.order.fulfillment_status === 'pending' && (
-                          <Button
-                            size="sm"
-                            onClick={() => updateFulfillmentStatus(item.order.id, 'fulfilled')}
-                          >
-                            <CheckCircle className="h-4 w-4 mr-1" />
-                            Marquer comme expédié
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   {filteredOrderItems.length === 0 && (
                     <div className="text-center py-8 text-muted-foreground">
                       Aucune commande trouvée
