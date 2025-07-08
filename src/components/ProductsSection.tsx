@@ -4,7 +4,10 @@ import { Badge } from './ui/badge';
 import { Card, CardContent, CardFooter, CardHeader } from './ui/card';
 import { Star, Eye, ShoppingCart, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../hooks/useLanguage';
+import { useAuth } from '../hooks/useAuth';
+import { usePendingPurchase } from '../hooks/usePendingPurchase';
 import { supabase } from '../integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
 interface Product {
   id: string;
@@ -25,6 +28,9 @@ interface Product {
 
 export const ProductsSection = () => {
   const { t, currency } = useLanguage();
+  const { isAuthenticated } = useAuth();
+  const { savePendingPurchase } = usePendingPurchase();
+  const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -165,6 +171,13 @@ export const ProductsSection = () => {
                     size="sm" 
                     className="flex-1 gap-2"
                     onClick={async () => {
+                      if (!isAuthenticated) {
+                        // Sauvegarder l'intention d'achat et rediriger vers l'authentification
+                        savePendingPurchase(product.id, 1);
+                        navigate('/auth');
+                        return;
+                      }
+
                       try {
                         const { data, error } = await supabase.functions.invoke('create-payment', {
                           body: { 
@@ -179,7 +192,6 @@ export const ProductsSection = () => {
                         }
 
                         if (data.success && data.payment_url) {
-                          // Ouvrir la page de paiement dans un nouvel onglet
                           window.open(data.payment_url, '_blank');
                         }
                       } catch (error) {
