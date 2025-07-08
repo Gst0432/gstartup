@@ -55,10 +55,8 @@ export const Header = () => {
 
           {/* Right Side */}
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* Language Selector - hidden on small mobile */}
-            <div className="hidden xs:block">
-              <LanguageSelector />
-            </div>
+            {/* Language Selector - always visible */}
+            <LanguageSelector />
             
             {/* Auth buttons - hidden on mobile, shown on tablet+ */}
             {isAuthenticated ? (
@@ -111,10 +109,7 @@ export const Header = () => {
                 </a>
               ))}
               
-              {/* Language Selector for mobile */}
-              <div className="xs:hidden mt-2">
-                <LanguageSelector />
-              </div>
+              {/* Language Selector for mobile - removed since it's now always visible in header */}
               
               {/* Auth buttons for mobile */}
               {isAuthenticated ? (
