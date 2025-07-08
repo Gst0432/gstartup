@@ -23,6 +23,18 @@ export function VendorDomainSection({ formData, vendor }: VendorDomainSectionPro
   };
 
   const previewUrl = getPreviewUrl();
+  
+  // Version courte pour l'affichage
+  const getShortUrl = () => {
+    if (formData.subdomain) {
+      return `${formData.subdomain}.gstartup.pro`;
+    } else if (vendor?.id) {
+      return `boutique/${vendor.id}`;
+    }
+    return null;
+  };
+
+  const shortDisplayUrl = getShortUrl();
 
   return (
     <Card>
@@ -39,7 +51,7 @@ export function VendorDomainSection({ formData, vendor }: VendorDomainSectionPro
               rel="noopener noreferrer"
               className="text-primary hover:underline inline-flex items-center gap-1"
             >
-              {previewUrl}
+              {shortDisplayUrl}
               <ExternalLink className="h-3 w-3" />
             </a>
           ) : (
@@ -56,9 +68,9 @@ export function VendorDomainSection({ formData, vendor }: VendorDomainSectionPro
                 href={previewUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-lg font-mono text-primary hover:underline break-all"
+                className="text-lg font-mono text-primary hover:underline"
               >
-                {previewUrl}
+                {shortDisplayUrl}
               </a>
             </div>
           </div>
