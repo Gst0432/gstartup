@@ -127,7 +127,12 @@ export function VendorDomainSection({ formData, vendor, onInputChange }: VendorD
   };
 
   const previewStore = () => {
-    if (vendor?.id) {
+    if (generatedUrl) {
+      // Utiliser l'URL courte générée
+      const shortUrl = `https://${generatedUrl}.gstartup.pro`;
+      window.open(shortUrl, '_blank');
+    } else if (vendor?.id) {
+      // Fallback vers l'URL longue si pas d'URL courte
       const previewUrl = `${window.location.origin}/store/${vendor.id}`;
       window.open(previewUrl, '_blank');
     }
