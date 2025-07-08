@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/components/DashboardLayout';
-import { Plus, Upload, X } from 'lucide-react';
+import { Plus, Upload, X, FileText, Eye, Monitor } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 
@@ -25,6 +25,8 @@ export default function VendorProductNew() {
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [images, setImages] = useState<string[]>([]);
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -35,16 +37,18 @@ export default function VendorProductNew() {
     cost_price: '',
     sku: '',
     barcode: '',
-    quantity: '',
+    quantity: '999',
     weight: '',
     category_id: '',
     tags: '',
     digital_file_url: '',
-    is_digital: false,
+    preview_url: '',
+    demo_url: '',
+    is_digital: true,
     is_active: true,
     is_featured: false,
-    track_quantity: true,
-    requires_shipping: true,
+    track_quantity: false,
+    requires_shipping: false,
     allow_backorder: false,
     meta_title: '',
     meta_description: ''
@@ -78,6 +82,98 @@ export default function VendorProductNew() {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      toast({
+        title: "Erreur",
+        description: "Seuls les fichiers PDF sont acceptés",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setUploadingFile(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      
+      const { data, error } = await supabase.storage
+        .from('shop')
+        .upload(`products/files/${fileName}`, file);
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('shop')
+        .getPublicUrl(data.path);
+
+      handleInputChange('digital_file_url', publicUrl);
+      
+      toast({
+        title: "Succès",
+        description: "Fichier téléversé avec succès",
+      });
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast({
+        title: "Erreur",
+        description: "Erreur lors du téléversement",
+        variant: "destructive"
+      });
+    } finally {
+      setUploadingFile(false);
+    }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingImages(true);
+    try {
+      const uploadPromises = Array.from(files).map(async (file) => {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        
+        const { data, error } = await supabase.storage
+          .from('shop')
+          .upload(`products/images/${fileName}`, file);
+
+        if (error) throw error;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('shop')
+          .getPublicUrl(data.path);
+
+        return publicUrl;
+      });
+
+      const uploadedUrls = await Promise.all(uploadPromises);
+      setImages(prev => [...prev, ...uploadedUrls]);
+      
+      toast({
+        title: "Succès",
+        description: `${uploadedUrls.length} image(s) téléversée(s) avec succès`,
+      });
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      toast({
+        title: "Erreur",
+        description: "Erreur lors du téléversement des images",
+        variant: "destructive"
+      });
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -309,16 +405,166 @@ export default function VendorProductNew() {
               </Card>
             </div>
 
-            {/* Options */}
+            {/* Images du produit */}
             <Card>
               <CardHeader>
-                <CardTitle>Options du Produit</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Upload className="h-5 w-5" />
+                  Images du Produit
+                </CardTitle>
                 <CardDescription>
-                  Configuration avancée du produit
+                  Téléversez les images de votre produit (captures d'écran, exemples, etc.)
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-3 gap-4">
+                <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6">
+                  <div className="text-center">
+                    <Upload className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                    <div className="mt-4">
+                      <Label htmlFor="images" className="cursor-pointer">
+                        <span className="text-sm font-medium text-primary hover:text-primary/80">
+                          Cliquez pour téléverser des images
+                        </span>
+                        <Input
+                          id="images"
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleImageUpload}
+                          disabled={uploadingImages}
+                        />
+                      </Label>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        PNG, JPG, GIF jusqu'à 10MB
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {images.length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {images.map((image, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={image}
+                          alt={`Product ${index + 1}`}
+                          className="w-full h-24 object-cover rounded-lg border"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => removeImage(index)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Fichiers et URLs */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Fichier principal */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Fichier Principal
+                  </CardTitle>
+                  <CardDescription>
+                    Le fichier ZIP/PDF principal à télécharger
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4">
+                    <div className="text-center">
+                      <FileText className="mx-auto h-8 w-8 text-muted-foreground/50" />
+                      <div className="mt-2">
+                        <Label htmlFor="file" className="cursor-pointer">
+                          <span className="text-sm font-medium text-primary hover:text-primary/80">
+                            {uploadingFile ? 'Téléversement...' : 'Téléverser fichier PDF'}
+                          </span>
+                          <Input
+                            id="file"
+                            type="file"
+                            accept=".pdf"
+                            className="hidden"
+                            onChange={handleFileUpload}
+                            disabled={uploadingFile}
+                          />
+                        </Label>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          PDF uniquement, max 50MB
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {formData.digital_file_url && (
+                    <div className="flex items-center gap-2 p-2 bg-muted rounded-lg">
+                      <FileText className="h-4 w-4 text-green-600" />
+                      <span className="text-sm text-green-600">Fichier téléversé</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* URLs de prévisualisation */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Eye className="h-5 w-5" />
+                    Prévisualisation & Démo
+                  </CardTitle>
+                  <CardDescription>
+                    URLs pour la prévisualisation et démo du produit
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="preview_url" className="flex items-center gap-2">
+                      <Eye className="h-4 w-4" />
+                      URL de Prévisualisation
+                    </Label>
+                    <Input
+                      id="preview_url"
+                      value={formData.preview_url}
+                      onChange={(e) => handleInputChange('preview_url', e.target.value)}
+                      placeholder="https://preview.example.com"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="demo_url" className="flex items-center gap-2">
+                      <Monitor className="h-4 w-4" />
+                      URL de Démo Live
+                    </Label>
+                    <Input
+                      id="demo_url"
+                      value={formData.demo_url}
+                      onChange={(e) => handleInputChange('demo_url', e.target.value)}
+                      placeholder="https://demo.example.com"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Options finales */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Options de Publication</CardTitle>
+                <CardDescription>
+                  Paramètres de visibilité et statut du produit
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="is_active"
@@ -336,28 +582,7 @@ export default function VendorProductNew() {
                     />
                     <Label htmlFor="is_featured">Produit mis en avant</Label>
                   </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="is_digital"
-                      checked={formData.is_digital}
-                      onCheckedChange={(checked) => handleInputChange('is_digital', checked)}
-                    />
-                    <Label htmlFor="is_digital">Produit numérique</Label>
-                  </div>
                 </div>
-                
-                {formData.is_digital && (
-                  <div>
-                    <Label htmlFor="digital_file_url">URL du fichier numérique</Label>
-                    <Input
-                      id="digital_file_url"
-                      value={formData.digital_file_url}
-                      onChange={(e) => handleInputChange('digital_file_url', e.target.value)}
-                      placeholder="https://..."
-                    />
-                  </div>
-                )}
               </CardContent>
             </Card>
 
