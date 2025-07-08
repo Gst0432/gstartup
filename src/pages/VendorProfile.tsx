@@ -2,29 +2,15 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/components/DashboardLayout';
-import { ImageUploader } from '@/components/ImageUploader';
-import { 
-  Store, 
-  User,
-  Save,
-  Upload,
-  Star,
-  MapPin,
-  Phone,
-  Globe,
-  Shield,
-  Key,
-  Lock,
-  Eye,
-  ExternalLink
-} from 'lucide-react';
+import { VendorStatsCard } from '@/components/vendor/VendorStatsCard';
+import { VendorBasicInfoForm } from '@/components/vendor/VendorBasicInfoForm';
+import { VendorImagesSection } from '@/components/vendor/VendorImagesSection';
+import { VendorDomainSection } from '@/components/vendor/VendorDomainSection';
+import { VendorPaymentSection } from '@/components/vendor/VendorPaymentSection';
+import { Store, User, Save, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface VendorData {
@@ -188,24 +174,27 @@ export default function VendorProfile() {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-muted/30">
-        <header className="bg-background border-b">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
+      <div className="min-h-screen bg-gradient-to-br from-background to-muted/30">
+        {/* Header amélioré */}
+        <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b sticky top-0 z-40">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-bold">Profil Vendeur</h1>
-                <p className="text-muted-foreground">
-                  Gérez les informations de votre boutique
+                <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                  Profil Vendeur
+                </h1>
+                <p className="text-muted-foreground mt-1">
+                  Gérez les informations de votre boutique et configurez vos paramètres
                 </p>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 {vendor && (
                   <>
-                    <Badge variant={vendor.is_verified ? "default" : "secondary"} className="gap-2">
+                    <Badge variant={vendor.is_verified ? "default" : "secondary"} className="gap-2 px-3 py-1">
                       <Shield className="h-4 w-4" />
                       {vendor.is_verified ? "Vérifié" : "Non vérifié"}
                     </Badge>
-                    <Badge variant={vendor.is_active ? "default" : "destructive"} className="gap-2">
+                    <Badge variant={vendor.is_active ? "default" : "destructive"} className="gap-2 px-3 py-1">
                       <Store className="h-4 w-4" />
                       {vendor.is_active ? "Actif" : "Inactif"}
                     </Badge>
@@ -217,465 +206,85 @@ export default function VendorProfile() {
         </header>
 
         <div className="container mx-auto px-4 py-8">
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* Statistiques */}
-            <div className="lg:col-span-1">
+          <div className="grid lg:grid-cols-4 gap-6">
+            {/* Sidebar avec statistiques et profil */}
+            <div className="lg:col-span-1 space-y-6">
+              <VendorStatsCard vendor={vendor} />
+              
+              {/* Profil utilisateur amélioré */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Store className="h-5 w-5" />
-                    Statistiques
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold">{vendor?.rating?.toFixed(1) || '0.0'}</div>
-                    <div className="flex items-center justify-center gap-1 mt-1">
-                      {Array.from({ length: 5 }, (_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-4 w-4 ${
-                            i < Math.round(vendor?.rating || 0)
-                              ? 'fill-yellow-400 text-yellow-400' 
-                              : 'text-gray-300'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-1">Note moyenne</p>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Ventes totales</span>
-                      <span className="font-medium">{vendor?.total_sales || 0}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Statut</span>
-                      <Badge variant={vendor?.is_active ? "default" : "secondary"}>
-                        {vendor?.is_active ? "Actif" : "Inactif"}
-                      </Badge>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Vérification</span>
-                      <Badge variant={vendor?.is_verified ? "default" : "secondary"}>
-                        {vendor?.is_verified ? "Vérifié" : "En attente"}
-                      </Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Profil utilisateur */}
-              <Card className="mt-6">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <User className="h-5 w-5" />
                     Profil Utilisateur
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                  <div>
-                    <span className="text-sm text-muted-foreground">Nom:</span>
-                    <p className="font-medium">{profile?.display_name}</p>
+                <CardContent className="space-y-4">
+                  <div className="text-center pb-4 border-b">
+                    <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-3">
+                      <span className="text-white font-bold text-xl">
+                        {profile?.display_name?.charAt(0) || 'U'}
+                      </span>
+                    </div>
+                    <h3 className="font-medium">{profile?.display_name}</h3>
+                    <p className="text-sm text-muted-foreground">{profile?.email}</p>
                   </div>
-                  <div>
-                    <span className="text-sm text-muted-foreground">Email:</span>
-                    <p className="font-medium">{profile?.email}</p>
-                  </div>
-                  <div>
-                    <span className="text-sm text-muted-foreground">Rôle:</span>
-                    <Badge variant="secondary">{profile?.role}</Badge>
+                  
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Rôle:</span>
+                      <Badge variant="secondary" className="capitalize">
+                        {profile?.role}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Membre depuis:</span>
+                      <span className="text-sm font-medium">
+                        {new Date().getFullYear()}
+                      </span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Formulaire */}
-            <div className="lg:col-span-2">
+            {/* Formulaire principal */}
+            <div className="lg:col-span-3">
               <form onSubmit={handleSubmit} className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Informations de la Boutique</CardTitle>
-                    <CardDescription>
-                      Informations publiques de votre boutique
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="business_name">Nom de la boutique *</Label>
-                      <Input
-                        id="business_name"
-                        value={formData.business_name}
-                        onChange={(e) => handleInputChange('business_name', e.target.value)}
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="description">Description</Label>
-                      <Textarea
-                        id="description"
-                        value={formData.description}
-                        onChange={(e) => handleInputChange('description', e.target.value)}
-                        rows={4}
-                        placeholder="Décrivez votre boutique et vos produits..."
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
+                <VendorBasicInfoForm 
+                  formData={formData} 
+                  onInputChange={handleInputChange} 
+                />
+                
+                <VendorImagesSection 
+                  formData={formData} 
+                  vendor={vendor}
+                  onInputChange={handleInputChange} 
+                />
+                
+                <VendorDomainSection 
+                  formData={formData} 
+                  onInputChange={handleInputChange} 
+                />
+                
+                <VendorPaymentSection 
+                  formData={formData} 
+                  onInputChange={handleInputChange} 
+                />
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Coordonnées</CardTitle>
-                    <CardDescription>
-                      Informations de contact pour vos clients
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="address" className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
-                        Adresse
-                      </Label>
-                      <Input
-                        id="address"
-                        value={formData.address}
-                        onChange={(e) => handleInputChange('address', e.target.value)}
-                        placeholder="Votre adresse complète"
-                      />
+                {/* Bouton de sauvegarde fixe */}
+                <div className="sticky bottom-6 z-30">
+                  <div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-4 rounded-lg border shadow-lg">
+                    <div className="flex justify-between items-center">
+                      <div className="text-sm text-muted-foreground">
+                        {saving ? 'Sauvegarde en cours...' : 'Modifications prêtes à être sauvegardées'}
+                      </div>
+                      <Button type="submit" disabled={saving} className="gap-2 min-w-[200px]">
+                        <Save className="h-4 w-4" />
+                        {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
+                      </Button>
                     </div>
-                    
-                    <div>
-                      <Label htmlFor="phone" className="flex items-center gap-2">
-                        <Phone className="h-4 w-4" />
-                        Téléphone
-                      </Label>
-                      <Input
-                        id="phone"
-                        value={formData.phone}
-                        onChange={(e) => handleInputChange('phone', e.target.value)}
-                        placeholder="+237 6XX XXX XXX"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="website_url" className="flex items-center gap-2">
-                        <Globe className="h-4 w-4" />
-                        Site web
-                      </Label>
-                      <Input
-                        id="website_url"
-                        value={formData.website_url}
-                        onChange={(e) => handleInputChange('website_url', e.target.value)}
-                        placeholder="https://votre-site.com"
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Images de la Boutique</CardTitle>
-                    <CardDescription>
-                      Logo et image de couverture pour personnaliser votre boutique
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <ImageUploader
-                        label="Logo de la boutique"
-                        value={formData.logo_url}
-                        onChange={(url) => handleInputChange('logo_url', url)}
-                        aspectRatio="square"
-                        description="Recommandé: 200x200px, format carré. Utilisé comme photo de profil."
-                      />
-                      
-                      <ImageUploader
-                        label="Image de couverture"
-                        value={formData.cover_image_url}
-                        onChange={(url) => handleInputChange('cover_image_url', url)}
-                        aspectRatio="cover"
-                        description="Recommandé: 1200x400px. Image d'en-tête de votre boutique."
-                      />
-                    </div>
-                    
-                    {/* Aperçu de la boutique */}
-                    {(formData.logo_url || formData.cover_image_url || formData.business_name) && (
-                      <div className="space-y-3 pt-4 border-t">
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-sm font-medium">Aperçu de votre boutique</h4>
-                          {vendor && (
-                            <Button variant="outline" size="sm" className="gap-2" asChild>
-                              <a href={`/store/${vendor.id}`} target="_blank" rel="noopener noreferrer">
-                                <Eye className="h-3 w-3" />
-                                Voir la boutique
-                                <ExternalLink className="h-3 w-3" />
-                              </a>
-                            </Button>
-                          )}
-                        </div>
-                        
-                        {/* Mini aperçu */}
-                        <div className="p-4 bg-muted/30 rounded-lg border">
-                          <div className="flex items-center gap-4">
-                            {formData.logo_url ? (
-                              <img 
-                                src={formData.logo_url} 
-                                alt="Logo aperçu"
-                                className="w-16 h-16 rounded-full object-cover border-2 border-background shadow-sm"
-                              />
-                            ) : (
-                              <div className="w-16 h-16 rounded-full bg-gradient-primary flex items-center justify-center border-2 border-background shadow-sm">
-                                <span className="text-white font-bold text-lg">
-                                  {formData.business_name?.charAt(0) || '?'}
-                                </span>
-                              </div>
-                            )}
-                            
-                            <div className="flex-1 min-w-0">
-                              <h5 className="font-semibold truncate">
-                                {formData.business_name || 'Nom de votre boutique'}
-                              </h5>
-                              <p className="text-sm text-muted-foreground truncate">
-                                {formData.description || 'Description de votre boutique...'}
-                              </p>
-                              <div className="flex items-center gap-2 mt-1">
-                                <Badge variant="outline" className="text-xs">
-                                  {vendor?.is_verified ? 'Vérifié' : 'En attente'}
-                                </Badge>
-                                {vendor?.is_verified && (
-                                  <Shield className="h-3 w-3 text-green-500" />
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {formData.cover_image_url && (
-                            <div className="mt-3 h-20 rounded overflow-hidden">
-                              <img 
-                                src={formData.cover_image_url} 
-                                alt="Couverture aperçu"
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Globe className="h-5 w-5" />
-                      Domaine Personnalisé
-                    </CardTitle>
-                    <CardDescription>
-                      Configurez votre sous-domaine ou connectez votre domaine personnalisé
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="subdomain">Sous-domaine</Label>
-                      <div className="flex items-center space-x-2">
-                        <Input
-                          id="subdomain"
-                          value={formData.subdomain}
-                          onChange={(e) => handleInputChange('subdomain', e.target.value)}
-                          placeholder="votre-nom"
-                          className="flex-1"
-                        />
-                        <span className="text-sm text-muted-foreground">.gstartup.pro</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Votre boutique sera accessible via: {formData.subdomain || 'votre-nom'}.gstartup.pro
-                      </p>
-                    </div>
-                    
-                    <div className="p-4 bg-blue-50 rounded-lg border">
-                      <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                          <Globe className="h-4 w-4 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-medium text-blue-900">Domaine Hostinger</h4>
-                          <p className="text-sm text-blue-700 mb-3">
-                            Vous avez un domaine Hostinger ? Connectez-le à votre boutique
-                          </p>
-                          <div className="space-y-2">
-                            <Input
-                              placeholder="votre-domaine.com"
-                              className="bg-white"
-                            />
-                            <Button variant="outline" size="sm" className="text-blue-700">
-                              Connecter le domaine
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-4 bg-amber-50 rounded-lg border">
-                      <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 bg-amber-600 rounded-lg flex items-center justify-center">
-                          <Shield className="h-4 w-4 text-white" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-amber-900">Configuration DNS</h4>
-                          <p className="text-sm text-amber-700">
-                            Pour connecter votre domaine, ajoutez un enregistrement CNAME:
-                          </p>
-                          <div className="mt-2 p-2 bg-white rounded border text-xs font-mono">
-                            CNAME: www → shop.gstartup.pro
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Key className="h-5 w-5" />
-                      Passerelles de Paiement
-                    </CardTitle>
-                    <CardDescription>
-                      Configurez vos passerelles de paiement Moneroo et MoneyFusion
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {/* Section Moneroo */}
-                    <div className="p-4 border rounded-lg">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                          <span className="text-white text-xs font-bold">M</span>
-                        </div>
-                        <div>
-                          <h4 className="font-medium">Moneroo</h4>
-                          <p className="text-sm text-muted-foreground">Passerelle de paiement mobile money</p>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <div>
-                          <Label htmlFor="moneroo_api_key" className="flex items-center gap-2">
-                            <Key className="h-4 w-4" />
-                            Clé API Moneroo
-                          </Label>
-                          <Input
-                            id="moneroo_api_key"
-                            type="password"
-                            value={formData.api_key}
-                            onChange={(e) => handleInputChange('api_key', e.target.value)}
-                            placeholder="Votre clé API Moneroo"
-                          />
-                          <p className="text-sm text-muted-foreground mt-1">
-                            Obtenez votre clé API sur le tableau de bord Moneroo
-                          </p>
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="moneroo_secret" className="flex items-center gap-2">
-                            <Lock className="h-4 w-4" />
-                            Clé secrète Moneroo
-                          </Label>
-                          <Input
-                            id="moneroo_secret"
-                            type="password"
-                            value={formData.api_secret}
-                            onChange={(e) => handleInputChange('api_secret', e.target.value)}
-                            placeholder="Votre clé secrète Moneroo"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Section MoneyFusion */}
-                    <div className="p-4 border rounded-lg">
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-                          <span className="text-white text-xs font-bold">MF</span>
-                        </div>
-                        <div>
-                          <h4 className="font-medium">MoneyFusion</h4>
-                          <p className="text-sm text-muted-foreground">Passerelle de paiement mobile et bancaire</p>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <div>
-                          <Label htmlFor="moneyfusion_webhook" className="flex items-center gap-2">
-                            <Globe className="h-4 w-4" />
-                            Clé webhook MoneyFusion
-                          </Label>
-                          <Input
-                            id="moneyfusion_webhook"
-                            type="password"
-                            value={formData.webhook_secret}
-                            onChange={(e) => handleInputChange('webhook_secret', e.target.value)}
-                            placeholder="Votre clé webhook MoneyFusion"
-                          />
-                          <p className="text-sm text-muted-foreground mt-1">
-                            Pour sécuriser les notifications de paiement MoneyFusion
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Instructions et liens */}
-                    <div className="space-y-3">
-                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div className="flex items-start gap-3">
-                          <Key className="h-5 w-5 text-blue-600 mt-0.5" />
-                          <div>
-                            <h4 className="text-sm font-medium text-blue-900">Configuration Moneroo</h4>
-                            <p className="text-sm text-blue-800 mt-1">
-                              1. Connectez-vous à votre tableau de bord Moneroo<br/>
-                              2. Allez dans "API Keys" pour récupérer votre clé API et secrète<br/>
-                              3. Copiez et collez les clés dans les champs ci-dessus
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                        <div className="flex items-start gap-3">
-                          <Globe className="h-5 w-5 text-green-600 mt-0.5" />
-                          <div>
-                            <h4 className="text-sm font-medium text-green-900">Configuration MoneyFusion</h4>
-                            <p className="text-sm text-green-800 mt-1">
-                              1. Contactez MoneyFusion pour obtenir vos accès API<br/>
-                              2. Récupérez votre clé webhook depuis votre compte<br/>
-                              3. Configurez l'URL webhook: https://gstartup.pro/api/moneyfusion-webhook
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                        <div className="flex items-start gap-3">
-                          <Shield className="h-5 w-5 text-orange-600 mt-0.5" />
-                          <div>
-                            <h4 className="text-sm font-medium text-orange-900">Sécurité importante</h4>
-                            <p className="text-sm text-orange-800 mt-1">
-                              Ces clés permettent d'accéder à vos comptes de paiement. 
-                              Ne les partagez jamais et changez-les régulièrement pour votre sécurité.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <div className="flex justify-end">
-                  <Button type="submit" disabled={saving} className="gap-2">
-                    <Save className="h-4 w-4" />
-                    {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
-                  </Button>
+                  </div>
                 </div>
               </form>
             </div>
