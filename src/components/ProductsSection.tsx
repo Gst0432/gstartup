@@ -156,17 +156,10 @@ export const ProductsSection = () => {
                     variant="outline" 
                     size="sm" 
                     className="flex-1 gap-2"
-                    onClick={() => {
-                      const url = product.preview_url || product.demo_url;
-                      if (url) {
-                        window.open(url, '_blank');
-                      } else {
-                        window.open(`/product/${product.id}`, '_blank');
-                      }
-                    }}
+                    onClick={() => window.open(`/product/${product.id}`, '_self')}
                   >
                     <Eye className="h-4 w-4" />
-                    Aperçu
+                    Voir détails
                   </Button>
                   <Button 
                     size="sm" 
