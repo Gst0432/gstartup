@@ -110,10 +110,38 @@ export const Header = () => {
                   {t(item.key)}
                 </a>
               ))}
-              <Button variant="outline" size="sm" className="sm:hidden w-fit gap-2 mt-2">
-                <User className="h-4 w-4" />
-                {t('login')}
-              </Button>
+              
+              {/* Language Selector for mobile */}
+              <div className="xs:hidden mt-2">
+                <LanguageSelector />
+              </div>
+              
+              {/* Auth buttons for mobile */}
+              {isAuthenticated ? (
+                <div className="sm:hidden flex flex-col gap-3 mt-4 pt-4 border-t border-border">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary">{profile?.role}</Badge>
+                    <span className="text-sm text-muted-foreground">{profile?.display_name}</span>
+                  </div>
+                  <Button variant="outline" size="sm" asChild className="w-fit gap-2">
+                    <a href={getRoleDashboard()} onClick={() => setIsMenuOpen(false)}>
+                      <User className="h-4 w-4" />
+                      Dashboard
+                    </a>
+                  </Button>
+                  <Button variant="ghost" size="sm" className="w-fit gap-2" onClick={() => { signOut(); setIsMenuOpen(false); }}>
+                    <LogOut className="h-4 w-4" />
+                    Déconnexion
+                  </Button>
+                </div>
+              ) : (
+                <Button variant="outline" size="sm" asChild className="sm:hidden w-fit gap-2 mt-4 pt-4 border-t border-border">
+                  <a href="/auth" onClick={() => setIsMenuOpen(false)}>
+                    <User className="h-4 w-4" />
+                    {t('login')}
+                  </a>
+                </Button>
+              )}
             </nav>
           </div>
         )}
