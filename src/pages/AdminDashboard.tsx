@@ -2,6 +2,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Users, 
   Package, 
@@ -28,8 +30,19 @@ interface AdminStats {
   activeProducts: number;
 }
 
+interface UserProfile {
+  id: string;
+  user_id: string;
+  display_name: string;
+  email: string;
+  role: 'customer' | 'vendor' | 'admin';
+  is_verified: boolean;
+  created_at: string;
+}
+
 export default function AdminDashboard() {
   const { profile, signOut } = useAuth();
+  const { toast } = useToast();
   const [stats, setStats] = useState<AdminStats>({
     totalUsers: 0,
     totalVendors: 0,
@@ -38,6 +51,9 @@ export default function AdminDashboard() {
     pendingVendors: 0,
     activeProducts: 0
   });
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [showUserManagement, setShowUserManagement] = useState(false);
+  const [loadingUsers, setLoadingUsers] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -89,6 +105,76 @@ export default function AdminDashboard() {
       });
     } catch (error) {
       console.error('Error fetching admin stats:', error);
+    }
+  };
+
+  const fetchUsers = async () => {
+    setLoadingUsers(true);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching users:', error);
+        return;
+      }
+
+      setUsers(data?.map(user => ({
+        ...user,
+        role: user.role as 'customer' | 'vendor' | 'admin'
+      })) || []);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  const updateUserRole = async (userId: string, newRole: 'customer' | 'vendor' | 'admin') => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role: newRole })
+        .eq('user_id', userId);
+
+      if (error) {
+        console.error('Error updating user role:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de mettre à jour le rôle de l'utilisateur",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Update local state
+      setUsers(users.map(user => 
+        user.user_id === userId ? { ...user, role: newRole } : user
+      ));
+
+      toast({
+        title: "Succès",
+        description: "Rôle utilisateur mis à jour avec succès",
+      });
+
+      // Refresh stats
+      fetchAdminStats();
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur s'est produite",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleUserManagementClick = () => {
+    setShowUserManagement(!showUserManagement);
+    if (!showUserManagement && users.length === 0) {
+      fetchUsers();
     }
   };
 
@@ -267,7 +353,11 @@ export default function AdminDashboard() {
           <h2 className="text-xl font-semibold mb-4">Gestion de la Plateforme</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {managementSections.map((section, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
+              <Card 
+                key={index} 
+                className="hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={section.title === 'Gestion des Utilisateurs' ? handleUserManagementClick : undefined}
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className={`w-12 h-12 ${section.color} rounded-lg flex items-center justify-center mb-3`}>
@@ -291,6 +381,91 @@ export default function AdminDashboard() {
             ))}
           </div>
         </div>
+
+        {/* User Management Section */}
+        {showUserManagement && (
+          <div className="mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    Gestion des Utilisateurs
+                  </span>
+                  <Button variant="outline" size="sm" onClick={() => setShowUserManagement(false)}>
+                    <XCircle className="h-4 w-4 mr-2" />
+                    Fermer
+                  </Button>
+                </CardTitle>
+                <CardDescription>
+                  Gérez les rôles et permissions des utilisateurs
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loadingUsers ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {users.map((user) => (
+                      <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <p className="font-medium">{user.display_name}</p>
+                              <p className="text-sm text-muted-foreground">{user.email}</p>
+                            </div>
+                            <Badge variant={
+                              user.role === 'admin' ? 'destructive' : 
+                              user.role === 'vendor' ? 'default' : 
+                              'secondary'
+                            }>
+                              {user.role === 'admin' ? 'Administrateur' :
+                               user.role === 'vendor' ? 'Vendeur' : 
+                               'Client'}
+                            </Badge>
+                            {user.is_verified && (
+                              <Badge variant="outline" className="text-green-600">
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                Vérifié
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Inscrit le {new Date(user.created_at).toLocaleDateString('fr-FR')}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Select
+                            value={user.role}
+                            onValueChange={(newRole: 'customer' | 'vendor' | 'admin') => 
+                              updateUserRole(user.user_id, newRole)
+                            }
+                          >
+                            <SelectTrigger className="w-40">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="customer">Client</SelectItem>
+                              <SelectItem value="vendor">Vendeur</SelectItem>
+                              <SelectItem value="admin">Administrateur</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    ))}
+                    {users.length === 0 && (
+                      <div className="text-center py-8 text-muted-foreground">
+                        Aucun utilisateur trouvé
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Recent Activity & System Status */}
         <div className="grid md:grid-cols-2 gap-6">
