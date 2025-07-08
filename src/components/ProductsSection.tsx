@@ -109,17 +109,17 @@ export const ProductsSection = () => {
             ))
           ) : products.length > 0 ? (
             products.map((product) => (
-              <Card key={product.id} className="group overflow-hidden hover:shadow-elegant transition-all duration-300 hover:-translate-y-2">
+                <Card key={product.id} className="group overflow-hidden hover:shadow-elegant transition-all duration-300 hover:-translate-y-2 h-full flex flex-col">
                 <CardHeader className="p-0">
-                  <div className="relative overflow-hidden">
+                  <div className="relative overflow-hidden h-48">
                     {product.images && product.images.length > 0 ? (
                       <img 
                         src={product.images[0]} 
                         alt={product.name}
-                        className="w-full h-48 object-cover"
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                     ) : (
-                      <div className="w-full h-48 bg-gradient-primary/10 flex items-center justify-center">
+                      <div className="w-full h-full bg-gradient-primary/10 flex items-center justify-center">
                         <div className="text-4xl font-bold text-primary/30">
                           {product.name.charAt(0)}
                         </div>
@@ -131,30 +131,42 @@ export const ProductsSection = () => {
                   </div>
                 </CardHeader>
                 
-                <CardContent className="p-6">
-                  <h3 className="font-semibold text-lg mb-2 line-clamp-2">
+                <CardContent className="p-6 flex-1 flex flex-col">
+                  <h3 className="font-semibold text-lg mb-2 line-clamp-2 min-h-[3.5rem]">
                     {product.name}
                   </h3>
                   
-                  <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3 flex-1">
                     {product.description}
                   </p>
 
-                  <div className="text-sm text-muted-foreground mb-4">
+                  <div className="text-sm text-muted-foreground mb-2">
                     <span>Par {product.vendor?.business_name}</span>
                   </div>
 
-                  <div className="text-2xl font-bold text-primary mb-4">
+                  <div className="text-2xl font-bold text-primary">
                     {formatPrice(product.price)}
                   </div>
                 </CardContent>
 
                 <CardFooter className="p-6 pt-0 flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1 gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1 gap-2"
+                    onClick={() => window.open(`/product/${product.id}`, '_blank')}
+                  >
                     <Eye className="h-4 w-4" />
                     Aperçu
                   </Button>
-                  <Button size="sm" className="flex-1 gap-2">
+                  <Button 
+                    size="sm" 
+                    className="flex-1 gap-2"
+                    onClick={() => {
+                      // Ajouter au panier ou rediriger vers la page de commande
+                      window.location.href = `/checkout?product=${product.id}`;
+                    }}
+                  >
                     <ShoppingCart className="h-4 w-4" />
                     Acheter
                   </Button>
