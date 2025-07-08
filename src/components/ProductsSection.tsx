@@ -12,6 +12,8 @@ interface Product {
   description: string;
   price: number;
   images: string[];
+  demo_url: string | null;
+  preview_url: string | null;
   vendor: {
     business_name: string;
   };
@@ -59,10 +61,10 @@ export const ProductsSection = () => {
 
   const formatPrice = (price: number) => {
     const rates = {
-      FCFA: 600,
-      XAF: 600,
-      USD: 1,
-      FGN: 800
+      FCFA: 1,
+      XAF: 1,
+      USD: 0.0017,
+      FGN: 1.33
     };
     
     const symbols = {
@@ -73,7 +75,7 @@ export const ProductsSection = () => {
     };
 
     const convertedPrice = Math.round(price * rates[currency]);
-    return `${symbols[currency]}${convertedPrice}`;
+    return `${convertedPrice} ${symbols[currency]}`;
   };
 
   return (
@@ -154,7 +156,14 @@ export const ProductsSection = () => {
                     variant="outline" 
                     size="sm" 
                     className="flex-1 gap-2"
-                    onClick={() => window.open(`/product/${product.id}`, '_blank')}
+                    onClick={() => {
+                      const url = product.preview_url || product.demo_url;
+                      if (url) {
+                        window.open(url, '_blank');
+                      } else {
+                        window.open(`/product/${product.id}`, '_blank');
+                      }
+                    }}
                   >
                     <Eye className="h-4 w-4" />
                     Aperçu
@@ -163,8 +172,12 @@ export const ProductsSection = () => {
                     size="sm" 
                     className="flex-1 gap-2"
                     onClick={() => {
-                      // Ajouter au panier ou rediriger vers la page de commande
-                      window.location.href = `/checkout?product=${product.id}`;
+                      const url = product.demo_url;
+                      if (url) {
+                        window.open(url, '_blank');
+                      } else {
+                        window.location.href = `/checkout?product=${product.id}`;
+                      }
                     }}
                   >
                     <ShoppingCart className="h-4 w-4" />
