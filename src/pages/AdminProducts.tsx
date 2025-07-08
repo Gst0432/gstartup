@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/components/DashboardLayout';
+import { DataTablePagination } from '@/components/ui/data-table-pagination';
+import { usePagination } from '@/hooks/usePagination';
 import { 
   Package,
   Search,
@@ -142,6 +144,20 @@ export default function AdminProducts() {
                          (statusFilter === 'inactive' && !product.is_active) ||
                          (statusFilter === 'featured' && product.is_featured);
     return matchesSearch && matchesStatus;
+  });
+
+  // Pagination hook
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData: paginatedProducts,
+    setCurrentPage,
+    setItemsPerPage,
+  } = usePagination({
+    data: filteredProducts,
+    itemsPerPage: 10,
   });
 
   const stats = {
@@ -281,8 +297,8 @@ export default function AdminProducts() {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {filteredProducts.map((product) => (
+                 <div className="space-y-4">
+                   {paginatedProducts.map((product) => (
                     <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex-1">
                         <div className="flex items-center gap-3">
@@ -350,13 +366,27 @@ export default function AdminProducts() {
                       </div>
                     </div>
                   ))}
-                  {filteredProducts.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      Aucun produit trouvé
-                    </div>
-                  )}
-                </div>
-              )}
+                   {paginatedProducts.length === 0 && filteredProducts.length === 0 && (
+                     <div className="text-center py-8 text-muted-foreground">
+                       Aucun produit trouvé
+                     </div>
+                   )}
+                 </div>
+               )}
+               
+               {/* Pagination */}
+               {!loading && filteredProducts.length > 0 && (
+                 <div className="mt-6">
+                   <DataTablePagination
+                     currentPage={currentPage}
+                     totalPages={totalPages}
+                     totalItems={totalItems}
+                     itemsPerPage={itemsPerPage}
+                     onPageChange={setCurrentPage}
+                     onItemsPerPageChange={setItemsPerPage}
+                   />
+                 </div>
+               )}
             </CardContent>
           </Card>
         </div>

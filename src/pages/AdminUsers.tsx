@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/components/DashboardLayout';
+import { DataTablePagination } from '@/components/ui/data-table-pagination';
+import { usePagination } from '@/hooks/usePagination';
 import { 
   Users, 
   Shield,
@@ -205,6 +207,20 @@ export default function AdminUsers() {
     return matchesSearch && matchesRole;
   });
 
+  // Pagination hook
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData: paginatedUsers,
+    setCurrentPage,
+    setItemsPerPage,
+  } = usePagination({
+    data: filteredUsers,
+    itemsPerPage: 10,
+  });
+
   const getRoleLabel = (role: string) => {
     switch (role) {
       case 'admin': return 'Administrateur';
@@ -297,8 +313,8 @@ export default function AdminUsers() {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {filteredUsers.map((user) => (
+                 <div className="space-y-4">
+                   {paginatedUsers.map((user) => (
                     <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex-1">
                         <div className="flex items-center gap-3">
@@ -346,13 +362,27 @@ export default function AdminUsers() {
                       </div>
                     </div>
                   ))}
-                  {filteredUsers.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      Aucun utilisateur trouvé
-                    </div>
-                  )}
-                </div>
-              )}
+                   {paginatedUsers.length === 0 && filteredUsers.length === 0 && (
+                     <div className="text-center py-8 text-muted-foreground">
+                       Aucun utilisateur trouvé
+                     </div>
+                   )}
+                 </div>
+               )}
+               
+               {/* Pagination */}
+               {!loading && filteredUsers.length > 0 && (
+                 <div className="mt-6">
+                   <DataTablePagination
+                     currentPage={currentPage}
+                     totalPages={totalPages}
+                     totalItems={totalItems}
+                     itemsPerPage={itemsPerPage}
+                     onPageChange={setCurrentPage}
+                     onItemsPerPageChange={setItemsPerPage}
+                   />
+                 </div>
+               )}
             </CardContent>
           </Card>
         </div>

@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/components/DashboardLayout';
+import { DataTablePagination } from '@/components/ui/data-table-pagination';
+import { usePagination } from '@/hooks/usePagination';
 import { 
   Shield,
   Store,
@@ -103,6 +105,20 @@ export default function AdminVendors() {
                          vendor.profile?.display_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          vendor.profile?.email.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
+  });
+
+  // Pagination hook
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData: paginatedVendors,
+    setCurrentPage,
+    setItemsPerPage,
+  } = usePagination({
+    data: filteredVendors,
+    itemsPerPage: 10,
   });
 
   const stats = {
@@ -215,8 +231,8 @@ export default function AdminVendors() {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {filteredVendors.map((vendor) => (
+                 <div className="space-y-4">
+                   {paginatedVendors.map((vendor) => (
                     <div key={vendor.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex-1">
                         <div className="flex items-center gap-3">
@@ -288,13 +304,27 @@ export default function AdminVendors() {
                       </div>
                     </div>
                   ))}
-                  {filteredVendors.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      Aucun vendeur trouvé
-                    </div>
-                  )}
-                </div>
-              )}
+                   {paginatedVendors.length === 0 && filteredVendors.length === 0 && (
+                     <div className="text-center py-8 text-muted-foreground">
+                       Aucun vendeur trouvé
+                     </div>
+                   )}
+                 </div>
+               )}
+               
+               {/* Pagination */}
+               {!loading && filteredVendors.length > 0 && (
+                 <div className="mt-6">
+                   <DataTablePagination
+                     currentPage={currentPage}
+                     totalPages={totalPages}
+                     totalItems={totalItems}
+                     itemsPerPage={itemsPerPage}
+                     onPageChange={setCurrentPage}
+                     onItemsPerPageChange={setItemsPerPage}
+                   />
+                 </div>
+               )}
             </CardContent>
           </Card>
         </div>

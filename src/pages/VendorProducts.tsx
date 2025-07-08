@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/components/DashboardLayout';
+import { DataTablePagination } from '@/components/ui/data-table-pagination';
+import { usePagination } from '@/hooks/usePagination';
 import { 
   Package, 
   Plus,
@@ -124,6 +126,20 @@ export default function VendorProducts() {
     product.category.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Pagination hook
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData: paginatedProducts,
+    setCurrentPage,
+    setItemsPerPage,
+  } = usePagination({
+    data: filteredProducts,
+    itemsPerPage: 10,
+  });
+
   return (
     <DashboardLayout>
       <div className="min-h-screen bg-muted/30">
@@ -139,7 +155,7 @@ export default function VendorProducts() {
               <div className="flex items-center gap-4">
                 <Badge variant="outline" className="gap-2">
                   <Package className="h-4 w-4" />
-                  {filteredProducts.length} produits
+                  {totalItems} produit{totalItems > 1 ? 's' : ''}
                 </Badge>
                 <Link to="/vendor/products/new">
                   <Button className="gap-2">
@@ -191,8 +207,8 @@ export default function VendorProducts() {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 </div>
               ) : (
-                <div className="grid gap-4">
-                  {filteredProducts.map((product) => (
+                 <div className="grid gap-4">
+                   {paginatedProducts.map((product) => (
                     <div key={product.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center gap-4">
                         {product.images?.[0] ? (
@@ -250,24 +266,38 @@ export default function VendorProducts() {
                       </div>
                     </div>
                   ))}
-                  {filteredProducts.length === 0 && (
-                    <div className="text-center py-8">
-                      <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground mb-4">
-                        {searchTerm ? "Aucun produit trouvé" : "Aucun produit dans votre catalogue"}
-                      </p>
-                      {!searchTerm && (
-                        <Link to="/vendor/products/new">
-                          <Button>
-                            <Plus className="h-4 w-4 mr-2" />
-                            Ajouter votre premier produit
-                          </Button>
-                        </Link>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
+                   {paginatedProducts.length === 0 && filteredProducts.length === 0 && (
+                     <div className="text-center py-8">
+                       <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                       <p className="text-muted-foreground mb-4">
+                         {searchTerm ? "Aucun produit trouvé" : "Aucun produit dans votre catalogue"}
+                       </p>
+                       {!searchTerm && (
+                         <Link to="/vendor/products/new">
+                           <Button>
+                             <Plus className="h-4 w-4 mr-2" />
+                             Ajouter votre premier produit
+                           </Button>
+                         </Link>
+                       )}
+                     </div>
+                   )}
+                 </div>
+               )}
+               
+               {/* Pagination */}
+               {!loading && filteredProducts.length > 0 && (
+                 <div className="mt-6">
+                   <DataTablePagination
+                     currentPage={currentPage}
+                     totalPages={totalPages}
+                     totalItems={totalItems}
+                     itemsPerPage={itemsPerPage}
+                     onPageChange={setCurrentPage}
+                     onItemsPerPageChange={setItemsPerPage}
+                   />
+                 </div>
+               )}
             </CardContent>
           </Card>
         </div>

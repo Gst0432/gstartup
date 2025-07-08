@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/components/DashboardLayout';
+import { DataTablePagination } from '@/components/ui/data-table-pagination';
+import { usePagination } from '@/hooks/usePagination';
 import { 
   ShoppingCart,
   Search,
@@ -207,6 +209,20 @@ export default function AdminOrders() {
     return matchesSearch && matchesStatus;
   });
 
+  // Pagination hook
+  const {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData: paginatedOrders,
+    setCurrentPage,
+    setItemsPerPage,
+  } = usePagination({
+    data: filteredOrders,
+    itemsPerPage: 10,
+  });
+
   const getOrderPriority = (order: Order) => {
     const daysSinceCreated = Math.floor((Date.now() - new Date(order.created_at).getTime()) / (1000 * 60 * 60 * 24));
     if (order.status === 'pending' && daysSinceCreated > 3) return 'high';
@@ -359,8 +375,8 @@ export default function AdminOrders() {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {filteredOrders.map((order) => {
+                 <div className="space-y-4">
+                   {paginatedOrders.map((order) => {
                     const priority = getOrderPriority(order);
                     const priorityColors = {
                       high: 'border-l-4 border-l-red-500 bg-red-50/50',
@@ -589,13 +605,27 @@ export default function AdminOrders() {
                       </div>
                     );
                   })}
-                  {filteredOrders.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      Aucune commande trouvée
-                    </div>
-                  )}
-                </div>
-              )}
+                   {paginatedOrders.length === 0 && filteredOrders.length === 0 && (
+                     <div className="text-center py-8 text-muted-foreground">
+                       Aucune commande trouvée
+                     </div>
+                   )}
+                 </div>
+               )}
+               
+               {/* Pagination */}
+               {!loading && filteredOrders.length > 0 && (
+                 <div className="mt-6">
+                   <DataTablePagination
+                     currentPage={currentPage}
+                     totalPages={totalPages}
+                     totalItems={totalItems}
+                     itemsPerPage={itemsPerPage}
+                     onPageChange={setCurrentPage}
+                     onItemsPerPageChange={setItemsPerPage}
+                   />
+                 </div>
+               )}
             </CardContent>
           </Card>
         </div>
