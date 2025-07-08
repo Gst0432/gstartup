@@ -408,73 +408,131 @@ export default function VendorProfile() {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Key className="h-5 w-5" />
-                      Clés API
+                      Passerelles de Paiement
                     </CardTitle>
                     <CardDescription>
-                      Configurez vos clés API pour les intégrations et paiements
+                      Configurez vos passerelles de paiement Moneroo et MoneyFusion
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="api_key" className="flex items-center gap-2">
-                        <Key className="h-4 w-4" />
-                        Clé API
-                      </Label>
-                      <Input
-                        id="api_key"
-                        type="password"
-                        value={formData.api_key}
-                        onChange={(e) => handleInputChange('api_key', e.target.value)}
-                        placeholder="Votre clé API pour les intégrations"
-                      />
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Utilisée pour les intégrations tierces
-                      </p>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="api_secret" className="flex items-center gap-2">
-                        <Lock className="h-4 w-4" />
-                        Clé secrète API
-                      </Label>
-                      <Input
-                        id="api_secret"
-                        type="password"
-                        value={formData.api_secret}
-                        onChange={(e) => handleInputChange('api_secret', e.target.value)}
-                        placeholder="Votre clé secrète API"
-                      />
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Gardez cette clé confidentielle
-                      </p>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="webhook_secret" className="flex items-center gap-2">
-                        <Globe className="h-4 w-4" />
-                        Clé webhook
-                      </Label>
-                      <Input
-                        id="webhook_secret"
-                        type="password"
-                        value={formData.webhook_secret}
-                        onChange={(e) => handleInputChange('webhook_secret', e.target.value)}
-                        placeholder="Clé secrète pour les webhooks"
-                      />
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Pour sécuriser les notifications de paiement
-                      </p>
-                    </div>
-                    
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <div className="flex items-start gap-3">
-                        <Shield className="h-5 w-5 text-orange-500 mt-0.5" />
+                  <CardContent className="space-y-6">
+                    {/* Section Moneroo */}
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">M</span>
+                        </div>
                         <div>
-                          <h4 className="text-sm font-medium text-orange-800">Sécurité importante</h4>
-                          <p className="text-sm text-orange-700 mt-1">
-                            Ces clés permettent d'accéder à vos intégrations de paiement. 
-                            Ne les partagez jamais et changez-les régulièrement.
+                          <h4 className="font-medium">Moneroo</h4>
+                          <p className="text-sm text-muted-foreground">Passerelle de paiement mobile money</p>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <div>
+                          <Label htmlFor="moneroo_api_key" className="flex items-center gap-2">
+                            <Key className="h-4 w-4" />
+                            Clé API Moneroo
+                          </Label>
+                          <Input
+                            id="moneroo_api_key"
+                            type="password"
+                            value={formData.api_key}
+                            onChange={(e) => handleInputChange('api_key', e.target.value)}
+                            placeholder="Votre clé API Moneroo"
+                          />
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Obtenez votre clé API sur le tableau de bord Moneroo
                           </p>
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="moneroo_secret" className="flex items-center gap-2">
+                            <Lock className="h-4 w-4" />
+                            Clé secrète Moneroo
+                          </Label>
+                          <Input
+                            id="moneroo_secret"
+                            type="password"
+                            value={formData.api_secret}
+                            onChange={(e) => handleInputChange('api_secret', e.target.value)}
+                            placeholder="Votre clé secrète Moneroo"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Section MoneyFusion */}
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">MF</span>
+                        </div>
+                        <div>
+                          <h4 className="font-medium">MoneyFusion</h4>
+                          <p className="text-sm text-muted-foreground">Passerelle de paiement mobile et bancaire</p>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <div>
+                          <Label htmlFor="moneyfusion_webhook" className="flex items-center gap-2">
+                            <Globe className="h-4 w-4" />
+                            Clé webhook MoneyFusion
+                          </Label>
+                          <Input
+                            id="moneyfusion_webhook"
+                            type="password"
+                            value={formData.webhook_secret}
+                            onChange={(e) => handleInputChange('webhook_secret', e.target.value)}
+                            placeholder="Votre clé webhook MoneyFusion"
+                          />
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Pour sécuriser les notifications de paiement MoneyFusion
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Instructions et liens */}
+                    <div className="space-y-3">
+                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-start gap-3">
+                          <Key className="h-5 w-5 text-blue-600 mt-0.5" />
+                          <div>
+                            <h4 className="text-sm font-medium text-blue-900">Configuration Moneroo</h4>
+                            <p className="text-sm text-blue-800 mt-1">
+                              1. Connectez-vous à votre tableau de bord Moneroo<br/>
+                              2. Allez dans "API Keys" pour récupérer votre clé API et secrète<br/>
+                              3. Copiez et collez les clés dans les champs ci-dessus
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <div className="flex items-start gap-3">
+                          <Globe className="h-5 w-5 text-green-600 mt-0.5" />
+                          <div>
+                            <h4 className="text-sm font-medium text-green-900">Configuration MoneyFusion</h4>
+                            <p className="text-sm text-green-800 mt-1">
+                              1. Contactez MoneyFusion pour obtenir vos accès API<br/>
+                              2. Récupérez votre clé webhook depuis votre compte<br/>
+                              3. Configurez l'URL webhook: https://gstartup.pro/api/moneyfusion-webhook
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                        <div className="flex items-start gap-3">
+                          <Shield className="h-5 w-5 text-orange-600 mt-0.5" />
+                          <div>
+                            <h4 className="text-sm font-medium text-orange-900">Sécurité importante</h4>
+                            <p className="text-sm text-orange-800 mt-1">
+                              Ces clés permettent d'accéder à vos comptes de paiement. 
+                              Ne les partagez jamais et changez-les régulièrement pour votre sécurité.
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
