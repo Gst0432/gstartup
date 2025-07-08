@@ -8,6 +8,16 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import VendorDashboard from "./pages/VendorDashboard";
+import VendorProducts from "./pages/VendorProducts";
+import VendorProductNew from "./pages/VendorProductNew";
+import VendorOrders from "./pages/VendorOrders";
+import VendorAnalytics from "./pages/VendorAnalytics";
+import VendorReviews from "./pages/VendorReviews";
+import VendorProfile from "./pages/VendorProfile";
+import Cart from "./pages/Cart";
+import Wishlist from "./pages/Wishlist";
+import Orders from "./pages/Orders";
+import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminUsers from "./pages/AdminUsers";
 import AdminVendors from "./pages/AdminVendors";
@@ -36,6 +46,56 @@ const App = () => (
           <Route path="/vendor" element={
             <ProtectedRoute requiredRole="vendor">
               <VendorDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/vendor/products" element={
+            <ProtectedRoute requiredRole="vendor">
+              <VendorProducts />
+            </ProtectedRoute>
+          } />
+          <Route path="/vendor/products/new" element={
+            <ProtectedRoute requiredRole="vendor">
+              <VendorProductNew />
+            </ProtectedRoute>
+          } />
+          <Route path="/vendor/orders" element={
+            <ProtectedRoute requiredRole="vendor">
+              <VendorOrders />
+            </ProtectedRoute>
+          } />
+          <Route path="/vendor/analytics" element={
+            <ProtectedRoute requiredRole="vendor">
+              <VendorAnalytics />
+            </ProtectedRoute>
+          } />
+          <Route path="/vendor/reviews" element={
+            <ProtectedRoute requiredRole="vendor">
+              <VendorReviews />
+            </ProtectedRoute>
+          } />
+          <Route path="/vendor/profile" element={
+            <ProtectedRoute requiredRole="vendor">
+              <VendorProfile />
+            </ProtectedRoute>
+          } />
+          <Route path="/cart" element={
+            <ProtectedRoute requiredRole="customer">
+              <Cart />
+            </ProtectedRoute>
+          } />
+          <Route path="/wishlist" element={
+            <ProtectedRoute requiredRole="customer">
+              <Wishlist />
+            </ProtectedRoute>
+          } />
+          <Route path="/orders" element={
+            <ProtectedRoute requiredRole="customer">
+              <Orders />
+            </ProtectedRoute>
+          } />
+          <Route path="/profile" element={
+            <ProtectedRoute requiredRole="customer">
+              <Profile />
             </ProtectedRoute>
           } />
           <Route path="/admin" element={
