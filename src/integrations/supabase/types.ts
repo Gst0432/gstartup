@@ -793,6 +793,7 @@ export type Database = {
           payment_config: Json | null
           phone: string | null
           rating: number | null
+          subdomain: string | null
           total_sales: number | null
           updated_at: string
           user_id: string
@@ -815,6 +816,7 @@ export type Database = {
           payment_config?: Json | null
           phone?: string | null
           rating?: number | null
+          subdomain?: string | null
           total_sales?: number | null
           updated_at?: string
           user_id: string
@@ -837,6 +839,7 @@ export type Database = {
           payment_config?: Json | null
           phone?: string | null
           rating?: number | null
+          subdomain?: string | null
           total_sales?: number | null
           updated_at?: string
           user_id?: string

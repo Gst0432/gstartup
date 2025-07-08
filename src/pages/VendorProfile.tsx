@@ -33,6 +33,7 @@ interface VendorData {
   address: string | null;
   phone: string | null;
   website_url: string | null;
+  subdomain: string | null;
   is_active: boolean;
   is_verified: boolean;
   rating: number | null;
@@ -52,12 +53,16 @@ export default function VendorProfile() {
     address: '',
     phone: '',
     website_url: '',
+    subdomain: '',
     logo_url: '',
     cover_image_url: '',
     api_key: '',
     api_secret: '',
     webhook_secret: ''
   });
+  
+  const [subdomainAvailable, setSubdomainAvailable] = useState<boolean | null>(null);
+  const [checkingSubdomain, setCheckingSubdomain] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -90,6 +95,7 @@ export default function VendorProfile() {
         address: data.address || '',
         phone: data.phone || '',
         website_url: data.website_url || '',
+        subdomain: data.subdomain || '',
         logo_url: data.logo_url || '',
         cover_image_url: data.cover_image_url || '',
         api_key: data.api_key || '',
@@ -108,6 +114,40 @@ export default function VendorProfile() {
       ...prev,
       [field]: value
     }));
+    
+    // Reset subdomain availability when subdomain changes
+    if (field === 'subdomain') {
+      setSubdomainAvailable(null);
+    }
+  };
+
+  const checkSubdomainAvailability = async (subdomain: string) => {
+    if (!subdomain || subdomain.length < 3) {
+      setSubdomainAvailable(null);
+      return;
+    }
+
+    setCheckingSubdomain(true);
+    try {
+      const { data, error } = await supabase
+        .from('vendors')
+        .select('id')
+        .eq('subdomain', subdomain)
+        .neq('id', vendor?.id || '');
+
+      if (error) {
+        console.error('Error checking subdomain:', error);
+        setSubdomainAvailable(null);
+        return;
+      }
+
+      setSubdomainAvailable(data.length === 0);
+    } catch (error) {
+      console.error('Error checking subdomain:', error);
+      setSubdomainAvailable(null);
+    } finally {
+      setCheckingSubdomain(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -364,6 +404,83 @@ export default function VendorProfile() {
                         onChange={(e) => handleInputChange('website_url', e.target.value)}
                         placeholder="https://votre-site.com"
                       />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Store className="h-5 w-5" />
+                      Sous-domaine de Boutique
+                    </CardTitle>
+                    <CardDescription>
+                      Créez un lien personnalisé pour votre boutique à partager sur les réseaux sociaux
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="subdomain">Sous-domaine personnalisé</Label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          id="subdomain"
+                          value={formData.subdomain}
+                          onChange={(e) => {
+                            const value = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+                            handleInputChange('subdomain', value);
+                          }}
+                          onBlur={() => formData.subdomain && checkSubdomainAvailability(formData.subdomain)}
+                          placeholder="votre-boutique"
+                          pattern="^[a-z0-9-]+$"
+                          minLength={3}
+                          maxLength={50}
+                        />
+                        <span className="text-sm text-muted-foreground whitespace-nowrap">
+                          .g-startup.com
+                        </span>
+                      </div>
+                      
+                      {checkingSubdomain && (
+                        <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+                          <div className="animate-spin rounded-full h-3 w-3 border-b border-primary"></div>
+                          Vérification...
+                        </p>
+                      )}
+                      
+                      {subdomainAvailable === true && (
+                        <p className="text-sm text-green-600 mt-1">
+                          ✓ Ce sous-domaine est disponible
+                        </p>
+                      )}
+                      
+                      {subdomainAvailable === false && (
+                        <p className="text-sm text-red-600 mt-1">
+                          ✗ Ce sous-domaine est déjà pris
+                        </p>
+                      )}
+                      
+                      <p className="text-sm text-muted-foreground mt-1">
+                        3-50 caractères, lettres minuscules, chiffres et traits d'union uniquement
+                      </p>
+                      
+                      {formData.subdomain && subdomainAvailable === true && (
+                        <div className="mt-3 p-3 bg-muted/50 rounded-lg">
+                          <p className="text-sm font-medium mb-2">Votre lien de boutique :</p>
+                          <div className="flex items-center gap-2">
+                            <code className="px-2 py-1 bg-background rounded text-sm">
+                              https://{formData.subdomain}.g-startup.com
+                            </code>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => navigator.clipboard.writeText(`https://${formData.subdomain}.g-startup.com`)}
+                            >
+                              Copier
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
