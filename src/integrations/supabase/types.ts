@@ -783,6 +783,7 @@ export type Database = {
           api_secret: string | null
           api_settings: Json | null
           business_name: string
+          cancel_url: string | null
           cover_image_url: string | null
           created_at: string
           description: string | null
@@ -790,15 +791,18 @@ export type Database = {
           is_active: boolean
           is_verified: boolean
           logo_url: string | null
+          notification_email: string | null
           payment_config: Json | null
           phone: string | null
           rating: number | null
           store_slug: string | null
           subdomain: string | null
+          success_url: string | null
           total_sales: number | null
           updated_at: string
           user_id: string
           webhook_secret: string | null
+          webhook_url: string | null
           website_url: string | null
         }
         Insert: {
@@ -807,6 +811,7 @@ export type Database = {
           api_secret?: string | null
           api_settings?: Json | null
           business_name: string
+          cancel_url?: string | null
           cover_image_url?: string | null
           created_at?: string
           description?: string | null
@@ -814,15 +819,18 @@ export type Database = {
           is_active?: boolean
           is_verified?: boolean
           logo_url?: string | null
+          notification_email?: string | null
           payment_config?: Json | null
           phone?: string | null
           rating?: number | null
           store_slug?: string | null
           subdomain?: string | null
+          success_url?: string | null
           total_sales?: number | null
           updated_at?: string
           user_id: string
           webhook_secret?: string | null
+          webhook_url?: string | null
           website_url?: string | null
         }
         Update: {
@@ -831,6 +839,7 @@ export type Database = {
           api_secret?: string | null
           api_settings?: Json | null
           business_name?: string
+          cancel_url?: string | null
           cover_image_url?: string | null
           created_at?: string
           description?: string | null
@@ -838,15 +847,18 @@ export type Database = {
           is_active?: boolean
           is_verified?: boolean
           logo_url?: string | null
+          notification_email?: string | null
           payment_config?: Json | null
           phone?: string | null
           rating?: number | null
           store_slug?: string | null
           subdomain?: string | null
+          success_url?: string | null
           total_sales?: number | null
           updated_at?: string
           user_id?: string
           webhook_secret?: string | null
+          webhook_url?: string | null
           website_url?: string | null
         }
         Relationships: [

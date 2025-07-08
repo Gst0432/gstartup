@@ -15,6 +15,10 @@ interface VendorData {
   api_key: string | null;
   api_secret: string | null;
   webhook_secret: string | null;
+  success_url: string | null;
+  cancel_url: string | null;
+  webhook_url: string | null;
+  notification_email: string | null;
   is_verified: boolean;
 }
 
@@ -28,7 +32,11 @@ export default function VendorPayments() {
   const [formData, setFormData] = useState({
     api_key: '',
     api_secret: '',
-    webhook_secret: ''
+    webhook_secret: '',
+    success_url: '',
+    cancel_url: '',
+    webhook_url: '',
+    notification_email: ''
   });
 
   useEffect(() => {
@@ -41,7 +49,7 @@ export default function VendorPayments() {
     try {
       const { data, error } = await supabase
         .from('vendors')
-        .select('id, business_name, api_key, api_secret, webhook_secret, is_verified')
+        .select('id, business_name, api_key, api_secret, webhook_secret, success_url, cancel_url, webhook_url, notification_email, is_verified')
         .eq('user_id', profile?.user_id)
         .maybeSingle();
 
@@ -55,7 +63,11 @@ export default function VendorPayments() {
         setFormData({
           api_key: data.api_key || '',
           api_secret: data.api_secret || '',
-          webhook_secret: data.webhook_secret || ''
+          webhook_secret: data.webhook_secret || '',
+          success_url: data.success_url || '',
+          cancel_url: data.cancel_url || '',
+          webhook_url: data.webhook_url || '',
+          notification_email: data.notification_email || ''
         });
       }
     } catch (error) {

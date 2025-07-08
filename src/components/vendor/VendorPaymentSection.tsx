@@ -3,13 +3,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Key, Lock, Globe, Shield, ExternalLink, CheckCircle } from 'lucide-react';
+import { Key, Lock, Globe, Shield, ExternalLink, CheckCircle, Link, Mail, ArrowLeftRight } from 'lucide-react';
 
 interface VendorPaymentSectionProps {
   formData: {
     api_key: string;
     api_secret: string;
     webhook_secret: string;
+    success_url: string;
+    cancel_url: string;
+    webhook_url: string;
+    notification_email: string;
   };
   onInputChange: (field: string, value: string) => void;
 }
@@ -139,6 +143,91 @@ export function VendorPaymentSection({ formData, onInputChange }: VendorPaymentS
           </Button>
         </div>
 
+        {/* Configuration des URLs et notifications */}
+        <div className="p-4 border rounded-lg space-y-4">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
+              <ArrowLeftRight className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h4 className="font-medium">URLs de redirection et Webhooks</h4>
+              <p className="text-sm text-muted-foreground">Configurez les URLs pour la gestion des paiements</p>
+            </div>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="success_url" className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4" />
+                URL de succès
+              </Label>
+              <Input
+                id="success_url"
+                type="url"
+                value={formData.success_url}
+                onChange={(e) => onInputChange('success_url', e.target.value)}
+                placeholder="https://monsite.com/paiement-reussi"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Page où rediriger après un paiement réussi
+              </p>
+            </div>
+            
+            <div>
+              <Label htmlFor="cancel_url" className="flex items-center gap-2">
+                <ExternalLink className="h-4 w-4" />
+                URL d'annulation
+              </Label>
+              <Input
+                id="cancel_url"
+                type="url"
+                value={formData.cancel_url}
+                onChange={(e) => onInputChange('cancel_url', e.target.value)}
+                placeholder="https://monsite.com/paiement-annule"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Page où rediriger si le paiement est annulé
+              </p>
+            </div>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="webhook_url" className="flex items-center gap-2">
+                <Link className="h-4 w-4" />
+                URL Webhook personnalisée
+              </Label>
+              <Input
+                id="webhook_url"
+                type="url"
+                value={formData.webhook_url}
+                onChange={(e) => onInputChange('webhook_url', e.target.value)}
+                placeholder="https://monsite.com/webhook/paiement"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                URL pour recevoir les notifications de paiement
+              </p>
+            </div>
+            
+            <div>
+              <Label htmlFor="notification_email" className="flex items-center gap-2">
+                <Mail className="h-4 w-4" />
+                Email de notification
+              </Label>
+              <Input
+                id="notification_email"
+                type="email"
+                value={formData.notification_email}
+                onChange={(e) => onInputChange('notification_email', e.target.value)}
+                placeholder="admin@monsite.com"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Email pour les notifications de paiement
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Instructions détaillées */}
         <div className="space-y-4">
           <div className="p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
@@ -150,7 +239,7 @@ export function VendorPaymentSection({ formData, onInputChange }: VendorPaymentS
                   <p>1. Créez un compte sur <a href="https://moneroo.io" className="underline" target="_blank">moneroo.io</a></p>
                   <p>2. Allez dans "API Keys" de votre tableau de bord</p>
                   <p>3. Copiez votre clé API et clé secrète</p>
-                  <p>4. Collez-les dans les champs ci-dessus</p>
+                  <p>4. Configurez vos URLs de redirection dans leur tableau de bord</p>
                 </div>
               </div>
             </div>
@@ -164,7 +253,23 @@ export function VendorPaymentSection({ formData, onInputChange }: VendorPaymentS
                 <div className="text-sm text-green-800 dark:text-green-200 mt-1 space-y-1">
                   <p>1. Contactez MoneyFusion pour obtenir vos accès</p>
                   <p>2. Récupérez votre clé webhook</p>
-                  <p>3. URL webhook: <code className="bg-white dark:bg-gray-800 px-1 rounded">https://gstartup.pro/api/moneyfusion-webhook</code></p>
+                  <p>3. Configurez vos URLs dans leur interface</p>
+                  <p>4. URL webhook par défaut: <code className="bg-white dark:bg-gray-800 px-1 rounded">https://gstartup.pro/api/moneyfusion-webhook</code></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+            <div className="flex items-start gap-3">
+              <ArrowLeftRight className="h-5 w-5 text-purple-600 mt-0.5" />
+              <div>
+                <h4 className="text-sm font-medium text-purple-900 dark:text-purple-100">URLs et Webhooks</h4>
+                <div className="text-sm text-purple-800 dark:text-purple-200 mt-1 space-y-1">
+                  <p>• <strong>URL de succès</strong>: Redirection automatique après paiement réussi</p>
+                  <p>• <strong>URL d'annulation</strong>: Redirection si le client annule</p>
+                  <p>• <strong>Webhook personnalisé</strong>: Pour recevoir les notifications en temps réel</p>
+                  <p>• <strong>Email</strong>: Notifications par email des transactions</p>
                 </div>
               </div>
             </div>
