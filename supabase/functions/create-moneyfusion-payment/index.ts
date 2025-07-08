@@ -21,7 +21,7 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get order details
+    // Get order details with vendor information
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .select(`
@@ -30,7 +30,17 @@ serve(async (req) => {
           product_name,
           quantity,
           price,
-          total
+          total,
+          vendor_id,
+          vendors(
+            id,
+            business_name,
+            webhook_secret,
+            success_url,
+            cancel_url,
+            webhook_url,
+            notification_email
+          )
         )
       `)
       .eq('id', orderId)
@@ -40,11 +50,23 @@ serve(async (req) => {
       throw new Error('Order not found');
     }
 
+    // Get vendor info from the first order item (assuming single vendor per order)
+    const vendorInfo = order.order_items[0]?.vendors;
+    if (!vendorInfo) {
+      throw new Error('Vendor information not found');
+    }
+
     // Prepare articles array from order items
     const articles = order.order_items.reduce((acc: any, item: any) => {
       acc[item.product_name] = item.total;
       return acc;
     }, {});
+
+    // Determine URLs to use (vendor custom or defaults)
+    const origin = req.headers.get("origin") || "https://gstartup.pro";
+    const successUrl = vendorInfo.success_url || `${origin}/payment-success?order=${order.reference_code}`;
+    const cancelUrl = vendorInfo.cancel_url || `${origin}/payment-cancelled?order=${order.reference_code}`;
+    const webhookUrl = vendorInfo.webhook_url || `${origin}/functions/v1/moneyfusion-webhook`;
 
     // Prepare payment data according to MoneyFusion API
     const paymentData = {
@@ -54,13 +76,14 @@ serve(async (req) => {
         {
           userId: order.user_id,
           orderId: order.id,
-          orderNumber: order.order_number
+          orderNumber: order.order_number,
+          vendorId: vendorInfo.id
         }
       ],
       numeroSend: customerPhone,
       nomclient: customerName,
-      return_url: `${req.headers.get("origin")}/payment-success?order=${order.reference_code}`,
-      webhook_url: `${req.headers.get("origin")}/supabase/functions/v1/moneyfusion-webhook`
+      return_url: successUrl,
+      webhook_url: webhookUrl
     };
 
     console.log('Creating MoneyFusion payment with data:', JSON.stringify(paymentData, null, 2));
@@ -102,13 +125,24 @@ serve(async (req) => {
       throw new Error('Failed to save transaction');
     }
 
+    // Send email notification to vendor if configured
+    if (vendorInfo.notification_email) {
+      console.log(`Sending payment notification to vendor: ${vendorInfo.notification_email}`);
+      // TODO: Implement email notification (could use Resend or other email service)
+    }
+
     // Return the payment URL
     return new Response(
       JSON.stringify({
         success: true,
         payment_url: moneyfusionData.url,
         token: moneyfusionData.token,
-        order_id: order.id
+        order_id: order.id,
+        vendor_info: {
+          business_name: vendorInfo.business_name,
+          success_url: successUrl,
+          cancel_url: cancelUrl
+        }
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

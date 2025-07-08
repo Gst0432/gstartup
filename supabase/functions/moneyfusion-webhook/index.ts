@@ -30,10 +30,24 @@ serve(async (req) => {
       return new Response("Token not found", { status: 400 });
     }
 
-    // Find the MoneyFusion transaction
+    // Find the MoneyFusion transaction with vendor information
     const { data: transaction, error: transactionError } = await supabase
       .from("moneyfusion_transactions")
-      .select("*, orders(*)")
+      .select(`
+        *,
+        orders(
+          *,
+          order_items(
+            vendor_id,
+            vendors(
+              id,
+              business_name,
+              notification_email,
+              webhook_url
+            )
+          )
+        )
+      `)
       .eq("token_pay", tokenPay)
       .single();
 
@@ -42,13 +56,16 @@ serve(async (req) => {
       return new Response("Transaction not found", { status: 404 });
     }
 
+    // Get vendor info
+    const vendorInfo = transaction.orders?.order_items?.[0]?.vendors;
+
     // Check if this is a duplicate notification
     const currentStatus = transaction.status;
     let newStatus = "pending";
     let orderStatus = "pending";
     let paymentStatus = "pending";
 
-    // Map MoneyFusion events to internal statuses
+    // Map MoneyFusion events to internal statuses selon la documentation
     switch (event) {
       case "payin.session.completed":
         newStatus = "paid";
@@ -70,7 +87,7 @@ serve(async (req) => {
         newStatus = currentStatus;
     }
 
-    // Ignore redundant notifications
+    // Ignore redundant notifications (recommandation de la documentation)
     if (currentStatus === newStatus) {
       console.log(`Ignoring redundant notification: ${event} for transaction ${tokenPay}`);
       return new Response(
@@ -122,13 +139,49 @@ serve(async (req) => {
       return new Response("Failed to update order", { status: 500 });
     }
 
+    // Send email notification to vendor if configured and payment is completed
+    if (vendorInfo?.notification_email && newStatus === "paid") {
+      console.log(`Payment completed - sending notification to vendor: ${vendorInfo.notification_email}`);
+      // TODO: Implement email notification using Resend or other service
+    }
+
+    // Forward webhook to vendor's custom webhook URL if configured
+    if (vendorInfo?.webhook_url) {
+      try {
+        console.log(`Forwarding webhook to vendor URL: ${vendorInfo.webhook_url}`);
+        const vendorWebhookData = {
+          ...webhookData,
+          vendor_info: {
+            business_name: vendorInfo.business_name,
+            vendor_id: vendorInfo.id
+          },
+          order_info: {
+            order_number: transaction.orders?.order_number,
+            reference_code: transaction.orders?.reference_code
+          }
+        };
+        
+        await fetch(vendorInfo.webhook_url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(vendorWebhookData),
+        });
+        console.log(`Webhook forwarded successfully to ${vendorInfo.webhook_url}`);
+      } catch (error) {
+        console.error(`Failed to forward webhook to vendor: ${error}`);
+        // Don't fail the main webhook processing if vendor webhook fails
+      }
+    }
+
     // Log based on status
     if (newStatus === "paid") {
-      console.log(`✅ Payment successful for order ${transaction.orders?.order_number || transaction.orders?.reference_code}`);
+      console.log(`✅ Payment successful for order ${transaction.orders?.order_number || transaction.orders?.reference_code} - Vendor: ${vendorInfo?.business_name || 'Unknown'}`);
     } else if (newStatus === "cancelled") {
-      console.log(`❌ Payment cancelled for order ${transaction.orders?.order_number || transaction.orders?.reference_code}`);
+      console.log(`❌ Payment cancelled for order ${transaction.orders?.order_number || transaction.orders?.reference_code} - Vendor: ${vendorInfo?.business_name || 'Unknown'}`);
     } else {
-      console.log(`⏳ Payment pending for order ${transaction.orders?.order_number || transaction.orders?.reference_code}`);
+      console.log(`⏳ Payment pending for order ${transaction.orders?.order_number || transaction.orders?.reference_code} - Vendor: ${vendorInfo?.business_name || 'Unknown'}`);
     }
 
     return new Response(
