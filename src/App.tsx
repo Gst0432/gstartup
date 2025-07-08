@@ -25,6 +25,8 @@ import AdminProducts from "./pages/AdminProducts";
 import AdminOrders from "./pages/AdminOrders";
 import AdminCategories from "./pages/AdminCategories";
 import AdminAnalytics from "./pages/AdminAnalytics";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCancelled from "./pages/PaymentCancelled";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -133,6 +135,8 @@ const App = () => (
               <AdminAnalytics />
             </ProtectedRoute>
           } />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-cancelled" element={<PaymentCancelled />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

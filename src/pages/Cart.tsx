@@ -14,6 +14,7 @@ import {
   CreditCard,
   Package
 } from 'lucide-react';
+import { MonerooPaymentButton } from '@/components/MonerooPaymentButton';
 import { supabase } from '@/integrations/supabase/client';
 
 interface CartItem {
@@ -327,10 +328,19 @@ export default function Cart() {
                       </div>
                     </div>
                     
-                    <Button className="w-full" size="lg">
-                      <CreditCard className="h-4 w-4 mr-2" />
-                      Procéder au paiement
-                    </Button>
+                    <MonerooPaymentButton
+                      cartItems={cartItems.map(item => ({
+                        product_id: item.product.id,
+                        quantity: item.quantity,
+                        price: getItemPrice(item),
+                        variant_id: item.variant?.id
+                      }))}
+                      paymentMethod="mobile_money"
+                      onPaymentStart={() => console.log('Payment started')}
+                      onPaymentSuccess={(orderRef) => console.log('Payment success:', orderRef)}
+                      onPaymentError={(error) => console.error('Payment error:', error)}
+                      className="w-full"
+                    />
                     
                     <Button variant="outline" className="w-full">
                       Continuer mes achats

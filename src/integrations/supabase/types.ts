@@ -139,6 +139,59 @@ export type Database = {
           },
         ]
       }
+      moneroo_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          moneroo_response: Json | null
+          order_id: string
+          payment_method: string | null
+          reference_code: string
+          status: string
+          transaction_id: string
+          updated_at: string
+          webhook_data: Json | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          moneroo_response?: Json | null
+          order_id: string
+          payment_method?: string | null
+          reference_code: string
+          status?: string
+          transaction_id: string
+          updated_at?: string
+          webhook_data?: Json | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          moneroo_response?: Json | null
+          order_id?: string
+          payment_method?: string | null
+          reference_code?: string
+          status?: string
+          transaction_id?: string
+          updated_at?: string
+          webhook_data?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moneroo_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           created_at: string
@@ -221,6 +274,7 @@ export type Database = {
           id: string
           order_number: string
           payment_status: string
+          reference_code: string | null
           shipping_address: Json | null
           shipping_amount: number | null
           status: string
@@ -240,6 +294,7 @@ export type Database = {
           id?: string
           order_number: string
           payment_status?: string
+          reference_code?: string | null
           shipping_address?: Json | null
           shipping_amount?: number | null
           status?: string
@@ -259,6 +314,7 @@ export type Database = {
           id?: string
           order_number?: string
           payment_status?: string
+          reference_code?: string | null
           shipping_address?: Json | null
           shipping_amount?: number | null
           status?: string
@@ -759,6 +815,10 @@ export type Database = {
       extend_trial_period: {
         Args: { user_id: string; days_to_add: number; admin_id?: string }
         Returns: boolean
+      }
+      generate_order_reference_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       generate_premium_status_report: {
         Args: Record<PropertyKey, never>
