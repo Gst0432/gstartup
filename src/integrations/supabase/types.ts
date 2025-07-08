@@ -192,6 +192,74 @@ export type Database = {
           },
         ]
       }
+      moneyfusion_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          customer_name: string
+          customer_phone: string
+          frais: number | null
+          id: string
+          moneyfusion_response: Json | null
+          montant: number | null
+          moyen: string | null
+          numero_transaction: string | null
+          order_id: string
+          reference_code: string
+          status: string
+          token_pay: string
+          updated_at: string
+          webhook_data: Json | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          customer_name: string
+          customer_phone: string
+          frais?: number | null
+          id?: string
+          moneyfusion_response?: Json | null
+          montant?: number | null
+          moyen?: string | null
+          numero_transaction?: string | null
+          order_id: string
+          reference_code: string
+          status?: string
+          token_pay: string
+          updated_at?: string
+          webhook_data?: Json | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          customer_name?: string
+          customer_phone?: string
+          frais?: number | null
+          id?: string
+          moneyfusion_response?: Json | null
+          montant?: number | null
+          moyen?: string | null
+          numero_transaction?: string | null
+          order_id?: string
+          reference_code?: string
+          status?: string
+          token_pay?: string
+          updated_at?: string
+          webhook_data?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moneyfusion_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           created_at: string

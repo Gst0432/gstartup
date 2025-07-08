@@ -21,9 +21,12 @@ import {
   XCircle,
   Truck,
   Trash2,
-  MessageSquare
+  MessageSquare,
+  RotateCcw
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import PaymentSelector from '@/components/PaymentSelector';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 interface Order {
   id: string;
@@ -52,6 +55,7 @@ export default function Orders() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [retryOrderId, setRetryOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     if (profile) {
@@ -127,6 +131,10 @@ export default function Orders() {
         variant: "destructive"
       });
     }
+  };
+
+  const handleRetryPayment = (orderId: string) => {
+    setRetryOrderId(orderId);
   };
 
   const getStatusBadgeVariant = (status: string) => {
@@ -371,6 +379,44 @@ export default function Orders() {
                             <span className="font-medium text-lg">
                               {order.total_amount.toLocaleString()} {order.currency}
                             </span>
+                            
+                            {/* Bouton Relancer le paiement pour les commandes en attente */}
+                            {(order.status === 'pending' || order.payment_status === 'pending') && (
+                              <Dialog open={retryOrderId === order.id} onOpenChange={(open) => !open && setRetryOrderId(null)}>
+                                <DialogTrigger asChild>
+                                  <Button 
+                                    variant="default" 
+                                    size="sm"
+                                    onClick={() => handleRetryPayment(order.id)}
+                                    className="bg-primary hover:bg-primary/90"
+                                  >
+                                    <RotateCcw className="h-4 w-4 mr-1" />
+                                    Relancer
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-md">
+                                  <DialogHeader>
+                                    <DialogTitle>Relancer le paiement</DialogTitle>
+                                  </DialogHeader>
+                                  <PaymentSelector
+                                    amount={order.total_amount}
+                                    currency={order.currency}
+                                    orderId={order.id}
+                                    onPaymentComplete={(success) => {
+                                      if (success) {
+                                        toast({
+                                          title: "Paiement relancé",
+                                          description: "Votre paiement a été relancé avec succès"
+                                        });
+                                        setRetryOrderId(null);
+                                        fetchOrders(); // Refresh orders
+                                      }
+                                    }}
+                                  />
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                            
                             <Button variant="outline" size="sm">
                               <Eye className="h-4 w-4" />
                             </Button>
