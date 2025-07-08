@@ -57,13 +57,17 @@ export const Header = () => {
           </nav>
 
           {/* Right Side */}
-          <div className="flex items-center gap-4">
-            <LanguageSelector />
+          <div className="flex items-center gap-2 sm:gap-4">
+            {/* Language Selector - hidden on small mobile */}
+            <div className="hidden xs:block">
+              <LanguageSelector />
+            </div>
             
+            {/* Auth buttons - hidden on mobile, shown on tablet+ */}
             {isAuthenticated ? (
-              <div className="flex items-center gap-3">
+              <div className="hidden sm:flex items-center gap-3">
                 <Badge variant="secondary">{profile?.role}</Badge>
-                <Button variant="outline" size="sm" asChild className="hidden sm:flex gap-2">
+                <Button variant="outline" size="sm" asChild className="gap-2">
                   <a href={getRoleDashboard()}>
                     <User className="h-4 w-4" />
                     Dashboard
@@ -82,12 +86,13 @@ export const Header = () => {
               </Button>
             )}
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Button - only visible on mobile */}
             <Button
               variant="ghost"
               size="sm"
-              className="lg:hidden"
+              className="lg:hidden p-2"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Menu"
             >
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
