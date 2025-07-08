@@ -36,6 +36,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancelled from "./pages/PaymentCancelled";
 import VendorStore from "./pages/VendorStore";
 import StorePage from "./pages/StorePage";
+import ShopsPage from "./pages/ShopsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/services" element={<Services />} />
           <Route path="/marketplace" element={<Marketplace />} />
+          <Route path="/boutiques" element={<ShopsPage />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/dashboard" element={
