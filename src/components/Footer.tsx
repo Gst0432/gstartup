@@ -120,9 +120,14 @@ export const Footer = () => {
         {/* Bottom Section */}
         <div className="border-t border-border pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-muted-foreground">
-              {t('allRightsReserved')} © {currentYear} by G-STARTUP LTD
-            </p>
+            <div className="flex flex-col items-center md:items-start gap-2">
+              <p className="text-sm text-muted-foreground">
+                {t('allRightsReserved')} © {currentYear} by G-STARTUP LTD
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Propulsé par <a href="https://gstartup.pro" target="_blank" rel="noopener noreferrer" className="hover:text-primary underline">G-STARTUP</a>
+              </p>
+            </div>
             
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <span>In Collaboration With</span>

@@ -152,6 +152,9 @@ export default function VendorStore() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Boutique introuvable</h1>
+          <Button onClick={() => navigate('/boutiques')}>
+            Retour aux boutiques
+          </Button>
         </div>
       </div>
     );
