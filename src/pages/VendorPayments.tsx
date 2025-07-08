@@ -12,9 +12,11 @@ import { supabase } from '@/integrations/supabase/client';
 interface VendorData {
   id: string;
   business_name: string;
-  api_key: string | null;
-  api_secret: string | null;
-  webhook_secret: string | null;
+  moneroo_api_key: string | null;
+  moneroo_secret_key: string | null;
+  moneyfusion_api_url: string | null;
+  moneroo_enabled: boolean;
+  moneyfusion_enabled: boolean;
   success_url: string | null;
   cancel_url: string | null;
   webhook_url: string | null;
@@ -30,9 +32,11 @@ export default function VendorPayments() {
   const [saving, setSaving] = useState(false);
   
   const [formData, setFormData] = useState({
-    api_key: '',
-    api_secret: '',
-    webhook_secret: '',
+    moneroo_api_key: '',
+    moneroo_secret_key: '',
+    moneyfusion_api_url: '',
+    moneroo_enabled: false,
+    moneyfusion_enabled: false,
     success_url: '',
     cancel_url: '',
     webhook_url: '',
@@ -49,7 +53,7 @@ export default function VendorPayments() {
     try {
       const { data, error } = await supabase
         .from('vendors')
-        .select('id, business_name, api_key, api_secret, webhook_secret, success_url, cancel_url, webhook_url, notification_email, is_verified')
+        .select('id, business_name, moneroo_api_key, moneroo_secret_key, moneyfusion_api_url, moneroo_enabled, moneyfusion_enabled, success_url, cancel_url, webhook_url, notification_email, is_verified')
         .eq('user_id', profile?.user_id)
         .maybeSingle();
 
@@ -61,9 +65,11 @@ export default function VendorPayments() {
       if (data) {
         setVendor(data);
         setFormData({
-          api_key: data.api_key || '',
-          api_secret: data.api_secret || '',
-          webhook_secret: data.webhook_secret || '',
+          moneroo_api_key: data.moneroo_api_key || '',
+          moneroo_secret_key: data.moneroo_secret_key || '',
+          moneyfusion_api_url: data.moneyfusion_api_url || '',
+          moneroo_enabled: data.moneroo_enabled || false,
+          moneyfusion_enabled: data.moneyfusion_enabled || false,
           success_url: data.success_url || '',
           cancel_url: data.cancel_url || '',
           webhook_url: data.webhook_url || '',
@@ -77,7 +83,7 @@ export default function VendorPayments() {
     }
   };
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -142,7 +148,7 @@ export default function VendorPayments() {
     );
   }
 
-  const isConfigured = formData.api_key && formData.api_secret;
+  const isConfigured = (formData.moneroo_api_key && formData.moneroo_secret_key) || formData.moneyfusion_api_url;
 
   return (
     <DashboardLayout>

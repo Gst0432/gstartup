@@ -45,9 +45,9 @@ export default function VendorProfile() {
     store_slug: '',
     logo_url: '',
     cover_image_url: '',
-    api_key: '',
-    api_secret: '',
-    webhook_secret: ''
+    moneroo_api_key: '',
+    moneroo_secret_key: '',
+    moneyfusion_api_url: ''
   });
 
   useEffect(() => {
@@ -84,9 +84,9 @@ export default function VendorProfile() {
         store_slug: data.store_slug || '',
         logo_url: data.logo_url || '',
         cover_image_url: data.cover_image_url || '',
-        api_key: data.api_key || '',
-        api_secret: data.api_secret || '',
-        webhook_secret: data.webhook_secret || ''
+        moneroo_api_key: data.moneroo_api_key || '',
+        moneroo_secret_key: data.moneroo_secret_key || '',
+        moneyfusion_api_url: data.moneyfusion_api_url || ''
       });
     } catch (error) {
       console.error('Error fetching vendor profile:', error);

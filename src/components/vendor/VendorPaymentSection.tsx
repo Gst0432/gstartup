@@ -3,24 +3,27 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Key, Lock, Globe, Shield, ExternalLink, CheckCircle, Link, Mail, ArrowLeftRight } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Key, Lock, Globe, Shield, ExternalLink, CheckCircle, Link, Mail, ArrowLeftRight, Power } from 'lucide-react';
 
 interface VendorPaymentSectionProps {
   formData: {
-    api_key: string;
-    api_secret: string;
-    webhook_secret: string;
+    moneroo_api_key: string;
+    moneroo_secret_key: string;
+    moneyfusion_api_url: string;
+    moneroo_enabled: boolean;
+    moneyfusion_enabled: boolean;
     success_url: string;
     cancel_url: string;
     webhook_url: string;
     notification_email: string;
   };
-  onInputChange: (field: string, value: string) => void;
+  onInputChange: (field: string, value: string | boolean) => void;
 }
 
 export function VendorPaymentSection({ formData, onInputChange }: VendorPaymentSectionProps) {
-  const monerooConfigured = formData.api_key && formData.api_secret;
-  const moneyfusionConfigured = formData.webhook_secret;
+  const monerooConfigured = formData.moneroo_api_key && formData.moneroo_secret_key;
+  const moneyfusionConfigured = formData.moneyfusion_api_url;
 
   return (
     <Card>
@@ -47,14 +50,27 @@ export function VendorPaymentSection({ formData, onInputChange }: VendorPaymentS
               </div>
             </div>
             
-            {monerooConfigured ? (
-              <Badge variant="default" className="gap-1">
-                <CheckCircle className="h-3 w-3" />
-                Configuré
-              </Badge>
-            ) : (
-              <Badge variant="secondary">Non configuré</Badge>
-            )}
+            <div className="flex items-center gap-3">
+              {monerooConfigured ? (
+                <Badge variant="default" className="gap-1">
+                  <CheckCircle className="h-3 w-3" />
+                  Configuré
+                </Badge>
+              ) : (
+                <Badge variant="secondary">Non configuré</Badge>
+              )}
+              
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={formData.moneroo_enabled}
+                  onCheckedChange={(checked) => onInputChange('moneroo_enabled', checked)}
+                  disabled={!monerooConfigured}
+                />
+                <Label className="text-sm">
+                  {formData.moneroo_enabled ? 'Activé' : 'Désactivé'}
+                </Label>
+              </div>
+            </div>
           </div>
           
           <div className="grid md:grid-cols-2 gap-4">
@@ -66,8 +82,8 @@ export function VendorPaymentSection({ formData, onInputChange }: VendorPaymentS
               <Input
                 id="moneroo_api_key"
                 type="password"
-                value={formData.api_key}
-                onChange={(e) => onInputChange('api_key', e.target.value)}
+                value={formData.moneroo_api_key}
+                onChange={(e) => onInputChange('moneroo_api_key', e.target.value)}
                 placeholder="Votre clé API Moneroo"
               />
             </div>
@@ -75,14 +91,14 @@ export function VendorPaymentSection({ formData, onInputChange }: VendorPaymentS
             <div>
               <Label htmlFor="moneroo_secret" className="flex items-center gap-2">
                 <Lock className="h-4 w-4" />
-                Clé secrète
+                Clé secrète Moneroo
               </Label>
               <Input
                 id="moneroo_secret"
                 type="password"
-                value={formData.api_secret}
-                onChange={(e) => onInputChange('api_secret', e.target.value)}
-                placeholder="Votre clé secrète"
+                value={formData.moneroo_secret_key}
+                onChange={(e) => onInputChange('moneroo_secret_key', e.target.value)}
+                placeholder="Votre clé secrète Moneroo"
               />
             </div>
           </div>
@@ -108,30 +124,43 @@ export function VendorPaymentSection({ formData, onInputChange }: VendorPaymentS
               </div>
             </div>
             
-            {moneyfusionConfigured ? (
-              <Badge variant="default" className="gap-1">
-                <CheckCircle className="h-3 w-3" />
-                Configuré
-              </Badge>
-            ) : (
-              <Badge variant="secondary">Non configuré</Badge>
-            )}
+            <div className="flex items-center gap-3">
+              {moneyfusionConfigured ? (
+                <Badge variant="default" className="gap-1">
+                  <CheckCircle className="h-3 w-3" />
+                  Configuré
+                </Badge>
+              ) : (
+                <Badge variant="secondary">Non configuré</Badge>
+              )}
+              
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={formData.moneyfusion_enabled}
+                  onCheckedChange={(checked) => onInputChange('moneyfusion_enabled', checked)}
+                  disabled={!moneyfusionConfigured}
+                />
+                <Label className="text-sm">
+                  {formData.moneyfusion_enabled ? 'Activé' : 'Désactivé'}
+                </Label>
+              </div>
+            </div>
           </div>
           
           <div>
-            <Label htmlFor="moneyfusion_webhook" className="flex items-center gap-2">
+            <Label htmlFor="moneyfusion_api_url" className="flex items-center gap-2">
               <Globe className="h-4 w-4" />
-              Clé webhook MoneyFusion
+              URL API MoneyFusion
             </Label>
             <Input
-              id="moneyfusion_webhook"
-              type="password"
-              value={formData.webhook_secret}
-              onChange={(e) => onInputChange('webhook_secret', e.target.value)}
-              placeholder="Votre clé webhook MoneyFusion"
+              id="moneyfusion_api_url"
+              type="url"
+              value={formData.moneyfusion_api_url}
+              onChange={(e) => onInputChange('moneyfusion_api_url', e.target.value)}
+              placeholder="https://votre-api-url-moneyfusion.com"
             />
             <p className="text-sm text-muted-foreground mt-1">
-              Pour sécuriser les notifications de paiement
+              L'URL de votre API MoneyFusion (fournie par MoneyFusion)
             </p>
           </div>
           
@@ -252,9 +281,23 @@ export function VendorPaymentSection({ formData, onInputChange }: VendorPaymentS
                 <h4 className="text-sm font-medium text-green-900 dark:text-green-100">Configuration MoneyFusion</h4>
                 <div className="text-sm text-green-800 dark:text-green-200 mt-1 space-y-1">
                   <p>1. Contactez MoneyFusion pour obtenir vos accès</p>
-                  <p>2. Récupérez votre clé webhook</p>
-                  <p>3. Configurez vos URLs dans leur interface</p>
-                  <p>4. URL webhook par défaut: <code className="bg-white dark:bg-gray-800 px-1 rounded">https://gstartup.pro/api/moneyfusion-webhook</code></p>
+                  <p>2. Récupérez votre <strong>URL API personnalisée</strong></p>
+                  <p>3. Configurez vos URLs de redirection dans leur interface</p>
+                  <p>4. Activez la passerelle avec le switch ci-dessus</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+            <div className="flex items-start gap-3">
+              <Power className="h-5 w-5 text-purple-600 mt-0.5" />
+              <div>
+                <h4 className="text-sm font-medium text-purple-900 dark:text-purple-100">Activation des Passerelles</h4>
+                <div className="text-sm text-purple-800 dark:text-purple-200 mt-1 space-y-1">
+                  <p>• <strong>Activé</strong>: La passerelle sera proposée aux clients lors du paiement</p>
+                  <p>• <strong>Désactivé</strong>: La passerelle ne sera pas disponible</p>
+                  <p>• Vous devez d'abord configurer les clés/URL avant d'activer</p>
                 </div>
               </div>
             </div>

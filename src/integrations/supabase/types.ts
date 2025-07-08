@@ -779,8 +779,6 @@ export type Database = {
       vendors: {
         Row: {
           address: string | null
-          api_key: string | null
-          api_secret: string | null
           api_settings: Json | null
           business_name: string
           cancel_url: string | null
@@ -791,6 +789,11 @@ export type Database = {
           is_active: boolean
           is_verified: boolean
           logo_url: string | null
+          moneroo_api_key: string | null
+          moneroo_enabled: boolean | null
+          moneroo_secret_key: string | null
+          moneyfusion_api_url: string | null
+          moneyfusion_enabled: boolean | null
           notification_email: string | null
           payment_config: Json | null
           phone: string | null
@@ -801,14 +804,11 @@ export type Database = {
           total_sales: number | null
           updated_at: string
           user_id: string
-          webhook_secret: string | null
           webhook_url: string | null
           website_url: string | null
         }
         Insert: {
           address?: string | null
-          api_key?: string | null
-          api_secret?: string | null
           api_settings?: Json | null
           business_name: string
           cancel_url?: string | null
@@ -819,6 +819,11 @@ export type Database = {
           is_active?: boolean
           is_verified?: boolean
           logo_url?: string | null
+          moneroo_api_key?: string | null
+          moneroo_enabled?: boolean | null
+          moneroo_secret_key?: string | null
+          moneyfusion_api_url?: string | null
+          moneyfusion_enabled?: boolean | null
           notification_email?: string | null
           payment_config?: Json | null
           phone?: string | null
@@ -829,14 +834,11 @@ export type Database = {
           total_sales?: number | null
           updated_at?: string
           user_id: string
-          webhook_secret?: string | null
           webhook_url?: string | null
           website_url?: string | null
         }
         Update: {
           address?: string | null
-          api_key?: string | null
-          api_secret?: string | null
           api_settings?: Json | null
           business_name?: string
           cancel_url?: string | null
@@ -847,6 +849,11 @@ export type Database = {
           is_active?: boolean
           is_verified?: boolean
           logo_url?: string | null
+          moneroo_api_key?: string | null
+          moneroo_enabled?: boolean | null
+          moneroo_secret_key?: string | null
+          moneyfusion_api_url?: string | null
+          moneyfusion_enabled?: boolean | null
           notification_email?: string | null
           payment_config?: Json | null
           phone?: string | null
@@ -857,7 +864,6 @@ export type Database = {
           total_sales?: number | null
           updated_at?: string
           user_id?: string
-          webhook_secret?: string | null
           webhook_url?: string | null
           website_url?: string | null
         }
