@@ -1,12 +1,25 @@
 import { useState } from 'react';
-import { Menu, X, User } from 'lucide-react';
+import { Menu, X, User, LogOut } from 'lucide-react';
 import { Button } from './ui/button';
+import { Badge } from './ui/badge';
 import { LanguageSelector } from './LanguageSelector';
 import { useLanguage } from '../hooks/useLanguage';
+import { useAuth } from '../hooks/useAuth';
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { t } = useLanguage();
+  const { isAuthenticated, profile, signOut } = useAuth();
+
+  const getRoleDashboard = () => {
+    if (!profile) return '/auth';
+    switch (profile.role) {
+      case 'admin': return '/admin';
+      case 'vendor': return '/vendor';
+      case 'customer': return '/dashboard';
+      default: return '/dashboard';
+    }
+  };
 
   const navItems = [
     { key: 'home', href: '#home' },
@@ -50,10 +63,27 @@ export const Header = () => {
           <div className="flex items-center gap-4">
             <LanguageSelector />
             
-            <Button variant="outline" size="sm" className="hidden sm:flex gap-2">
-              <User className="h-4 w-4" />
-              {t('login')}
-            </Button>
+            {isAuthenticated ? (
+              <div className="flex items-center gap-3">
+                <Badge variant="secondary">{profile?.role}</Badge>
+                <Button variant="outline" size="sm" asChild className="hidden sm:flex gap-2">
+                  <a href={getRoleDashboard()}>
+                    <User className="h-4 w-4" />
+                    Dashboard
+                  </a>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => signOut()}>
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <Button variant="outline" size="sm" asChild className="hidden sm:flex gap-2">
+                <a href="/auth">
+                  <User className="h-4 w-4" />
+                  {t('login')}
+                </a>
+              </Button>
+            )}
 
             {/* Mobile Menu Button */}
             <Button
