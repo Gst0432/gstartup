@@ -31,6 +31,7 @@ import AdminAnalytics from "./pages/AdminAnalytics";
 import AdminSettings from "./pages/AdminSettings";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancelled from "./pages/PaymentCancelled";
+import VendorStore from "./pages/VendorStore";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -151,6 +152,7 @@ const App = () => (
               <AdminSettings />
             </ProtectedRoute>
           } />
+          <Route path="/store/:vendorId" element={<VendorStore />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-cancelled" element={<PaymentCancelled />} />
           <Route path="*" element={<NotFound />} />

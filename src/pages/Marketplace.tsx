@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Star, Eye, ShoppingCart, Filter, Search, Grid, List } from 'lucide-react';
+import { Star, Eye, ShoppingCart, Filter, Search, Grid, List, Store } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/Header';
@@ -21,6 +21,7 @@ interface Product {
   preview_url: string | null;
   created_at: string;
   vendor: {
+    id: string;
     business_name: string;
   };
   category: {
@@ -55,7 +56,7 @@ export default function Marketplace() {
         .from('products')
         .select(`
           *,
-          vendor:vendors!products_vendor_id_fkey(business_name),
+          vendor:vendors!products_vendor_id_fkey(id, business_name),
           category:categories!products_category_id_fkey(name)
         `)
         .eq('is_active', true)
@@ -298,8 +299,20 @@ export default function Marketplace() {
                       {product.description}
                     </p>
 
-                    <div className="text-sm text-muted-foreground mb-2">
+                    <div className="text-sm text-muted-foreground mb-2 flex items-center justify-between">
                       <span>Par {product.vendor.business_name}</span>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-6 px-2 text-xs"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(`/store/${product.vendor.id}`, '_self');
+                        }}
+                      >
+                        <Store className="h-3 w-3 mr-1" />
+                        Boutique
+                      </Button>
                     </div>
 
                     <div className={`font-bold text-primary ${viewMode === 'list' ? 'text-lg' : 'text-2xl'}`}>
