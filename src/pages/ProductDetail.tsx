@@ -1,12 +1,16 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, ShoppingCart, Eye, Star, Share2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ArrowLeft, ShoppingCart, Eye, Star, Share2, UserPlus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useToast } from '@/hooks/use-toast';
+import { usePendingPurchase } from '@/hooks/usePendingPurchase';
 
 interface Product {
   id: string;
@@ -33,15 +37,26 @@ export default function ProductDetail() {
   const navigate = useNavigate();
   const { currency } = useLanguage();
   const { toast } = useToast();
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { savePendingPurchase, executePendingPurchase, pendingPurchase, clearPendingPurchase } = usePendingPurchase();
+  
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
   useEffect(() => {
     if (id) {
       fetchProduct();
     }
   }, [id]);
+
+  // Exécuter l'achat en attente après authentification
+  useEffect(() => {
+    if (isAuthenticated && !authLoading && pendingPurchase) {
+      handlePendingPurchase();
+    }
+  }, [isAuthenticated, authLoading, pendingPurchase]);
 
   const fetchProduct = async () => {
     try {
@@ -80,6 +95,28 @@ export default function ProductDetail() {
     }
   };
 
+  const handlePendingPurchase = async () => {
+    if (!pendingPurchase) return;
+
+    const paymentUrl = await executePendingPurchase();
+    if (paymentUrl) {
+      toast({
+        title: "Redirection vers le paiement",
+        description: "Votre achat va être finalisé...",
+      });
+      setTimeout(() => {
+        window.open(paymentUrl, '_blank');
+      }, 1000);
+    } else {
+      toast({
+        title: "Erreur",
+        description: "Impossible de finaliser l'achat",
+        variant: "destructive"
+      });
+      clearPendingPurchase();
+    }
+  };
+
   const formatPrice = (price: number) => {
     const rates = {
       FCFA: 1,
@@ -100,6 +137,15 @@ export default function ProductDetail() {
   };
 
   const handleBuy = async () => {
+    if (!isAuthenticated) {
+      // Sauvegarder l'intention d'achat et inviter à s'inscrire
+      if (product) {
+        savePendingPurchase(product.id, 1);
+        setShowAuthPrompt(true);
+      }
+      return;
+    }
+
     try {
       const { data, error } = await supabase.functions.invoke('create-payment', {
         body: { 
@@ -118,7 +164,6 @@ export default function ProductDetail() {
       }
 
       if (data.success && data.payment_url) {
-        // Ouvrir la page de paiement dans un nouvel onglet
         window.open(data.payment_url, '_blank');
       }
     } catch (error) {
@@ -129,6 +174,10 @@ export default function ProductDetail() {
         variant: "destructive"
       });
     }
+  };
+
+  const handleAuthRedirect = () => {
+    navigate('/auth');
   };
 
   const handlePreview = () => {
@@ -171,6 +220,44 @@ export default function ProductDetail() {
             Partager
           </Button>
         </div>
+
+        {/* Alerte d'inscription requise */}
+        {showAuthPrompt && (
+          <Alert className="mb-6 border-primary bg-primary/5">
+            <UserPlus className="h-4 w-4" />
+            <AlertDescription className="flex items-center justify-between">
+              <span>
+                Pour finaliser votre achat, vous devez créer un compte ou vous connecter.
+                Votre sélection sera sauvegardée.
+              </span>
+              <div className="flex gap-2 ml-4">
+                <Button size="sm" onClick={handleAuthRedirect}>
+                  S'inscrire / Se connecter
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => {
+                    setShowAuthPrompt(false);
+                    clearPendingPurchase();
+                  }}
+                >
+                  Annuler
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Confirmation d'achat en attente après connexion */}
+        {isAuthenticated && pendingPurchase && (
+          <Alert className="mb-6 border-green-500 bg-green-50">
+            <ShoppingCart className="h-4 w-4" />
+            <AlertDescription>
+              Bienvenue ! Votre achat va être finalisé automatiquement...
+            </AlertDescription>
+          </Alert>
+        )}
 
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Images */}
@@ -266,7 +353,7 @@ export default function ProductDetail() {
               )}
               <Button onClick={handleBuy} className="flex-1" size="lg">
                 <ShoppingCart className="h-4 w-4 mr-2" />
-                Acheter maintenant
+                {isAuthenticated ? 'Acheter maintenant' : 'Acheter (inscription requise)'}
               </Button>
             </div>
 

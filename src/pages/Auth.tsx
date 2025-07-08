@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -5,10 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/hooks/useLanguage';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { usePendingPurchase } from '@/hooks/usePendingPurchase';
+import { Loader2, Eye, EyeOff, ShoppingCart } from 'lucide-react';
 
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
@@ -23,10 +25,17 @@ export default function Auth() {
   const { signIn, signUp, isAuthenticated, profile } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const { pendingPurchase } = usePendingPurchase();
 
   useEffect(() => {
     if (isAuthenticated && profile) {
-      // Redirect based on role
+      // Si il y a un achat en attente, rediriger vers la page produit
+      if (pendingPurchase) {
+        navigate(`/product/${pendingPurchase.productId}`);
+        return;
+      }
+
+      // Sinon, rediriger selon le rôle
       const roleRedirects = {
         customer: '/dashboard',
         vendor: '/vendor',
@@ -34,7 +43,7 @@ export default function Auth() {
       };
       navigate(roleRedirects[profile.role] || '/dashboard');
     }
-  }, [isAuthenticated, profile, navigate]);
+  }, [isAuthenticated, profile, navigate, pendingPurchase]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -75,7 +84,6 @@ export default function Auth() {
       setError(error.message);
     } else {
       setError(null);
-      // Show success message
       alert('Compte créé avec succès ! Vous pouvez maintenant vous connecter.');
     }
     
@@ -89,6 +97,16 @@ export default function Auth() {
           <h1 className="text-3xl font-bold text-white mb-2">G-STARTUP LTD</h1>
           <p className="text-white/80">Accédez à votre marketplace numérique</p>
         </div>
+
+        {/* Alerte achat en attente */}
+        {pendingPurchase && (
+          <Alert className="mb-4 bg-white/10 border-white/20 text-white">
+            <ShoppingCart className="h-4 w-4" />
+            <AlertDescription>
+              Un achat est en attente. Connectez-vous pour finaliser votre commande.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Card className="backdrop-blur-sm bg-white/95">
           <Tabs defaultValue="signin" className="w-full">
@@ -171,6 +189,7 @@ export default function Auth() {
                   <CardTitle>Créer un compte</CardTitle>
                   <CardDescription>
                     Rejoignez G-STARTUP et accédez au marketplace
+                    {pendingPurchase && " pour finaliser votre achat"}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
