@@ -37,8 +37,8 @@ export const Header = () => {
           {/* Logo */}
           <div className="flex items-center gap-2">
             <img 
-              src="/lovable-uploads/afcb3c11-f103-4e66-820b-6352b9ca0f46.png" 
-              alt="G-STARTUP LTD Logo"
+              src="/lovable-uploads/c72d66fa-2175-4b64-b34b-5754d320f178.png" 
+              alt="G-STARTUP Logo"
               className="h-8 w-auto"
             />
           </div>
