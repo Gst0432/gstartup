@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,7 +10,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/hooks/useLanguage';
 import { usePendingPurchase } from '@/hooks/usePendingPurchase';
-import { Loader2, Eye, EyeOff, ShoppingCart } from 'lucide-react';
+import { Loader2, Eye, EyeOff, ShoppingCart, ArrowLeft } from 'lucide-react';
+import logoTransparent from '@/assets/g-startup-logo-transparent.png';
 
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
@@ -35,13 +36,8 @@ export default function Auth() {
         return;
       }
 
-      // Sinon, rediriger selon le rôle
-      const roleRedirects = {
-        customer: '/dashboard',
-        vendor: '/vendor',
-        admin: '/admin'
-      };
-      navigate(roleRedirects[profile.role] || '/dashboard');
+      // Sinon, rediriger vers la landing page par défaut
+      navigate('/');
     }
   }, [isAuthenticated, profile, navigate, pendingPurchase]);
 
@@ -91,9 +87,26 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-primary flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-primary flex items-center justify-center p-4 relative">
+      {/* Retour à l'accueil - Position fixe en haut */}
+      <Link 
+        to="/"
+        className="absolute top-6 left-6 z-10 text-white hover:text-white/80 transition-colors flex items-center gap-2 touch-target"
+      >
+        <ArrowLeft className="h-5 w-5" />
+        <span className="hidden sm:inline">Retour à l'accueil</span>
+      </Link>
+
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
+        {/* Logo et titre avec le PNG transparent */}
+        <div className="text-center mb-8 animate-fade-in">
+          <div className="flex justify-center mb-4">
+            <img 
+              src={logoTransparent} 
+              alt="G-STARTUP Logo"
+              className="h-16 w-16 object-contain drop-shadow-lg"
+            />
+          </div>
           <h1 className="text-3xl font-bold text-white mb-2">G-STARTUP LTD</h1>
           <p className="text-white/80">Accédez à votre marketplace numérique</p>
         </div>
@@ -108,7 +121,8 @@ export default function Auth() {
           </Alert>
         )}
 
-        <Card className="backdrop-blur-sm bg-white/95">
+        <Card className="backdrop-blur-sm bg-white/95 shadow-elegant animate-fade-in"
+              style={{ animationDelay: '0.2s' }}>
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Connexion</TabsTrigger>
@@ -117,8 +131,8 @@ export default function Auth() {
 
             <TabsContent value="signin">
               <form onSubmit={handleSignIn}>
-                <CardHeader>
-                  <CardTitle>Se connecter</CardTitle>
+                <CardHeader className="text-center pb-4">
+                  <CardTitle className="text-xl">Se connecter</CardTitle>
                   <CardDescription>
                     Connectez-vous à votre compte G-STARTUP
                   </CardDescription>
@@ -174,19 +188,33 @@ export default function Auth() {
                     </div>
                   </div>
                 </CardContent>
-                <CardFooter>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                <CardFooter className="flex flex-col gap-4">
+                  <Button type="submit" className="w-full touch-target" disabled={isLoading}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Se connecter
                   </Button>
+                  <p className="text-sm text-muted-foreground text-center">
+                    Pas encore de compte ?{' '}
+                    <Button 
+                      type="button" 
+                      variant="link" 
+                      className="p-0 h-auto font-semibold text-primary"
+                      onClick={() => {
+                        const signupTab = document.querySelector('[value="signup"]') as HTMLElement;
+                        signupTab?.click();
+                      }}
+                    >
+                      Créer un compte
+                    </Button>
+                  </p>
                 </CardFooter>
               </form>
             </TabsContent>
 
             <TabsContent value="signup">
               <form onSubmit={handleSignUp}>
-                <CardHeader>
-                  <CardTitle>Créer un compte</CardTitle>
+                <CardHeader className="text-center pb-4">
+                  <CardTitle className="text-xl">Créer un compte</CardTitle>
                   <CardDescription>
                     Rejoignez G-STARTUP et accédez au marketplace
                     {pendingPurchase && " pour finaliser votre achat"}
@@ -261,25 +289,36 @@ export default function Auth() {
                     </p>
                   </div>
                 </CardContent>
-                <CardFooter>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                <CardFooter className="flex flex-col gap-4">
+                  <Button type="submit" className="w-full touch-target" disabled={isLoading}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Créer le compte
                   </Button>
+                  <p className="text-sm text-muted-foreground text-center">
+                    Déjà un compte ?{' '}
+                    <Button 
+                      type="button" 
+                      variant="link" 
+                      className="p-0 h-auto font-semibold text-primary"
+                      onClick={() => {
+                        const signinTab = document.querySelector('[value="signin"]') as HTMLElement;
+                        signinTab?.click();
+                      }}
+                    >
+                      Se connecter
+                    </Button>
+                  </p>
                 </CardFooter>
               </form>
             </TabsContent>
           </Tabs>
         </Card>
 
-        <div className="text-center mt-6">
-          <Button 
-            variant="ghost" 
-            className="text-white hover:text-white/80 hover:bg-white/10"
-            onClick={() => navigate('/')}
-          >
-            ← Retour à l'accueil
-          </Button>
+        {/* Footer avec informations supplémentaires */}
+        <div className="text-center mt-6 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <p className="text-white/60 text-sm">
+            En vous connectant, vous acceptez nos conditions d'utilisation et notre politique de confidentialité
+          </p>
         </div>
       </div>
     </div>
