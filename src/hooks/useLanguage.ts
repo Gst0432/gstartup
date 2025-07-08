@@ -37,14 +37,28 @@ const translations = {
     wordpressDev: 'Thèmes & Plugins WordPress',
     shopifyDev: 'Thèmes & Apps Shopify',
     uiuxDesign: 'Design UI/UX',
+    moreDetails: 'Plus de détails',
     
     // About
     aboutTitle: 'À propos de G-STARTUP LTD',
     aboutDescription: 'Améliorer les ventes de produits d\'entreprise numérique. Nous nous concentrons entièrement sur la fourniture de services Cloud et de solutions logicielles de haute qualité.',
+    aboutExtended: 'G-STARTUP LTD est l\'un des pionniers de la fourniture d\'infrastructures et de solutions informatiques. Nous nous concentrons entièrement sur la fourniture de services Cloud et de solutions logicielles de haute qualité.',
+    readMore: 'Lire plus',
+    completedWork: 'Travaux Terminés',
+    yearsExperience: 'Années d\'Expérience',
+    completedProjects: 'Projets Terminés',
+    happyCustomers: 'Clients Satisfaits',
     
     // Products
     productsTitle: 'Nos Produits',
     productsSubtitle: 'Chaque semaine, notre équipe sélectionne personnellement les meilleurs nouveaux thèmes de sites web de notre collection.',
+    productsExtended: 'G-STARTUP LTD est l\'un des pionniers de la fourniture d\'infrastructures et de solutions informatiques sur diverses plateformes.',
+    viewDetails: 'Voir détails',
+    buy: 'Acheter',
+    addToCart: 'Ajouter au panier',
+    by: 'Par',
+    noProducts: 'Aucun produit en vedette pour le moment',
+    viewMoreProducts: 'Voir plus de produits',
     
     // Footer
     company: 'Entreprise',
@@ -55,6 +69,10 @@ const translations = {
     termsConditions: 'Conditions Générales',
     privacyPolicy: 'Politique de Confidentialité',
     allRightsReserved: 'Tous droits réservés',
+    
+    // Common
+    dashboard: 'Tableau de bord',
+    logout: 'Déconnexion',
   },
   en: {
     // Navigation
@@ -67,8 +85,8 @@ const translations = {
     login: 'Login',
     
     // Hero Section
-    heroTitle: 'DIGITAL BUSINESS',
-    heroSubtitle: 'Provide The Optimal Solutions.',
+    heroTitle: '#1 Provider of Digital Products & Innovative Web Solutions in Africa',
+    heroSubtitle: 'Over 20 million digital products, Platform, digital training, Code, Templates, Software, SaaS',
     heroDescription: 'We are totally focused on delivering high quality Cloud Service & software solution. We have completed development projects for international clients in many market sectors.',
     getStarted: 'Get Started',
     
@@ -81,14 +99,28 @@ const translations = {
     wordpressDev: 'WordPress Themes & Plugins',
     shopifyDev: 'Shopify Themes & Apps',
     uiuxDesign: 'UI/UX Design',
+    moreDetails: 'More Details',
     
     // About
     aboutTitle: 'About G-STARTUP LTD',
     aboutDescription: 'Improve the sales of Digital Business Products. We are totally focused on delivering high quality Cloud Service & software solution.',
+    aboutExtended: 'G-STARTUP LTD is one of the pioneers in providing I.T. infrastructure and solutions. We are totally focused on delivering high quality Cloud Service & software solution.',
+    readMore: 'Read More',
+    completedWork: 'Completed Work',
+    yearsExperience: 'Years Experience',
+    completedProjects: 'Completed Projects',
+    happyCustomers: 'Happy Customers',
     
     // Products
     productsTitle: 'Our Products',
     productsSubtitle: 'Every week, our staff personally hand-pick some of the best new website themes from our collection.',
+    productsExtended: 'G-STARTUP LTD is one of the pioneers in providing I.T. infrastructure and solutions on various platforms.',
+    viewDetails: 'View Details',
+    buy: 'Buy',
+    addToCart: 'Add to Cart',
+    by: 'By',
+    noProducts: 'No featured products at the moment',
+    viewMoreProducts: 'View More Products',
     
     // Footer
     company: 'Company',
@@ -99,6 +131,10 @@ const translations = {
     termsConditions: 'Terms & Conditions',
     privacyPolicy: 'Privacy Policy',
     allRightsReserved: 'All rights reserved',
+    
+    // Common
+    dashboard: 'Dashboard',
+    logout: 'Logout',
   }
 };
 

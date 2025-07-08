@@ -29,8 +29,7 @@ export const AboutSection = () => {
 
             <div className="space-y-4">
               <p className="text-muted-foreground">
-                G-STARTUP LTD est l'un des pionniers de la fourniture d'infrastructures et de solutions informatiques. 
-                Nous nous concentrons entièrement sur la fourniture de services Cloud et de solutions logicielles de haute qualité.
+                {t('aboutExtended')}
               </p>
               
               {/* Features List */}
@@ -45,7 +44,7 @@ export const AboutSection = () => {
             </div>
 
             <Button variant="outline" className="gap-2">
-              Read More
+              {t('readMore')}
               <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
@@ -55,28 +54,28 @@ export const AboutSection = () => {
             <div className="text-center p-6 bg-card rounded-xl shadow-elegant">
               <div className="text-4xl font-bold text-primary mb-2">100+</div>
               <div className="text-sm text-muted-foreground uppercase tracking-wide">
-                Completed Work
+                {t('completedWork')}
               </div>
             </div>
             
             <div className="text-center p-6 bg-card rounded-xl shadow-elegant">
               <div className="text-4xl font-bold text-primary mb-2">4+</div>
               <div className="text-sm text-muted-foreground uppercase tracking-wide">
-                Years Experience
+                {t('yearsExperience')}
               </div>
             </div>
             
             <div className="text-center p-6 bg-card rounded-xl shadow-elegant">
               <div className="text-4xl font-bold text-primary mb-2">30+</div>
               <div className="text-sm text-muted-foreground uppercase tracking-wide">
-                Completed Projects
+                {t('completedProjects')}
               </div>
             </div>
             
             <div className="text-center p-6 bg-card rounded-xl shadow-elegant">
               <div className="text-4xl font-bold text-primary mb-2">3,700+</div>
               <div className="text-sm text-muted-foreground uppercase tracking-wide">
-                Happy Customers
+                {t('happyCustomers')}
               </div>
             </div>
           </div>

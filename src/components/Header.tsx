@@ -67,7 +67,7 @@ export const Header = () => {
                 <Button variant="outline" size="sm" asChild className="gap-2">
                   <a href={getRoleDashboard()}>
                     <User className="h-4 w-4" />
-                    Dashboard
+                    {t('dashboard')}
                   </a>
                 </Button>
                 <Button variant="ghost" size="sm" onClick={() => signOut()}>
@@ -126,12 +126,12 @@ export const Header = () => {
                   <Button variant="outline" size="sm" asChild className="w-fit gap-2">
                     <a href={getRoleDashboard()} onClick={() => setIsMenuOpen(false)}>
                       <User className="h-4 w-4" />
-                      Dashboard
+                      {t('dashboard')}
                     </a>
                   </Button>
                   <Button variant="ghost" size="sm" className="w-fit gap-2" onClick={() => { signOut(); setIsMenuOpen(false); }}>
                     <LogOut className="h-4 w-4" />
-                    Déconnexion
+                    {t('logout')}
                   </Button>
                 </div>
               ) : (

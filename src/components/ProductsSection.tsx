@@ -93,7 +93,7 @@ export const ProductsSection = () => {
             {t('productsTitle')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            {t('productsSubtitle')} G-STARTUP LTD is one of the pioneers in providing I.T. infrastructure and solutions on various platforms.
+            {t('productsSubtitle')} {t('productsExtended')}
           </p>
         </div>
 
@@ -149,7 +149,7 @@ export const ProductsSection = () => {
                   </p>
 
                   <div className="text-sm text-muted-foreground mb-2">
-                    <span>Par {product.vendor?.business_name}</span>
+                    <span>{t('by')} {product.vendor?.business_name}</span>
                   </div>
 
                   <div className="text-2xl font-bold text-primary">
@@ -165,7 +165,7 @@ export const ProductsSection = () => {
                     onClick={() => window.open(`/product/${product.id}`, '_self')}
                   >
                     <Eye className="h-4 w-4" />
-                    Voir détails
+                    {t('viewDetails')}
                   </Button>
                   <Button 
                     size="sm" 
@@ -200,14 +200,14 @@ export const ProductsSection = () => {
                     }}
                   >
                     <ShoppingCart className="h-4 w-4" />
-                    Acheter
+                    {t('buy')}
                   </Button>
                 </CardFooter>
               </Card>
             ))
           ) : (
             <div className="col-span-full text-center py-12">
-              <p className="text-muted-foreground">Aucun produit en vedette pour le moment</p>
+              <p className="text-muted-foreground">{t('noProducts')}</p>
             </div>
           )}
         </div>
@@ -215,7 +215,7 @@ export const ProductsSection = () => {
         {/* View More Button */}
         <div className="text-center">
           <Button variant="premium" size="lg" className="gap-2">
-            View More Products
+            {t('viewMoreProducts')}
             <ArrowRight className="h-5 w-5" />
           </Button>
         </div>
