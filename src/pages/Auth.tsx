@@ -11,7 +11,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/hooks/useLanguage';
 import { usePendingPurchase } from '@/hooks/usePendingPurchase';
 import { Loader2, Eye, EyeOff, ShoppingCart, ArrowLeft } from 'lucide-react';
-import logoTransparent from '@/assets/g-startup-logo-transparent.png';
 
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
@@ -69,7 +68,7 @@ export default function Auth() {
     setError(null);
 
     if (!formData.displayName.trim()) {
-      setError('Le nom d\'affichage est requis');
+      setError("Le nom d'affichage est requis");
       setIsLoading(false);
       return;
     }
@@ -80,7 +79,7 @@ export default function Auth() {
       setError(error.message);
     } else {
       setError(null);
-      alert('Compte créé avec succès ! Vous pouvez maintenant vous connecter.');
+      alert("Compte créé avec succès ! Vous pouvez maintenant vous connecter.");
     }
     
     setIsLoading(false);
@@ -98,13 +97,13 @@ export default function Auth() {
       </Link>
 
       <div className="w-full max-w-md">
-        {/* Logo et titre avec le PNG transparent */}
+        {/* Logo et titre avec le logo de la landing page */}
         <div className="text-center mb-8 animate-fade-in">
           <div className="flex justify-center mb-4">
             <img 
-              src={logoTransparent} 
+              src="/lovable-uploads/c72d66fa-2175-4b64-b34b-5754d320f178.png" 
               alt="G-STARTUP Logo"
-              className="h-16 w-16 object-contain drop-shadow-lg"
+              className="h-16 w-auto object-contain drop-shadow-lg"
             />
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">G-STARTUP LTD</h1>
@@ -194,7 +193,7 @@ export default function Auth() {
                     Se connecter
                   </Button>
                   <p className="text-sm text-muted-foreground text-center">
-                    Pas encore de compte ?{' '}
+                    Pas encore de compte ?{" "}
                     <Button 
                       type="button" 
                       variant="link" 
@@ -295,7 +294,7 @@ export default function Auth() {
                     Créer le compte
                   </Button>
                   <p className="text-sm text-muted-foreground text-center">
-                    Déjà un compte ?{' '}
+                    Déjà un compte ?{" "}
                     <Button 
                       type="button" 
                       variant="link" 
