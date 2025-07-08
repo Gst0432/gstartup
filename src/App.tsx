@@ -20,6 +20,7 @@ import Cart from "./pages/Cart";
 import Wishlist from "./pages/Wishlist";
 import Orders from "./pages/Orders";
 import Profile from "./pages/Profile";
+import Services from "./pages/Services";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminUsers from "./pages/AdminUsers";
 import AdminVendors from "./pages/AdminVendors";
@@ -44,6 +45,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/services" element={<Services />} />
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/product/:id" element={<ProductDetail />} />

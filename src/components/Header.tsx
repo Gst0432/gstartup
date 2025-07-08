@@ -22,8 +22,8 @@ export const Header = () => {
   };
 
   const navItems = [
-    { key: 'home', href: '#home' },
-    { key: 'services', href: '#services' },
+    { key: 'home', href: '/' },
+    { key: 'services', href: '/services' },
     { key: 'marketplace', href: '#marketplace' },
   ];
 
