@@ -90,10 +90,10 @@ export const ProductsSection = () => {
         {/* Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl lg:text-5xl font-bold mb-4">
-            {t('productsTitle')}
+            Marketplace
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            {t('productsSubtitle')} {t('productsExtended')}
+            Découvrez notre vaste collection de produits numériques professionnels. Scripts, thèmes, plugins et solutions digitales pour propulser vos projets.
           </p>
         </div>
 
@@ -214,8 +214,13 @@ export const ProductsSection = () => {
 
         {/* View More Button */}
         <div className="text-center">
-          <Button variant="premium" size="lg" className="gap-2">
-            {t('viewMoreProducts')}
+          <Button 
+            variant="premium" 
+            size="lg" 
+            className="gap-2"
+            onClick={() => navigate('/marketplace')}
+          >
+            Voir tous les produits
             <ArrowRight className="h-5 w-5" />
           </Button>
         </div>
