@@ -43,7 +43,11 @@ export const AboutSection = () => {
               </div>
             </div>
 
-            <Button variant="outline" className="gap-2">
+            <Button 
+              variant="outline" 
+              className="gap-2"
+              onClick={() => window.location.href = '/about'}
+            >
               {t('readMore')}
               <ArrowRight className="h-4 w-4" />
             </Button>

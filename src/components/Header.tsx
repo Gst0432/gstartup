@@ -126,7 +126,7 @@ export const Header = () => {
                   </Button>
                   <Button variant="ghost" size="sm" className="w-fit gap-2" onClick={() => { signOut(); setIsMenuOpen(false); }}>
                     <LogOut className="h-4 w-4" />
-                    {t('logout')}
+                    Déconnexion
                   </Button>
                 </div>
               ) : (

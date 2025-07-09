@@ -33,9 +33,15 @@ export const ProductsSection = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalProducts: 0,
+    totalVendors: 0,
+    totalCategories: 0
+  });
 
   useEffect(() => {
     fetchProducts();
+    fetchStats();
   }, []);
 
   const fetchProducts = async () => {
@@ -62,6 +68,36 @@ export const ProductsSection = () => {
       console.error('Error fetching products:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      // Fetch total products count
+      const { count: productsCount } = await supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_active', true);
+
+      // Fetch total vendors count
+      const { count: vendorsCount } = await supabase
+        .from('vendors')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_active', true);
+
+      // Fetch total categories count
+      const { count: categoriesCount } = await supabase
+        .from('categories')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_active', true);
+
+      setStats({
+        totalProducts: productsCount || 0,
+        totalVendors: vendorsCount || 0,
+        totalCategories: categoriesCount || 0
+      });
+    } catch (error) {
+      console.error('Error fetching stats:', error);
     }
   };
 
@@ -95,6 +131,22 @@ export const ProductsSection = () => {
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Découvrez notre vaste collection de produits numériques professionnels. Scripts, thèmes, plugins et solutions digitales pour propulser vos projets.
           </p>
+          
+          {/* Stats */}
+          <div className="flex justify-center gap-8 mt-8 flex-wrap">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-primary">{stats.totalProducts}+</div>
+              <div className="text-sm text-muted-foreground">Produits</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-primary">{stats.totalVendors}+</div>
+              <div className="text-sm text-muted-foreground">Vendeurs</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-primary">{stats.totalCategories}+</div>
+              <div className="text-sm text-muted-foreground">Catégories</div>
+            </div>
+          </div>
         </div>
 
         {/* Products Grid */}

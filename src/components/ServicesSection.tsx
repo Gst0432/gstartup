@@ -87,7 +87,11 @@ export const ServicesSection = () => {
                     {service.description}
                   </p>
 
-                  <Button variant="ghost" className="gap-2 p-0 h-auto font-medium group-hover:text-primary">
+                  <Button 
+                    variant="ghost" 
+                    className="gap-2 p-0 h-auto font-medium group-hover:text-primary"
+                    onClick={() => window.location.href = '/services'}
+                  >
                     {t('moreDetails')}
                     <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>

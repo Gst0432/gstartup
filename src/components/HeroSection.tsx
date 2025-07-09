@@ -48,7 +48,12 @@ export const HeroSection = () => {
 
             {/* CTA Button */}
             <div className="pt-4">
-              <Button size="lg" variant="hero" className="gap-2 text-lg px-8 py-6">
+              <Button 
+                size="lg" 
+                variant="hero" 
+                className="gap-2 text-lg px-8 py-6"
+                onClick={() => window.location.href = '/marketplace'}
+              >
                 {t('getStarted')}
                 <ArrowRight className="h-5 w-5" />
               </Button>
