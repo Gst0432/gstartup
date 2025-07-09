@@ -208,7 +208,11 @@ export default function VendorDashboard() {
                       {vendor.description || "Développez votre business sur notre marketplace"}
                     </p>
                   </div>
-                  <Button variant="secondary" size="lg">
+                  <Button 
+                    variant="secondary" 
+                    size="lg"
+                    onClick={() => window.location.href = '/vendor/products/new'}
+                  >
                     <Plus className="mr-2 h-5 w-5" />
                     Nouveau Produit
                   </Button>
@@ -285,7 +289,11 @@ export default function VendorDashboard() {
             <h2 className="text-lg sm:text-xl font-semibold mb-4">Actions Rapides</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {quickActions.map((action, index) => (
-                <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
+                <Card 
+                  key={index} 
+                  className="hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => window.location.href = action.href}
+                >
                   <CardHeader className="pb-3">
                     <div className={`w-12 h-12 ${action.color} rounded-lg flex items-center justify-center mb-3`}>
                       <action.icon className="h-6 w-6 text-white" />
@@ -362,7 +370,11 @@ export default function VendorDashboard() {
                     Créez votre profil vendeur pour commencer
                   </p>
                 )}
-                <Button variant="outline" className="w-full">
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => window.location.href = '/vendor/profile'}
+                >
                   <Settings className="mr-2 h-4 w-4" />
                   Gérer le Profil
                 </Button>

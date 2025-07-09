@@ -165,7 +165,12 @@ export default function Dashboard() {
                     Explorez notre vaste collection de produits numériques professionnels
                   </p>
                 </div>
-                <Button variant="secondary" size="sm" className="sm:size-lg w-full sm:w-auto">
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  className="sm:size-lg w-full sm:w-auto"
+                  onClick={() => window.location.href = '/marketplace'}
+                >
                   <Store className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                   Explorer le Marketplace
                 </Button>
@@ -226,7 +231,11 @@ export default function Dashboard() {
             <h2 className="text-lg sm:text-xl font-semibold mb-4">Actions Rapides</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {quickActions.map((action, index) => (
-                <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
+                <Card 
+                  key={index} 
+                  className="hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => window.location.href = action.href}
+                >
                   <CardHeader className="pb-3">
                     <div className={`w-12 h-12 ${action.color} rounded-lg flex items-center justify-center mb-3`}>
                       <action.icon className="h-6 w-6 text-white" />
@@ -263,7 +272,11 @@ export default function Dashboard() {
                     {profile?.is_verified ? "Vérifié" : "Non vérifié"}
                   </Badge>
                 </div>
-                <Button variant="outline" className="w-full">
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => window.location.href = '/profile'}
+                >
                   <Settings className="mr-2 h-4 w-4" />
                   Modifier le Profil
                 </Button>
@@ -290,7 +303,11 @@ export default function Dashboard() {
                     </span>
                   </div>
                 </div>
-                <Button variant="outline" className="w-full mt-4">
+                <Button 
+                  variant="outline" 
+                  className="w-full mt-4"
+                  onClick={() => window.location.href = '/orders'}
+                >
                   <History className="mr-2 h-4 w-4" />
                   Voir l'Historique
                 </Button>

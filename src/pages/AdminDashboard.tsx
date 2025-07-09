@@ -281,7 +281,11 @@ export default function AdminDashboard() {
                     Surveillez les activités, gérez les utilisateurs et maintenez la qualité du marketplace
                   </p>
                 </div>
-                <Button variant="secondary" size="lg">
+                <Button 
+                  variant="secondary" 
+                  size="lg"
+                  onClick={() => window.location.href = '/admin/analytics'}
+                >
                   <TrendingUp className="mr-2 h-5 w-5" />
                   Voir les Analytics
                 </Button>
