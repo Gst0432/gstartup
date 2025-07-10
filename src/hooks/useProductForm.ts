@@ -232,15 +232,34 @@ export const useProductForm = () => {
 
   const createProduct = async () => {
     try {
+      // Validation des champs obligatoires
+      if (!formData.category_id || formData.category_id.trim() === '') {
+        toast({
+          title: "Erreur",
+          description: "Veuillez sélectionner une catégorie",
+          variant: "destructive"
+        });
+        return false;
+      }
+
+      if (!formData.vendor_id || formData.vendor_id.trim() === '') {
+        toast({
+          title: "Erreur",
+          description: "Veuillez sélectionner un vendeur",
+          variant: "destructive"
+        });
+        return false;
+      }
+
       const productData = {
         ...formData,
         price: parseFloat(formData.price),
-        compare_price: formData.compare_price ? parseFloat(formData.compare_price) : null,
-        cost_price: formData.cost_price ? parseFloat(formData.cost_price) : null,
-        quantity: formData.quantity ? parseInt(formData.quantity) : 0,
-        weight: formData.weight ? parseFloat(formData.weight) : null,
+        compare_price: formData.compare_price && formData.compare_price.trim() !== '' ? parseFloat(formData.compare_price) : null,
+        cost_price: formData.cost_price && formData.cost_price.trim() !== '' ? parseFloat(formData.cost_price) : null,
+        quantity: formData.quantity && formData.quantity.trim() !== '' ? parseInt(formData.quantity) : 0,
+        weight: formData.weight && formData.weight.trim() !== '' ? parseFloat(formData.weight) : null,
         images: images,
-        tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : []
+        tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '') : []
       };
 
       const { error } = await supabase
