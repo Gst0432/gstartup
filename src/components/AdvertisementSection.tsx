@@ -149,7 +149,7 @@ export const AdvertisementSection = () => {
               style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
               {advertisements.map((ad, index) => (
-                <div key={ad.id} className="w-full flex-shrink-0 px-2">
+                <div key={ad.id} className="w-full flex-shrink-0 px-1 md:px-2">
                   <Card 
                     className="overflow-hidden shadow-elegant hover:shadow-xl transition-all duration-300 cursor-pointer group"
                     onClick={() => handleImageClick(ad.link_url)}
@@ -160,22 +160,22 @@ export const AdvertisementSection = () => {
                         alt={ad.title}
                         aspectRatio="banner"
                         quality="high"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
-                        className="transition-transform duration-300 group-hover:scale-105 h-64 md:h-80 lg:h-96"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
+                        className="transition-transform duration-300 group-hover:scale-105 h-48 sm:h-56 md:h-72 lg:h-80 xl:h-96 w-full object-cover"
                         priority={index === 0}
                       />
                       
                       {/* Overlay avec titre et description */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end">
-                        <CardContent className="text-white p-4 md:p-6 w-full">
-                          <h3 className="text-xl md:text-2xl font-bold mb-2">{ad.title}</h3>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end">
+                        <CardContent className="text-white p-3 sm:p-4 md:p-6 w-full">
+                          <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-1 md:mb-2 line-clamp-1">{ad.title}</h3>
                           {ad.description && (
-                            <p className="text-sm md:text-lg opacity-90 mb-3 line-clamp-2">{ad.description}</p>
+                            <p className="text-xs sm:text-sm md:text-base opacity-90 mb-2 md:mb-3 line-clamp-2">{ad.description}</p>
                           )}
                           {ad.link_url && (
-                            <div className="flex items-center gap-2 text-xs md:text-sm font-medium opacity-80 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center gap-1 md:gap-2 text-xs md:text-sm font-medium opacity-80 group-hover:opacity-100 transition-opacity">
                               <span>Voir plus</span>
-                              <ExternalLink className="h-3 w-3 md:h-4 md:w-4" />
+                              <ExternalLink className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
                             </div>
                           )}
                         </CardContent>
@@ -190,34 +190,34 @@ export const AdvertisementSection = () => {
           {/* Navigation Buttons - Only show if more than 1 image */}
           {advertisements.length > 1 && (
             <>
-              <div className="flex justify-center gap-4 mt-8">
+              <div className="flex justify-center gap-3 md:gap-4 mt-6 md:mt-8">
                 <Button
                   variant="outline"
                   size="icon"
                   onClick={prevAdvertisement}
-                  className="rounded-full hover-scale"
+                  className="rounded-full hover-scale h-10 w-10 md:h-12 md:w-12"
                   aria-label="Image précédente"
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
                 </Button>
                 <Button
                   variant="outline"
                   size="icon"
                   onClick={nextAdvertisement}
-                  className="rounded-full hover-scale"
+                  className="rounded-full hover-scale h-10 w-10 md:h-12 md:w-12"
                   aria-label="Image suivante"
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
                 </Button>
               </div>
 
               {/* Dots Indicator */}
-              <div className="flex justify-center gap-2 mt-6">
+              <div className="flex justify-center gap-2 mt-4 md:mt-6">
                 {advertisements.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentIndex(index)}
-                    className={`w-3 h-3 rounded-full transition-all duration-300 hover-scale ${
+                    className={`w-2.5 h-2.5 md:w-3 md:h-3 rounded-full transition-all duration-300 hover-scale ${
                       index === currentIndex ? 'bg-primary scale-110' : 'bg-muted hover:bg-muted-foreground/50'
                     }`}
                     aria-label={`Aller à l'image ${index + 1}`}
