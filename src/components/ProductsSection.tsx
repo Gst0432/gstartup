@@ -7,6 +7,7 @@ import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
 import { usePendingPurchase } from '../hooks/usePendingPurchase';
 import { ResponsiveImage, ImageSizeGuide } from './ui/responsive-image';
+import { TranslatableText } from './TranslatableText';
 import { supabase } from '../integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 
@@ -236,10 +237,14 @@ export const ProductsSection = () => {
                     {product.name}
                   </h3>
                   
-                  <div 
+                  <TranslatableText
+                    originalText={product.description}
+                    sourceLanguage="fr"
                     className="text-muted-foreground text-sm mb-4 line-clamp-3 flex-1 prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: product.description }}
-                  />
+                    showTranslateButton={true}
+                  >
+                    <div dangerouslySetInnerHTML={{ __html: product.description }} />
+                  </TranslatableText>
 
                   <div className="text-sm text-muted-foreground mb-2">
                     <span>{t('by')} {product.vendor?.business_name}</span>

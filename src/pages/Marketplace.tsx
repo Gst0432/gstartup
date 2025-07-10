@@ -30,6 +30,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { TranslatableText } from '@/components/TranslatableText';
 
 interface Product {
   id: string;
@@ -525,10 +526,14 @@ function ProductGrid({
                     </div>
                   </div>
                   
-                  <div 
+                  <TranslatableText
+                    originalText={product.description}
+                    sourceLanguage="fr"
                     className="text-muted-foreground line-clamp-2 mb-3 prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: product.description }}
-                  />
+                    showTranslateButton={true}
+                  >
+                    <div dangerouslySetInnerHTML={{ __html: product.description }} />
+                  </TranslatableText>
                   
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -611,10 +616,14 @@ function ProductGrid({
           
           <CardContent className="p-4">
             <h3 className="font-semibold mb-2 line-clamp-2 min-h-[3rem]">{product.name}</h3>
-            <div 
+            <TranslatableText
+              originalText={product.description}
+              sourceLanguage="fr"
               className="text-muted-foreground text-sm mb-3 line-clamp-2 prose prose-sm max-w-none"
-              dangerouslySetInnerHTML={{ __html: product.description }}
-            />
+              showTranslateButton={true}
+            >
+              <div dangerouslySetInnerHTML={{ __html: product.description }} />
+            </TranslatableText>
             
             <div className="flex items-center justify-between mb-3">
               <div className="text-sm text-muted-foreground">

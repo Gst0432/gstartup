@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Store, MapPin, Star, Globe } from 'lucide-react';
 import { Vendor } from '@/hooks/useShops';
 import { useLanguage } from '@/hooks/useLanguage';
+import { TranslatableText } from '@/components/TranslatableText';
 
 interface ShopCardProps {
   vendor: Vendor;
@@ -79,10 +80,14 @@ export function ShopCard({ vendor }: ShopCardProps) {
 
       <CardContent className="space-y-4 px-6 pb-6">
         {vendor.description && (
-          <div 
+          <TranslatableText
+            originalText={vendor.description}
+            sourceLanguage="fr"
             className="text-sm text-muted-foreground line-clamp-2 leading-relaxed prose prose-sm max-w-none"
-            dangerouslySetInnerHTML={{ __html: vendor.description }}
-          />
+            showTranslateButton={true}
+          >
+            <div dangerouslySetInnerHTML={{ __html: vendor.description }} />
+          </TranslatableText>
         )}
 
         {vendor.address && (
