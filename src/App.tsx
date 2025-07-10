@@ -26,6 +26,7 @@ import Services from "./pages/Services";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminUsers from "./pages/AdminUsers";
 import AdminVendors from "./pages/AdminVendors";
+import AdminVendorDetail from "./pages/AdminVendorDetail";
 import AdminProducts from "./pages/AdminProducts";
 import AdminProductNew from "./pages/AdminProductNew";
 import AdminProductEdit from "./pages/AdminProductEdit";
@@ -132,11 +133,16 @@ const App = () => (
               <AdminUsers />
             </ProtectedRoute>
           } />
-          <Route path="/admin/vendors" element={
-            <ProtectedRoute requiredRole="admin">
-              <AdminVendors />
-            </ProtectedRoute>
-          } />
+           <Route path="/admin/vendors" element={
+             <ProtectedRoute requiredRole="admin">
+               <AdminVendors />
+             </ProtectedRoute>
+           } />
+           <Route path="/admin/vendors/:id" element={
+             <ProtectedRoute requiredRole="admin">
+               <AdminVendorDetail />
+             </ProtectedRoute>
+           } />
           <Route path="/admin/products" element={
             <ProtectedRoute requiredRole="admin">
               <AdminProducts />

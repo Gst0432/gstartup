@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,7 @@ interface Vendor {
 export default function AdminVendors() {
   const { profile } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -346,9 +348,13 @@ export default function AdminVendors() {
                          >
                            {vendor.is_active ? 'Désactiver' : 'Activer'}
                          </Button>
-                         <Button variant="outline" size="sm">
-                           <Eye className="h-4 w-4" />
-                         </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => navigate(`/admin/vendors/${vendor.id}`)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
                          <Button 
                            variant="destructive" 
                            size="sm"
