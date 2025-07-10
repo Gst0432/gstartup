@@ -17,7 +17,12 @@ import {
   Clock,
   Target,
   Zap,
-  Globe
+  Globe,
+  Wrench,
+  Package,
+  Plug,
+  Phone,
+  AlertTriangle
 } from 'lucide-react';
 
 export default function Services() {
@@ -307,6 +312,169 @@ export default function Services() {
                 <p className="text-muted-foreground">{advantage.description}</p>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Installation Services Pricing */}
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <Badge variant="outline" className="mb-4">Tarifs Spéciaux</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">SERVICE D'INSTALLATION</h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Services professionnels d'installation et de configuration de vos scripts
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Installation Standard */}
+            <Card className="relative overflow-hidden hover:shadow-elegant transition-all duration-300 border-2 hover:border-primary/20">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-primary"></div>
+              <CardHeader className="text-center pb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4 mx-auto">
+                  <Wrench className="h-8 w-8 text-primary" />
+                </div>
+                <CardTitle className="text-xl mb-2">1. Installation Standard</CardTitle>
+                <p className="text-muted-foreground text-sm">
+                  Installation basique du script sur votre hébergeur
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Installation du script sur l'hébergeur uniquement</span>
+                  </div>
+                </div>
+                
+                <div className="pt-4 border-t">
+                  <div className="flex items-center justify-center gap-2 mb-4">
+                    <Package className="h-5 w-5 text-primary" />
+                    <span className="text-2xl font-bold text-primary">15.000 FCFA</span>
+                  </div>
+                  <Button className="w-full">
+                    Commander
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Installation Complète */}
+            <Card className="relative overflow-hidden hover:shadow-elegant transition-all duration-300 border-2 border-primary shadow-lg scale-105">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-primary"></div>
+              <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground">
+                Populaire
+              </Badge>
+              <CardHeader className="text-center pb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-primary rounded-full mb-4 mx-auto">
+                  <Package className="h-8 w-8 text-white" />
+                </div>
+                <CardTitle className="text-xl mb-2">2. Installation Complète + Personnalisation</CardTitle>
+                <p className="text-muted-foreground text-sm">
+                  Installation avec personnalisation et configuration
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Installation du script sur l'hébergeur</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Personnalisation des images et textes</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Réglage des API (clés API fournies par le client)</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Configuration du service SMTP</span>
+                  </div>
+                </div>
+
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="h-4 w-4 text-orange-500 flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-orange-700">
+                      Le client doit fournir tous les éléments nécessaires (API, images, textes).
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="pt-4 border-t">
+                  <div className="flex items-center justify-center gap-2 mb-4">
+                    <Package className="h-5 w-5 text-primary" />
+                    <span className="text-2xl font-bold text-primary">25.000 FCFA</span>
+                  </div>
+                  <Button className="w-full">
+                    Commander
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Intégration Avancée */}
+            <Card className="relative overflow-hidden hover:shadow-elegant transition-all duration-300 border-2 hover:border-primary/20">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-primary"></div>
+              <CardHeader className="text-center pb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4 mx-auto">
+                  <Plug className="h-8 w-8 text-primary" />
+                </div>
+                <CardTitle className="text-xl mb-2">3. Connexion Backend & Intégration</CardTitle>
+                <p className="text-muted-foreground text-sm">
+                  Développement sur mesure selon vos besoins
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Connexion Backend personnalisée</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Refonte selon vos spécifications</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Intégration API tierce</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Étude spécifique du projet</span>
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <p className="text-xs text-blue-700 text-center">
+                    Ce type de prestation nécessite une étude spécifique du projet.
+                  </p>
+                </div>
+                
+                <div className="pt-4 border-t">
+                  <div className="flex items-center justify-center gap-2 mb-4">
+                    <Phone className="h-5 w-5 text-primary" />
+                    <span className="text-lg font-bold text-primary">À discuter selon la complexité</span>
+                  </div>
+                  <Button variant="outline" className="w-full">
+                    Demander un Devis
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center mt-12">
+            <p className="text-muted-foreground mb-6">
+              Besoin d'informations supplémentaires ou d'un devis personnalisé ?
+            </p>
+            <Button size="lg" className="gap-2">
+              <Phone className="h-5 w-5" />
+              Nous Contacter
+            </Button>
           </div>
         </div>
       </section>
