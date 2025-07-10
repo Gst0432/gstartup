@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Card, CardContent, CardFooter, CardHeader } from './ui/card';
-import { Star, Eye, ShoppingCart, ArrowRight } from 'lucide-react';
+import { Star, Eye, ShoppingCart, ArrowRight, Info } from 'lucide-react';
 import { useLanguage } from '../hooks/useLanguage';
 import { useAuth } from '../hooks/useAuth';
 import { usePendingPurchase } from '../hooks/usePendingPurchase';
+import { ResponsiveImage, ImageSizeGuide } from './ui/responsive-image';
 import { supabase } from '../integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 
@@ -132,6 +133,41 @@ export const ProductsSection = () => {
             Découvrez notre vaste collection de produits numériques professionnels. Scripts, thèmes, plugins et solutions digitales pour propulser vos projets.
           </p>
           
+          {/* Guide des tailles d'images */}
+          <div className="mt-8 mx-auto max-w-2xl">
+            <details className="group">
+              <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center gap-2">
+                <Info className="h-4 w-4" />
+                Guide d'optimisation des images
+              </summary>
+              <div className="mt-4 p-4 bg-background rounded-lg border text-left">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <h4 className="font-semibold mb-2">Images Produits</h4>
+                    <ul className="space-y-1 text-muted-foreground">
+                      <li>• Miniature: 300×300px (1:1)</li>
+                      <li>• Galerie: 800×600px (4:3)</li>
+                      <li>• Détail: 1200×900px (4:3)</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2">Images Vendeurs</h4>
+                    <ul className="space-y-1 text-muted-foreground">
+                      <li>• Logo: 200×200px (1:1)</li>
+                      <li>• Couverture: 1200×400px (3:1)</li>
+                      <li>• Avatar: 400×400px (1:1)</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="mt-3 pt-3 border-t">
+                  <Badge variant="outline" className="text-xs">
+                    📱 Les images s'adaptent automatiquement à tous les écrans pour une expérience optimale
+                  </Badge>
+                </div>
+              </div>
+            </details>
+          </div>
+          
           {/* Stats */}
           <div className="flex justify-center gap-8 mt-8 flex-wrap">
             <div className="text-center">
@@ -171,15 +207,19 @@ export const ProductsSection = () => {
             products.map((product) => (
                 <Card key={product.id} className="group overflow-hidden hover:shadow-elegant transition-all duration-300 hover:-translate-y-2 h-full flex flex-col">
                 <CardHeader className="p-0">
-                  <div className="relative overflow-hidden h-48">
+                  <div className="relative overflow-hidden">
                     {product.images && product.images.length > 0 ? (
-                      <img 
-                        src={product.images[0]} 
+                      <ResponsiveImage
+                        src={product.images[0]}
                         alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        aspectRatio="landscape"
+                        quality="medium"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="h-48 transition-transform duration-300 group-hover:scale-105"
+                        loading="lazy"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-primary/10 flex items-center justify-center">
+                      <div className="w-full h-48 bg-gradient-primary/10 flex items-center justify-center aspect-[16/9]">
                         <div className="text-4xl font-bold text-primary/30">
                           {product.name.charAt(0)}
                         </div>
