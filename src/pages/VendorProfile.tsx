@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { VendorStatsCard } from '@/components/vendor/VendorStatsCard';
@@ -10,7 +11,7 @@ import { VendorBasicInfoForm } from '@/components/vendor/VendorBasicInfoForm';
 import { VendorImagesSection } from '@/components/vendor/VendorImagesSection';
 import { VendorDomainSection } from '@/components/vendor/VendorDomainSection';
 import { VendorPaymentSection } from '@/components/vendor/VendorPaymentSection';
-import { Store, User, Save, Shield } from 'lucide-react';
+import { Store, User, Save, Shield, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface VendorData {
@@ -100,6 +101,36 @@ export default function VendorProfile() {
       ...prev,
       [field]: value
     }));
+  };
+
+  const toggleVendorStatus = async (isActive: boolean) => {
+    if (!vendor) return;
+    
+    try {
+      const { error } = await supabase
+        .from('vendors')
+        .update({ is_active: isActive })
+        .eq('id', vendor.id);
+
+      if (error) {
+        console.error('Error updating vendor status:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de mettre à jour le statut de la boutique",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setVendor(prev => prev ? { ...prev, is_active: isActive } : null);
+      
+      toast({
+        title: "Succès",
+        description: `Boutique ${isActive ? 'activée' : 'désactivée'} avec succès`,
+      });
+    } catch (error) {
+      console.error('Error updating vendor status:', error);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -267,6 +298,55 @@ export default function VendorProfile() {
                   vendor={vendor}
                   onInputChange={handleInputChange} 
                 />
+
+                {/* Section de contrôle de visibilité */}
+                {vendor && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        {vendor.is_active ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
+                        Visibilité de la boutique
+                      </CardTitle>
+                      <CardDescription>
+                        Contrôlez si votre boutique est visible sur la marketplace
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <Store className="h-4 w-4" />
+                            <span className="font-medium">Afficher sur la marketplace</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {vendor.is_active 
+                              ? "Votre boutique est visible par les clients sur la marketplace"
+                              : "Votre boutique est masquée de la marketplace"
+                            }
+                          </p>
+                        </div>
+                        <Switch
+                          checked={vendor.is_active}
+                          onCheckedChange={toggleVendorStatus}
+                          className="ml-4"
+                        />
+                      </div>
+                      
+                      {!vendor.is_active && (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                          <div className="flex items-center gap-2 text-yellow-800">
+                            <EyeOff className="h-4 w-4" />
+                            <span className="font-medium">Boutique masquée</span>
+                          </div>
+                          <p className="text-sm text-yellow-700 mt-1">
+                            Votre boutique n'apparaît plus dans les résultats de recherche et la marketplace. 
+                            Vos clients existants peuvent toujours accéder à vos produits via des liens directs.
+                          </p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
 
                 {/* Bouton de sauvegarde fixe */}
                 <div className="sticky bottom-6 z-30">
