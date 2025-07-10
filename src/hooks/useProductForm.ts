@@ -232,13 +232,8 @@ export const useProductForm = () => {
 
   const createProduct = async () => {
     try {
-      console.log('=== DEBUG: Début création produit ===');
-      console.log('FormData:', formData);
-      console.log('Images:', images);
-      
       // Validation des champs obligatoires
       if (!formData.category_id || formData.category_id.trim() === '') {
-        console.log('ERREUR: Catégorie manquante');
         toast({
           title: "Erreur",
           description: "Veuillez sélectionner une catégorie",
@@ -248,7 +243,6 @@ export const useProductForm = () => {
       }
 
       if (!formData.vendor_id || formData.vendor_id.trim() === '') {
-        console.log('ERREUR: Vendeur manquant');
         toast({
           title: "Erreur",
           description: "Veuillez sélectionner un vendeur",
@@ -259,7 +253,6 @@ export const useProductForm = () => {
 
       // Validation des champs obligatoires manquants
       if (!formData.name || formData.name.trim() === '') {
-        console.log('ERREUR: Nom du produit manquant');
         toast({
           title: "Erreur",
           description: "Veuillez saisir le nom du produit",
@@ -269,7 +262,6 @@ export const useProductForm = () => {
       }
 
       if (!formData.description || formData.description.trim() === '') {
-        console.log('ERREUR: Description manquante');
         toast({
           title: "Erreur", 
           description: "Veuillez saisir une description",
@@ -279,7 +271,6 @@ export const useProductForm = () => {
       }
 
       if (!formData.price || formData.price.trim() === '' || parseFloat(formData.price) <= 0) {
-        console.log('ERREUR: Prix invalide');
         toast({
           title: "Erreur",
           description: "Veuillez saisir un prix valide",
@@ -299,15 +290,12 @@ export const useProductForm = () => {
         tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '') : []
       };
 
-      console.log('ProductData à insérer:', productData);
-
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('products')
-        .insert(productData)
-        .select();
+        .insert(productData);
 
       if (error) {
-        console.error('ERREUR Supabase:', error);
+        console.error('Error creating product:', error);
         toast({
           title: "Erreur",
           description: `Erreur base de données: ${error.message}`,
@@ -316,7 +304,6 @@ export const useProductForm = () => {
         return false;
       }
 
-      console.log('Produit créé avec succès:', data);
       toast({
         title: "Succès",
         description: "Produit créé avec succès",
@@ -324,10 +311,10 @@ export const useProductForm = () => {
       
       return true;
     } catch (error) {
-      console.error('ERREUR Générale:', error);
+      console.error('Error creating product:', error);
       toast({
         title: "Erreur",
-        description: `Impossible de créer le produit: ${error}`,
+        description: "Impossible de créer le produit",
         variant: "destructive"
       });
       return false;
