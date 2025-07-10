@@ -377,9 +377,9 @@ export default function ProductDetail() {
               </div>
             )}
 
-            {/* Stock */}
+            {/* Produit numérique */}
             <div className="text-sm text-muted-foreground">
-              Stock disponible: {product.quantity} unités
+              📱 Produit numérique - Téléchargement immédiat après achat
             </div>
           </div>
         </div>
