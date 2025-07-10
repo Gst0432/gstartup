@@ -1,1 +1,10 @@
-project_id = "isrllflegszbmgkuaovp"
+project_id = "lrmgewuhgekxsgzuqcja"
+
+[functions.subdomain-handler]
+verify_jwt = false
+
+[functions.send-email-notifications]
+verify_jwt = false
+
+[functions.handle-user-registration]
+verify_jwt = false
