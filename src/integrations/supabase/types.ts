@@ -438,6 +438,33 @@ export type Database = {
           },
         ]
       }
+      password_reset_codes: {
+        Row: {
+          code: string
+          created_at: string | null
+          email: string
+          expires_at: string
+          id: string
+          used: boolean | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          email: string
+          expires_at: string
+          id?: string
+          used?: boolean | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          used?: boolean | null
+        }
+        Relationships: []
+      }
       payment_gateways: {
         Row: {
           api_key: string | null
@@ -989,6 +1016,10 @@ export type Database = {
       check_trial_status: {
         Args: { user_id: string }
         Returns: Json
+      }
+      cleanup_expired_reset_codes: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       convert_trial_to_premium: {
         Args: { user_id: string; duration_months?: number }
