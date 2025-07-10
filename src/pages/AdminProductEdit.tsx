@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,9 +10,8 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/components/DashboardLayout';
-import { Plus, Upload, X, FileText, Eye, Monitor } from 'lucide-react';
+import { Plus, Upload, X, FileText, Eye, Monitor, Download } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
 
 interface Category {
   id: string;
@@ -24,11 +24,42 @@ interface Vendor {
   user_id: string;
 }
 
-export default function AdminProductNew() {
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  short_description: string;
+  price: number;
+  compare_price: number | null;
+  cost_price: number | null;
+  sku: string;
+  barcode: string;
+  quantity: number;
+  weight: number | null;
+  category_id: string;
+  vendor_id: string;
+  tags: string[];
+  digital_file_url: string;
+  preview_url: string;
+  demo_url: string;
+  is_digital: boolean;
+  is_active: boolean;
+  is_featured: boolean;
+  track_quantity: boolean;
+  requires_shipping: boolean;
+  allow_backorder: boolean;
+  meta_title: string;
+  meta_description: string;
+  images: string[];
+}
+
+export default function AdminProductEdit() {
+  const { id } = useParams<{ id: string }>();
   const { profile } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [images, setImages] = useState<string[]>([]);
@@ -63,9 +94,66 @@ export default function AdminProductNew() {
   });
 
   useEffect(() => {
-    fetchCategories();
-    fetchVendors();
-  }, []);
+    if (id) {
+      fetchProduct();
+      fetchCategories();
+      fetchVendors();
+    }
+  }, [id]);
+
+  const fetchProduct = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching product:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger le produit",
+          variant: "destructive"
+        });
+        navigate('/admin/products');
+        return;
+      }
+
+      setFormData({
+        name: data.name || '',
+        description: data.description || '',
+        short_description: data.short_description || '',
+        price: data.price?.toString() || '',
+        compare_price: data.compare_price?.toString() || '',
+        cost_price: data.cost_price?.toString() || '',
+        sku: data.sku || '',
+        barcode: data.barcode || '',
+        quantity: data.quantity?.toString() || '999',
+        weight: data.weight?.toString() || '',
+        category_id: data.category_id || '',
+        vendor_id: data.vendor_id || '',
+        tags: data.tags ? data.tags.join(', ') : '',
+        digital_file_url: data.digital_file_url || '',
+        preview_url: data.preview_url || '',
+        demo_url: data.demo_url || '',
+        is_digital: data.is_digital ?? true,
+        is_active: data.is_active ?? true,
+        is_featured: data.is_featured ?? false,
+        track_quantity: data.track_quantity ?? false,
+        requires_shipping: data.requires_shipping ?? false,
+        allow_backorder: data.allow_backorder ?? false,
+        meta_title: data.meta_title || '',
+        meta_description: data.meta_description || ''
+      });
+
+      setImages(data.images || []);
+    } catch (error) {
+      console.error('Error fetching product:', error);
+    } finally {
+      setInitialLoading(false);
+    }
+  };
 
   const fetchCategories = async () => {
     try {
@@ -222,16 +310,7 @@ export default function AdminProductNew() {
     if (!profile || profile.role !== 'admin') {
       toast({
         title: "Erreur",
-        description: "Seuls les administrateurs peuvent créer des produits",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!formData.vendor_id) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez sélectionner un vendeur",
+        description: "Seuls les administrateurs peuvent modifier des produits",
         variant: "destructive"
       });
       return;
@@ -253,13 +332,14 @@ export default function AdminProductNew() {
 
       const { error } = await supabase
         .from('products')
-        .insert(productData);
+        .update(productData)
+        .eq('id', id);
 
       if (error) {
-        console.error('Error creating product:', error);
+        console.error('Error updating product:', error);
         toast({
           title: "Erreur",
-          description: "Impossible de créer le produit",
+          description: "Impossible de modifier le produit",
           variant: "destructive"
         });
         return;
@@ -267,12 +347,12 @@ export default function AdminProductNew() {
 
       toast({
         title: "Succès",
-        description: "Produit créé avec succès",
+        description: "Produit modifié avec succès",
       });
 
       navigate('/admin/products');
     } catch (error) {
-      console.error('Error creating product:', error);
+      console.error('Error updating product:', error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue",
@@ -283,6 +363,22 @@ export default function AdminProductNew() {
     }
   };
 
+  const handleDownload = () => {
+    if (formData.digital_file_url) {
+      window.open(formData.digital_file_url, '_blank');
+    }
+  };
+
+  if (initialLoading) {
+    return (
+      <DashboardLayout>
+        <div className="min-h-screen bg-muted/30 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="min-h-screen bg-muted/30">
@@ -290,9 +386,9 @@ export default function AdminProductNew() {
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold">Ajouter un Produit</h1>
+                <h1 className="text-2xl font-bold">Modifier le Produit</h1>
                 <p className="text-muted-foreground">
-                  Créer un nouveau produit (Administration)
+                  Modifier les informations du produit
                 </p>
               </div>
             </div>
@@ -497,9 +593,21 @@ export default function AdminProductNew() {
                   </div>
                   
                   {formData.digital_file_url && (
-                    <div className="flex items-center gap-2 p-2 bg-muted rounded-lg">
-                      <FileText className="h-4 w-4 text-green-600" />
-                      <span className="text-sm text-green-600">Fichier téléversé</span>
+                    <div className="flex items-center justify-between p-2 bg-muted rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-green-600" />
+                        <span className="text-sm text-green-600">Fichier téléversé</span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleDownload}
+                        className="gap-2"
+                      >
+                        <Download className="h-4 w-4" />
+                        Télécharger
+                      </Button>
                     </div>
                   )}
                 </CardContent>
@@ -587,7 +695,7 @@ export default function AdminProductNew() {
                 Annuler
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? 'Création...' : 'Créer le produit'}
+                {loading ? 'Modification...' : 'Modifier le produit'}
               </Button>
             </div>
           </form>

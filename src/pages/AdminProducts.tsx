@@ -353,8 +353,14 @@ export default function AdminProducts() {
                         >
                           <Star className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="sm">
-                          <Eye className="h-4 w-4" />
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          asChild
+                        >
+                          <Link to={`/admin/products/${product.id}/edit`}>
+                            <Edit className="h-4 w-4" />
+                          </Link>
                         </Button>
                         <Button 
                           variant="destructive" 
