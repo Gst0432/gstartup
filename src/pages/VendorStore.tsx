@@ -187,7 +187,7 @@ export default function VendorStore() {
 
       <div className="container mx-auto px-4 py-8">
         {/* Informations du vendeur */}
-        <div className="flex flex-col md:flex-row gap-8 mb-12" style={{ marginTop: vendor.cover_image_url ? '-4rem' : '0' }}>
+        <div className={`flex flex-col md:flex-row gap-8 mb-12 ${vendor.cover_image_url ? '-mt-16 relative z-10' : ''}`}>
           <div className="flex-shrink-0">
             {vendor.logo_url ? (
               <div className="relative">
@@ -218,7 +218,7 @@ export default function VendorStore() {
             )}
           </div>
 
-          <div className="flex-1">
+          <div className="flex-1 bg-background/95 backdrop-blur-sm rounded-lg p-6 shadow-lg">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
               <div>
                 <div className="flex items-center gap-3 mb-2">
