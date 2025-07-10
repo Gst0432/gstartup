@@ -285,9 +285,10 @@ export default function ShopsPage() {
 
                 <CardContent className="space-y-4 px-6 pb-6">
                   {vendor.description && (
-                    <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                      {vendor.description}
-                    </p>
+                    <div 
+                      className="text-sm text-muted-foreground line-clamp-2 leading-relaxed prose prose-sm max-w-none"
+                      dangerouslySetInnerHTML={{ __html: vendor.description }}
+                    />
                   )}
 
                   {vendor.address && (
