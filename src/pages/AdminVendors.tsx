@@ -16,7 +16,8 @@ import {
   Search,
   Star,
   TrendingUp,
-  Eye
+  Eye,
+  Trash2
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -30,9 +31,10 @@ interface Vendor {
   rating: number;
   total_sales: number;
   created_at: string;
-  profile?: {
+  profiles?: {
     display_name: string;
     email: string;
+    user_id: string;
   };
 }
 
@@ -53,18 +55,32 @@ export default function AdminVendors() {
         .from('vendors')
         .select(`
           *,
-          profile:profiles!vendors_user_id_fkey(display_name, email)
+          profiles!inner(
+            display_name,
+            email,
+            user_id
+          )
         `)
         .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching vendors:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les vendeurs",
+          variant: "destructive"
+        });
         return;
       }
 
       setVendors(data || []);
     } catch (error) {
       console.error('Error fetching vendors:', error);
+      toast({
+        title: "Erreur",
+        description: "Erreur lors du chargement",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
@@ -100,10 +116,42 @@ export default function AdminVendors() {
     }
   };
 
+  const deleteVendor = async (vendorId: string) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce vendeur ? Cette action est irréversible.')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('vendors')
+        .delete()
+        .eq('id', vendorId);
+
+      if (error) {
+        console.error('Error deleting vendor:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de supprimer le vendeur",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setVendors(vendors.filter(vendor => vendor.id !== vendorId));
+
+      toast({
+        title: "Succès",
+        description: "Vendeur supprimé avec succès",
+      });
+    } catch (error) {
+      console.error('Error deleting vendor:', error);
+    }
+  };
+
   const filteredVendors = vendors.filter(vendor => {
     const matchesSearch = vendor.business_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         vendor.profile?.display_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         vendor.profile?.email.toLowerCase().includes(searchTerm.toLowerCase());
+                         vendor.profiles?.display_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         vendor.profiles?.email.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
 
@@ -236,17 +284,17 @@ export default function AdminVendors() {
                     <div key={vendor.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex-1">
                         <div className="flex items-center gap-3">
-                          <div>
-                            <p className="font-medium">{vendor.business_name}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {vendor.profile?.display_name} ({vendor.profile?.email})
-                            </p>
-                            {vendor.description && (
-                              <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                                {vendor.description}
-                              </p>
-                            )}
-                          </div>
+                           <div>
+                             <p className="font-medium">{vendor.business_name}</p>
+                             <p className="text-sm text-muted-foreground">
+                               {vendor.profiles?.display_name} ({vendor.profiles?.email})
+                             </p>
+                             {vendor.description && (
+                               <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                                 {vendor.description}
+                               </p>
+                             )}
+                           </div>
                           <div className="flex gap-2">
                             {vendor.is_verified ? (
                               <Badge className="text-green-600">
@@ -280,28 +328,35 @@ export default function AdminVendors() {
                           </span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        {!vendor.is_verified && (
-                          <Button
-                            variant="default"
-                            size="sm"
-                            onClick={() => updateVendorStatus(vendor.id, 'is_verified', true)}
-                          >
-                            <CheckCircle className="h-4 w-4 mr-2" />
-                            Approuver
-                          </Button>
-                        )}
-                        <Button
-                          variant={vendor.is_active ? "outline" : "default"}
-                          size="sm"
-                          onClick={() => updateVendorStatus(vendor.id, 'is_active', !vendor.is_active)}
-                        >
-                          {vendor.is_active ? 'Désactiver' : 'Activer'}
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </div>
+                       <div className="flex items-center gap-2">
+                         {!vendor.is_verified && (
+                           <Button
+                             variant="default"
+                             size="sm"
+                             onClick={() => updateVendorStatus(vendor.id, 'is_verified', true)}
+                           >
+                             <CheckCircle className="h-4 w-4 mr-2" />
+                             Approuver
+                           </Button>
+                         )}
+                         <Button
+                           variant={vendor.is_active ? "outline" : "default"}
+                           size="sm"
+                           onClick={() => updateVendorStatus(vendor.id, 'is_active', !vendor.is_active)}
+                         >
+                           {vendor.is_active ? 'Désactiver' : 'Activer'}
+                         </Button>
+                         <Button variant="outline" size="sm">
+                           <Eye className="h-4 w-4" />
+                         </Button>
+                         <Button 
+                           variant="destructive" 
+                           size="sm"
+                           onClick={() => deleteVendor(vendor.id)}
+                         >
+                           <Trash2 className="h-4 w-4" />
+                         </Button>
+                       </div>
                     </div>
                   ))}
                    {paginatedVendors.length === 0 && filteredVendors.length === 0 && (
