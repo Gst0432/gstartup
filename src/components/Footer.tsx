@@ -75,7 +75,7 @@ export const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-center md:text-left">
               <p className="text-sm text-muted-foreground">
-                © {currentYear} 227makemoney. Tous droits réservés.
+                © {currentYear} Tous droits réservés.
               </p>
               <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                 <a href="#" className="hover:text-primary transition-colors">Conditions d'utilisation</a>
