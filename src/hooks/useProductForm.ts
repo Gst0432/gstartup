@@ -288,6 +288,123 @@ export const useProductForm = () => {
     }
   };
 
+  // Nouvelle fonction pour l'édition d'un produit
+  const updateProduct = async (productId: string) => {
+    try {
+      // Validation des champs obligatoires
+      if (!formData.category_id || formData.category_id.trim() === '') {
+        toast({
+          title: "Erreur",
+          description: "Veuillez sélectionner une catégorie",
+          variant: "destructive"
+        });
+        return false;
+      }
+
+      if (!formData.vendor_id || formData.vendor_id.trim() === '') {
+        toast({
+          title: "Erreur",
+          description: "Veuillez sélectionner un vendeur",
+          variant: "destructive"
+        });
+        return false;
+      }
+
+      const productData = {
+        ...formData,
+        price: parseFloat(formData.price),
+        compare_price: formData.compare_price && formData.compare_price.trim() !== '' ? parseFloat(formData.compare_price) : null,
+        cost_price: formData.cost_price && formData.cost_price.trim() !== '' ? parseFloat(formData.cost_price) : null,
+        quantity: formData.quantity && formData.quantity.trim() !== '' ? parseInt(formData.quantity) : 0,
+        weight: formData.weight && formData.weight.trim() !== '' ? parseFloat(formData.weight) : null,
+        images: images,
+        tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '') : []
+      };
+
+      const { error } = await supabase
+        .from('products')
+        .update(productData)
+        .eq('id', productId);
+
+      if (error) {
+        console.error('Error updating product:', error);
+        throw error;
+      }
+
+      toast({
+        title: "Succès",
+        description: "Produit mis à jour avec succès",
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('Error updating product:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour le produit",
+        variant: "destructive"
+      });
+      return false;
+    }
+  };
+
+  // Nouvelle fonction pour charger un produit existant
+  const loadProduct = async (productId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', productId)
+        .single();
+
+      if (error) {
+        console.error('Error loading product:', error);
+        throw error;
+      }
+
+      if (data) {
+        setFormData({
+          name: data.name || '',
+          description: data.description || '',
+          short_description: data.short_description || '',
+          price: data.price?.toString() || '',
+          compare_price: data.compare_price?.toString() || '',
+          cost_price: data.cost_price?.toString() || '',
+          sku: data.sku || '',
+          barcode: data.barcode || '',
+          quantity: data.quantity?.toString() || '999',
+          weight: data.weight?.toString() || '',
+          category_id: data.category_id || '',
+          vendor_id: data.vendor_id || '',
+          tags: data.tags?.join(', ') || '',
+          digital_file_url: data.digital_file_url || '',
+          preview_url: data.preview_url || '',
+          demo_url: data.demo_url || '',
+          is_digital: data.is_digital || true,
+          is_active: data.is_active || true,
+          is_featured: data.is_featured || false,
+          track_quantity: data.track_quantity || false,
+          requires_shipping: data.requires_shipping || false,
+          allow_backorder: data.allow_backorder || false,
+          meta_title: data.meta_title || '',
+          meta_description: data.meta_description || ''
+        });
+        
+        setImages(data.images || []);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error loading product:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger le produit",
+        variant: "destructive"
+      });
+      return false;
+    }
+  };
+
   return {
     formData,
     categories,
@@ -299,6 +416,8 @@ export const useProductForm = () => {
     handleFileUpload,
     handleImageUpload,
     removeImage,
-    createProduct
+    createProduct,
+    updateProduct,
+    loadProduct
   };
 };

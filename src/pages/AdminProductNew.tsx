@@ -42,15 +42,7 @@ export default function AdminProductNew() {
       return;
     }
 
-    if (!formData.vendor_id) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez sélectionner un vendeur",
-        variant: "destructive"
-      });
-      return;
-    }
-
+    // Les validations sont maintenant gérées dans useProductForm
     setLoading(true);
     const success = await createProduct();
     setLoading(false);
