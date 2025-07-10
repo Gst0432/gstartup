@@ -235,7 +235,7 @@ export default function Marketplace() {
                     <div className="text-sm text-muted-foreground">Produits</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-primary">{featuredVendors.length}K+</div>
+                    <div className="text-2xl font-bold text-primary">50+</div>
                     <div className="text-sm text-muted-foreground">Vendeurs</div>
                   </div>
                   <div className="text-center">
