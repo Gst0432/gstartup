@@ -839,6 +839,60 @@ export type Database = {
           },
         ]
       }
+      vendor_subscriptions: {
+        Row: {
+          amount: number
+          created_at: string
+          duration: string
+          id: string
+          metadata: Json | null
+          moneroo_response: Json | null
+          moneroo_transaction_id: string | null
+          payment_confirmed_at: string | null
+          payment_url: string | null
+          plan_id: string
+          status: string
+          transaction_number: string
+          updated_at: string
+          user_id: string
+          webhook_data: Json | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          duration: string
+          id?: string
+          metadata?: Json | null
+          moneroo_response?: Json | null
+          moneroo_transaction_id?: string | null
+          payment_confirmed_at?: string | null
+          payment_url?: string | null
+          plan_id: string
+          status?: string
+          transaction_number: string
+          updated_at?: string
+          user_id: string
+          webhook_data?: Json | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          duration?: string
+          id?: string
+          metadata?: Json | null
+          moneroo_response?: Json | null
+          moneroo_transaction_id?: string | null
+          payment_confirmed_at?: string | null
+          payment_url?: string | null
+          plan_id?: string
+          status?: string
+          transaction_number?: string
+          updated_at?: string
+          user_id?: string
+          webhook_data?: Json | null
+        }
+        Relationships: []
+      }
       vendors: {
         Row: {
           address: string | null
@@ -863,6 +917,9 @@ export type Database = {
           rating: number | null
           store_slug: string | null
           subdomain: string | null
+          subscription_expires_at: string | null
+          subscription_plan: string | null
+          subscription_status: string | null
           success_url: string | null
           total_sales: number | null
           updated_at: string
@@ -893,6 +950,9 @@ export type Database = {
           rating?: number | null
           store_slug?: string | null
           subdomain?: string | null
+          subscription_expires_at?: string | null
+          subscription_plan?: string | null
+          subscription_status?: string | null
           success_url?: string | null
           total_sales?: number | null
           updated_at?: string
@@ -923,6 +983,9 @@ export type Database = {
           rating?: number | null
           store_slug?: string | null
           subdomain?: string | null
+          subscription_expires_at?: string | null
+          subscription_plan?: string | null
+          subscription_status?: string | null
           success_url?: string | null
           total_sales?: number | null
           updated_at?: string

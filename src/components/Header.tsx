@@ -25,6 +25,7 @@ export const Header = () => {
     { key: 'home', href: '/' },
     { key: 'services', href: '/services' },
     { key: 'marketplace', href: '/marketplace' },
+    { key: 'vendor', href: '/vendor-pricing', text: 'Devenir Vendeur' },
   ];
 
   return (
@@ -48,7 +49,7 @@ export const Header = () => {
                 href={item.href}
                 className="text-foreground hover:text-primary transition-colors font-medium"
               >
-                {t(item.key)}
+                {item.text || t(item.key)}
               </a>
             ))}
           </nav>
@@ -105,7 +106,7 @@ export const Header = () => {
                   className="text-foreground hover:text-primary transition-colors font-medium py-2"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  {t(item.key)}
+                  {item.text || t(item.key)}
                 </a>
               ))}
               
