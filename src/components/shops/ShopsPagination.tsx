@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface ShopsPaginationProps {
   currentPage: number;
@@ -8,6 +9,7 @@ interface ShopsPaginationProps {
 }
 
 export function ShopsPagination({ currentPage, totalPages, onPageChange }: ShopsPaginationProps) {
+  const { t } = useLanguage();
   if (totalPages <= 1) {
     return null;
   }
@@ -15,7 +17,7 @@ export function ShopsPagination({ currentPage, totalPages, onPageChange }: Shops
   return (
     <div className="flex justify-center items-center gap-2 mt-8">
       <div className="text-sm text-muted-foreground mb-4">
-        Page {currentPage} sur {totalPages}
+        {t('page')} {currentPage} {t('of')} {totalPages}
       </div>
       
       <div className="flex justify-center items-center gap-2">
@@ -26,7 +28,7 @@ export function ShopsPagination({ currentPage, totalPages, onPageChange }: Shops
           disabled={currentPage === 1}
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
-          Précédent
+          {t('previous')}
         </Button>
 
         <div className="flex gap-1">
@@ -62,7 +64,7 @@ export function ShopsPagination({ currentPage, totalPages, onPageChange }: Shops
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
         >
-          Suivant
+          {t('next')}
           <ChevronRight className="h-4 w-4 ml-1" />
         </Button>
       </div>

@@ -3,12 +3,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Store, MapPin, Star, Globe } from 'lucide-react';
 import { Vendor } from '@/hooks/useShops';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface ShopCardProps {
   vendor: Vendor;
 }
 
 export function ShopCard({ vendor }: ShopCardProps) {
+  const { t } = useLanguage();
   const getVendorUrl = (vendor: Vendor) => {
     if (vendor.store_slug) {
       return `/boutique/${vendor.store_slug}`;
@@ -48,7 +50,7 @@ export function ShopCard({ vendor }: ShopCardProps) {
         {/* Verified badge */}
         {vendor.is_verified && (
           <Badge className="absolute top-3 right-3 bg-green-500 hover:bg-green-600">
-            Vérifié
+            {t('verified')}
           </Badge>
         )}
       </div>
@@ -69,7 +71,7 @@ export function ShopCard({ vendor }: ShopCardProps) {
           {vendor.total_sales && vendor.total_sales > 0 && (
             <div className="flex items-center gap-1">
               <Store className="h-4 w-4" />
-              <span>{vendor.total_sales} vente{vendor.total_sales > 1 ? 's' : ''}</span>
+              <span>{vendor.total_sales} {vendor.total_sales > 1 ? t('salesPlural') : t('sales')}</span>
             </div>
           )}
         </div>
@@ -96,7 +98,7 @@ export function ShopCard({ vendor }: ShopCardProps) {
             onClick={() => window.open(getVendorUrl(vendor), '_blank')}
           >
             <Store className="h-4 w-4 mr-2" />
-            Visiter
+            {t('visit')}
           </Button>
           
           {vendor.website_url && (

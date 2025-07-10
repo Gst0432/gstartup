@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Store } from 'lucide-react';
 import { ShopCard } from './ShopCard';
 import { Vendor } from '@/hooks/useShops';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface ShopsGridProps {
   vendors: Vendor[];
@@ -21,6 +22,7 @@ export function ShopsGrid({
   filterVerified, 
   onClearFilters 
 }: ShopsGridProps) {
+  const { t } = useLanguage();
   // Loading state
   if (loading) {
     return (
@@ -49,15 +51,15 @@ export function ShopsGrid({
     return (
       <div className="text-center py-12">
         <Store className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-        <h3 className="text-lg font-medium mb-2">Aucune boutique trouvée</h3>
+        <h3 className="text-lg font-medium mb-2">{t('noShopsFound')}</h3>
         <p className="text-muted-foreground mb-6">
           {searchTerm || filterVerified
-            ? "Essayez de modifier vos critères de recherche"
-            : "Il n'y a pas encore de boutiques disponibles"}
+            ? t('tryDifferentSearch')
+            : t('noShopsAvailable')}
         </p>
         {(searchTerm || filterVerified) && (
           <Button variant="outline" onClick={onClearFilters}>
-            Effacer les filtres
+            {t('clearFilters')}
           </Button>
         )}
       </div>
@@ -69,7 +71,7 @@ export function ShopsGrid({
     <>
       <div className="flex justify-between items-center mb-6">
         <p className="text-muted-foreground">
-          {totalVendors} boutique{totalVendors > 1 ? 's' : ''} trouvée{totalVendors > 1 ? 's' : ''}
+          {totalVendors} {totalVendors > 1 ? t('shopsFounds') : t('shopsFound')}
         </p>
       </div>
 
