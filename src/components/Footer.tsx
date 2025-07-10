@@ -16,10 +16,9 @@ export const Footer = () => {
             <div className="flex items-center gap-2">
               <img 
                 src="/lovable-uploads/c72d66fa-2175-4b64-b34b-5754d320f178.png" 
-                alt="227makemoney Logo"
+                alt="Logo"
                 className="h-8 w-auto"
               />
-              <span className="font-bold text-lg">227makemoney</span>
             </div>
             
             <p className="text-muted-foreground text-sm leading-relaxed">
@@ -39,7 +38,7 @@ export const Footer = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4" />
-                <span>+221 XX XXX XX XX</span>
+                <span>+22770138031</span>
               </div>
             </div>
           </div>
