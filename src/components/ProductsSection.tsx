@@ -236,9 +236,10 @@ export const ProductsSection = () => {
                     {product.name}
                   </h3>
                   
-                  <p className="text-muted-foreground text-sm mb-4 line-clamp-3 flex-1">
-                    {product.description}
-                  </p>
+                  <div 
+                    className="text-muted-foreground text-sm mb-4 line-clamp-3 flex-1 prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ __html: product.description }}
+                  />
 
                   <div className="text-sm text-muted-foreground mb-2">
                     <span>{t('by')} {product.vendor?.business_name}</span>
