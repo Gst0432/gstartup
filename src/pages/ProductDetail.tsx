@@ -37,7 +37,7 @@ interface Product {
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { currency } = useLanguage();
+  const { currency, t } = useLanguage();
   const { toast } = useToast();
   const { isAuthenticated, loading: authLoading } = useAuth();
   const { savePendingPurchase, executePendingPurchase, pendingPurchase, clearPendingPurchase } = usePendingPurchase();
@@ -201,8 +201,8 @@ export default function ProductDetail() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Produit non trouvé</h1>
-          <Button onClick={() => navigate('/')}>Retour à l'accueil</Button>
+          <h1 className="text-2xl font-bold mb-4">{t('productNotFound')}</h1>
+          <Button onClick={() => navigate('/')}>{t('returnHome')}</Button>
         </div>
       </div>
     );
@@ -215,12 +215,12 @@ export default function ProductDetail() {
         <div className="flex items-center gap-4 mb-8">
           <Button variant="outline" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Retour
+            {t('back')}
           </Button>
           <div className="flex-1" />
           <Button variant="outline" size="sm">
             <Share2 className="h-4 w-4 mr-2" />
-            Partager
+            {t('share')}
           </Button>
         </div>
 
@@ -230,12 +230,11 @@ export default function ProductDetail() {
             <UserPlus className="h-4 w-4" />
             <AlertDescription className="flex items-center justify-between">
               <span>
-                Pour finaliser votre achat, vous devez créer un compte ou vous connecter.
-                Votre sélection sera sauvegardée.
+                {t('authRequired')}
               </span>
               <div className="flex gap-2 ml-4">
                 <Button size="sm" onClick={handleAuthRedirect}>
-                  S'inscrire / Se connecter
+                  {t('signupLogin')}
                 </Button>
                 <Button 
                   size="sm" 
@@ -245,7 +244,7 @@ export default function ProductDetail() {
                     clearPendingPurchase();
                   }}
                 >
-                  Annuler
+                  {t('cancel')}
                 </Button>
               </div>
             </AlertDescription>
@@ -257,7 +256,7 @@ export default function ProductDetail() {
           <Alert className="mb-6 border-green-500 bg-green-50">
             <ShoppingCart className="h-4 w-4" />
             <AlertDescription>
-              Bienvenue ! Votre achat va être finalisé automatiquement...
+              {t('welcomeMessage')}
             </AlertDescription>
           </Alert>
         )}
@@ -310,7 +309,7 @@ export default function ProductDetail() {
               {product.is_featured && (
                 <Badge variant="default">
                   <Star className="h-3 w-3 mr-1" />
-                  En vedette
+                  {t('featured')}
                 </Badge>
               )}
             </div>
@@ -326,7 +325,7 @@ export default function ProductDetail() {
                     className="w-6 h-6 rounded-full object-cover"
                   />
                 )}
-                <span>Par {product.vendor.business_name}</span>
+                <span>{t('by')} {product.vendor.business_name}</span>
               </div>
             </div>
 
@@ -351,12 +350,12 @@ export default function ProductDetail() {
               {product.preview_url && (
                 <Button variant="outline" onClick={handlePreview} className="flex-1">
                   <Eye className="h-4 w-4 mr-2" />
-                  Aperçu
+                  {t('preview')}
                 </Button>
               )}
               <Button onClick={handleBuy} className="flex-1" size="lg">
                 <ShoppingCart className="h-4 w-4 mr-2" />
-                {isAuthenticated ? 'Acheter maintenant' : 'Acheter (inscription requise)'}
+                {isAuthenticated ? t('buyNow') : t('buyRequireAuth')}
               </Button>
             </div>
 
@@ -369,8 +368,8 @@ export default function ProductDetail() {
                   onReviewSubmitted={() => {
                     setReviewsRefreshTrigger(prev => prev + 1);
                     toast({
-                      title: "Avis ajouté",
-                      description: "Merci pour votre avis !"
+                      title: t('reviewAdded'),
+                      description: t('thankYouReview')
                     });
                   }}
                 />
@@ -379,7 +378,7 @@ export default function ProductDetail() {
 
             {/* Produit numérique */}
             <div className="text-sm text-muted-foreground">
-              📱 Produit numérique - Téléchargement immédiat après achat
+              📱 {t('digitalProduct')}
             </div>
           </div>
         </div>
@@ -387,7 +386,7 @@ export default function ProductDetail() {
         {/* Description */}
         <Card className="mt-12">
           <CardHeader>
-            <CardTitle>Description du produit</CardTitle>
+            <CardTitle>{t('productDescription')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div 

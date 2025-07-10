@@ -61,6 +61,24 @@ const translations = {
     noProducts: 'Aucun produit en vedette pour le moment',
     viewMoreProducts: 'Voir plus de produits',
     
+    // Product Detail
+    back: 'Retour',
+    share: 'Partager',
+    featured: 'En vedette',
+    preview: 'Aperçu',
+    buyNow: 'Acheter maintenant',
+    buyRequireAuth: 'Acheter (inscription requise)',
+    productDescription: 'Description du produit',
+    digitalProduct: 'Produit numérique - Téléchargement immédiat après achat',
+    authRequired: 'Pour finaliser votre achat, vous devez créer un compte ou vous connecter. Votre sélection sera sauvegardée.',
+    signupLogin: 'S\'inscrire / Se connecter',
+    cancel: 'Annuler',
+    welcomeMessage: 'Bienvenue ! Votre achat va être finalisé automatiquement...',
+    productNotFound: 'Produit non trouvé',
+    returnHome: 'Retour à l\'accueil',
+    reviewAdded: 'Avis ajouté',
+    thankYouReview: 'Merci pour votre avis !',
+    
     // Footer
     company: 'Entreprise',
     resources: 'Ressources',
@@ -123,6 +141,24 @@ const translations = {
     by: 'By',
     noProducts: 'No featured products at the moment',
     viewMoreProducts: 'View More Products',
+    
+    // Product Detail
+    back: 'Back',
+    share: 'Share',
+    featured: 'Featured',
+    preview: 'Preview',
+    buyNow: 'Buy Now',
+    buyRequireAuth: 'Buy (registration required)',
+    productDescription: 'Product Description',
+    digitalProduct: 'Digital product - Instant download after purchase',
+    authRequired: 'To complete your purchase, you must create an account or log in. Your selection will be saved.',
+    signupLogin: 'Sign up / Log in',
+    cancel: 'Cancel',
+    welcomeMessage: 'Welcome! Your purchase will be finalized automatically...',
+    productNotFound: 'Product not found',
+    returnHome: 'Return to home',
+    reviewAdded: 'Review added',
+    thankYouReview: 'Thank you for your review!',
     
     // Footer
     company: 'Company',
