@@ -255,22 +255,18 @@ export default function VendorStore() {
                 <div className="text-sm text-muted-foreground">Produits</div>
               </div>
               
-              {vendor.rating && (
-                <div className="text-center p-4 bg-muted/50 rounded-lg">
-                  <div className="flex items-center justify-center gap-1 mb-1">
-                    <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                    <span className="text-2xl font-bold">{vendor.rating.toFixed(1)}</span>
-                  </div>
-                  <div className="text-sm text-muted-foreground">Note moyenne</div>
+              <div className="text-center p-4 bg-muted/50 rounded-lg">
+                <div className="flex items-center justify-center gap-1 mb-1">
+                  <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                  <span className="text-2xl font-bold">{vendor.rating ? vendor.rating.toFixed(1) : '0.0'}</span>
                 </div>
-              )}
+                <div className="text-sm text-muted-foreground">Note moyenne</div>
+              </div>
               
-              {vendor.total_sales && (
-                <div className="text-center p-4 bg-muted/50 rounded-lg">
-                  <div className="text-2xl font-bold text-primary">{vendor.total_sales}</div>
-                  <div className="text-sm text-muted-foreground">Ventes</div>
-                </div>
-              )}
+              <div className="text-center p-4 bg-muted/50 rounded-lg">
+                <div className="text-2xl font-bold text-primary">{vendor.total_sales || 0}</div>
+                <div className="text-sm text-muted-foreground">Ventes</div>
+              </div>
 
               <div className="text-center p-4 bg-muted/50 rounded-lg">
                 <div className="text-2xl font-bold text-green-600">Actif</div>
