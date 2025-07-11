@@ -22,8 +22,13 @@ import { Navigate } from 'react-router-dom';
 
 interface DashboardStats {
   ordersCount: number;
+  completedOrders: number;
+  pendingOrders: number;
+  totalSpent: number;
   wishlistCount: number;
   cartCount: number;
+  cartValue: number;
+  lastOrderDate: string | null;
 }
 
 export default function Dashboard() {
@@ -31,8 +36,13 @@ export default function Dashboard() {
   const { t } = useLanguage();
   const [stats, setStats] = useState<DashboardStats>({
     ordersCount: 0,
+    completedOrders: 0,
+    pendingOrders: 0,
+    totalSpent: 0,
     wishlistCount: 0,
-    cartCount: 0
+    cartCount: 0,
+    cartValue: 0,
+    lastOrderDate: null
   });
 
   // Rediriger les utilisateurs vers leur tableau de bord approprié
@@ -55,11 +65,29 @@ export default function Dashboard() {
     if (!profile) return;
 
     try {
-      // Fetch orders count
-      const { count: ordersCount } = await supabase
+      // Fetch orders statistics
+      const { data: orders, count: ordersCount } = await supabase
         .from('orders')
-        .select('*', { count: 'exact', head: true })
+        .select('*', { count: 'exact' })
         .eq('user_id', profile.user_id);
+
+      const completedOrders = orders?.filter(order => 
+        (order.status === 'completed' || order.status === 'confirmed') && order.payment_status === 'paid'
+      ).length || 0;
+
+      const pendingOrders = orders?.filter(order => 
+        order.status === 'pending' || order.payment_status === 'pending'
+      ).length || 0;
+
+      const totalSpent = orders?.reduce((sum, order) => 
+        (order.status === 'completed' || order.status === 'confirmed') && order.payment_status === 'paid' 
+          ? sum + order.total_amount 
+          : sum, 0
+      ) || 0;
+
+      const lastOrder = orders?.sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      )[0];
 
       // Fetch wishlist count
       const { count: wishlistCount } = await supabase
@@ -67,26 +95,44 @@ export default function Dashboard() {
         .select('*', { count: 'exact', head: true })
         .eq('user_id', profile.user_id);
 
-      // Fetch cart count
+      // Fetch cart statistics
       const { data: cart } = await supabase
         .from('carts')
-        .select('id')
+        .select(`
+          id,
+          cart_items(
+            id,
+            quantity,
+            products(
+              price
+            ),
+            product_variants(
+              price
+            )
+          )
+        `)
         .eq('user_id', profile.user_id)
         .single();
 
       let cartCount = 0;
-      if (cart) {
-        const { count } = await supabase
-          .from('cart_items')
-          .select('*', { count: 'exact', head: true })
-          .eq('cart_id', cart.id);
-        cartCount = count || 0;
+      let cartValue = 0;
+      if (cart?.cart_items) {
+        cartCount = cart.cart_items.length;
+        cartValue = cart.cart_items.reduce((sum, item) => {
+          const price = item.product_variants?.price || item.products?.price || 0;
+          return sum + (price * item.quantity);
+        }, 0);
       }
 
       setStats({
         ordersCount: ordersCount || 0,
+        completedOrders,
+        pendingOrders,
+        totalSpent,
         wishlistCount: wishlistCount || 0,
-        cartCount
+        cartCount,
+        cartValue,
+        lastOrderDate: lastOrder?.created_at || null
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -95,32 +141,40 @@ export default function Dashboard() {
 
   const quickActions = [
     {
-      title: 'Parcourir le Marketplace',
-      description: 'Découvrez nos produits numériques',
+      title: 'Explorer Marketplace',
+      description: 'Découvrez nos nouveautés',
       icon: Store,
-      href: '/#marketplace',
-      color: 'bg-blue-500'
+      href: '/marketplace',
+      color: 'bg-gradient-to-r from-blue-500 to-blue-600',
+      badge: 'Nouveau',
+      badgeColor: 'bg-blue-100 text-blue-700'
     },
     {
       title: 'Mon Panier',
-      description: `${stats.cartCount} articles`,
+      description: `${stats.cartCount} articles · ${stats.cartValue.toLocaleString()} FCFA`,
       icon: ShoppingCart,
       href: '/cart',
-      color: 'bg-green-500'
+      color: 'bg-gradient-to-r from-green-500 to-green-600',
+      badge: stats.cartCount > 0 ? `${stats.cartCount}` : null,
+      badgeColor: 'bg-green-100 text-green-700'
     },
     {
-      title: 'Ma Liste de Souhaits',
-      description: `${stats.wishlistCount} produits`,
+      title: 'Liste de Souhaits',
+      description: `${stats.wishlistCount} produits sauvegardés`,
       icon: Heart,
       href: '/wishlist',
-      color: 'bg-red-500'
+      color: 'bg-gradient-to-r from-red-500 to-red-600',
+      badge: stats.wishlistCount > 0 ? `${stats.wishlistCount}` : null,
+      badgeColor: 'bg-red-100 text-red-700'
     },
     {
-      title: 'Mes Commandes',
-      description: `${stats.ordersCount} commandes`,
+      title: 'Mes Achats',
+      description: `${stats.completedOrders} commandes livrées`,
       icon: Package,
       href: '/orders',
-      color: 'bg-purple-500'
+      color: 'bg-gradient-to-r from-purple-500 to-purple-600',
+      badge: stats.pendingOrders > 0 ? 'En attente' : null,
+      badgeColor: 'bg-purple-100 text-purple-700'
     }
   ];
 
@@ -178,70 +232,101 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-            <Card>
+          {/* Enhanced Stats Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+            <Card className="hover-scale transition-all duration-300 border-l-4 border-l-primary">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Commandes Totales
+                  Commandes Livrées
                 </CardTitle>
-                <Package className="h-4 w-4 text-muted-foreground" />
+                <Package className="h-4 w-4 text-green-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.ordersCount}</div>
+                <div className="text-2xl font-bold text-green-600">{stats.completedOrders}</div>
                 <p className="text-xs text-muted-foreground">
-                  Toutes vos commandes
+                  Sur {stats.ordersCount} total
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="hover-scale transition-all duration-300 border-l-4 border-l-blue-500">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Total Dépensé
+                </CardTitle>
+                <CreditCard className="h-4 w-4 text-blue-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-blue-600">
+                  {stats.totalSpent.toLocaleString()} FCFA
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Tous vos achats
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="hover-scale transition-all duration-300 border-l-4 border-l-red-500">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Articles Favoris
                 </CardTitle>
-                <Heart className="h-4 w-4 text-muted-foreground" />
+                <Heart className="h-4 w-4 text-red-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.wishlistCount}</div>
+                <div className="text-2xl font-bold text-red-600">{stats.wishlistCount}</div>
                 <p className="text-xs text-muted-foreground">
                   Dans votre liste de souhaits
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="hover-scale transition-all duration-300 border-l-4 border-l-orange-500">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Panier Actuel
                 </CardTitle>
-                <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+                <ShoppingCart className="h-4 w-4 text-orange-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.cartCount}</div>
+                <div className="text-2xl font-bold text-orange-600">{stats.cartCount}</div>
                 <p className="text-xs text-muted-foreground">
-                  Articles en attente
+                  {stats.cartValue.toLocaleString()} FCFA
                 </p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Quick Actions */}
+          {/* Enhanced Quick Actions */}
           <div className="mb-6 sm:mb-8">
-            <h2 className="text-lg sm:text-xl font-semibold mb-4">Actions Rapides</h2>
+            <h2 className="text-lg sm:text-xl font-semibold mb-4 flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              Actions Rapides
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {quickActions.map((action, index) => (
                 <Card 
                   key={index} 
-                  className="hover:shadow-lg transition-shadow cursor-pointer"
+                  className="hover-scale group cursor-pointer transition-all duration-300 hover:shadow-xl border-0 bg-gradient-to-br from-background to-muted/30"
                   onClick={() => window.location.href = action.href}
                 >
-                  <CardHeader className="pb-3">
-                    <div className={`w-12 h-12 ${action.color} rounded-lg flex items-center justify-center mb-3`}>
-                      <action.icon className="h-6 w-6 text-white" />
+                  <CardHeader className="pb-3 relative overflow-hidden">
+                    <div className={`w-14 h-14 ${action.color} rounded-xl flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                      <action.icon className="h-7 w-7 text-white" />
                     </div>
-                    <CardTitle className="text-base">{action.title}</CardTitle>
-                    <CardDescription>{action.description}</CardDescription>
+                    {action.badge && (
+                      <Badge 
+                        className={`absolute top-2 right-2 ${action.badgeColor} text-xs px-2 py-1`}
+                      >
+                        {action.badge}
+                      </Badge>
+                    )}
+                    <CardTitle className="text-base group-hover:text-primary transition-colors">
+                      {action.title}
+                    </CardTitle>
+                    <CardDescription className="text-xs leading-relaxed">
+                      {action.description}
+                    </CardDescription>
                   </CardHeader>
                 </Card>
               ))}
@@ -293,8 +378,19 @@ export default function Dashboard() {
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">Connexion récente</span>
-                    <span className="text-xs text-muted-foreground">Aujourd'hui</span>
+                    <span className="text-sm">Dernière commande</span>
+                    <span className="text-xs text-muted-foreground">
+                      {stats.lastOrderDate 
+                        ? new Date(stats.lastOrderDate).toLocaleDateString('fr-FR')
+                        : 'Aucune commande'
+                      }
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Statut d'activité</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {stats.ordersCount > 0 ? 'Client actif' : 'Nouveau client'}
+                    </Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Compte créé</span>
