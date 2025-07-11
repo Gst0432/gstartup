@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { DataTablePagination } from '@/components/ui/data-table-pagination';
 import { usePagination } from '@/hooks/usePagination';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { 
   Package, 
   Plus,
@@ -15,11 +16,12 @@ import {
   Edit,
   Trash,
   Eye,
-  Filter,
+  MoreHorizontal,
   Star
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Link } from 'react-router-dom';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 interface Product {
   id: string;
@@ -235,97 +237,112 @@ export default function VendorProducts() {
                 <div className="flex items-center justify-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 </div>
-              ) : (
-                 <div className="grid gap-4">
-                   {paginatedProducts.map((product) => (
-                     <div key={product.id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 border rounded-lg">
-                       <div className="flex items-center gap-4 flex-1">
-                         {product.images?.[0] ? (
-                           <img
-                             src={product.images[0]}
-                             alt={product.name}
-                             className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-lg flex-shrink-0"
-                           />
-                         ) : (
-                           <div className="w-12 h-12 sm:w-16 sm:h-16 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
-                             <Package className="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" />
-                           </div>
-                         )}
-                         <div className="flex-1 min-w-0">
-                           <div className="flex flex-wrap items-center gap-2 mb-1">
-                             <h3 className="font-medium text-sm sm:text-base truncate">{product.name}</h3>
-                             {product.is_featured && (
-                               <Badge variant="secondary" className="text-xs">
-                                 <Star className="h-3 w-3 mr-1" />
-                                 Mis en avant
-                               </Badge>
-                             )}
-                             <Badge variant={product.is_active ? "default" : "secondary"} className="text-xs">
-                               {product.is_active ? "Actif" : "Inactif"}
-                             </Badge>
-                           </div>
-                           <p className="text-xs sm:text-sm text-muted-foreground mb-1 truncate">
-                             Catégorie: {product.category.name}
-                           </p>
-                           <p className="text-xs sm:text-sm font-medium">
-                             Prix: {product.price.toLocaleString()} FCFA
-                           </p>
-                           <p className="text-xs text-muted-foreground">
-                             Stock: {product.quantity} | Créé le {new Date(product.created_at).toLocaleDateString('fr-FR')}
-                           </p>
-                         </div>
-                       </div>
-                        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                          <Link to={`/products/${product.id}`}>
-                            <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
-                              <Eye className="h-4 w-4 sm:mr-0 mr-2" />
-                              <span className="sm:hidden">Voir</span>
+               ) : (
+                  <div>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Produit</TableHead>
+                          <TableHead>Statut</TableHead>
+                          <TableHead>Prix</TableHead>
+                          <TableHead>Stock</TableHead>
+                          <TableHead>Date</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {paginatedProducts.map((product) => (
+                          <TableRow key={product.id}>
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                {product.images?.[0] ? (
+                                  <img
+                                    src={product.images[0]}
+                                    alt={product.name}
+                                    className="w-10 h-10 object-cover rounded-lg"
+                                  />
+                                ) : (
+                                  <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                                    <Package className="h-5 w-5 text-muted-foreground" />
+                                  </div>
+                                )}
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <p className="font-medium">{product.name}</p>
+                                    {product.is_featured && (
+                                      <Badge variant="secondary" className="text-xs">
+                                        <Star className="h-3 w-3 mr-1" />
+                                        Mis en avant
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  <p className="text-sm text-muted-foreground">{product.category.name}</p>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={product.is_active ? "default" : "secondary"}>
+                                {product.is_active ? "Actif" : "Inactif"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{product.price.toLocaleString()} FCFA</TableCell>
+                            <TableCell>{product.quantity}</TableCell>
+                            <TableCell>{new Date(product.created_at).toLocaleDateString('fr-FR')}</TableCell>
+                            <TableCell className="text-right">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem asChild>
+                                    <Link to={`/products/${product.id}`} className="flex items-center">
+                                      <Eye className="h-4 w-4 mr-2" />
+                                      Voir
+                                    </Link>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem asChild>
+                                    <Link to={`/vendor/products/${product.id}/edit`} className="flex items-center">
+                                      <Edit className="h-4 w-4 mr-2" />
+                                      Modifier
+                                    </Link>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => toggleProductStatus(product.id, product.is_active)}>
+                                    {product.is_active ? 'Désactiver' : 'Activer'}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => deleteProduct(product.id)}
+                                    className="text-destructive"
+                                  >
+                                    <Trash className="h-4 w-4 mr-2" />
+                                    Supprimer
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                    {paginatedProducts.length === 0 && filteredProducts.length === 0 && (
+                      <div className="text-center py-8">
+                        <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground mb-4">
+                          {searchTerm ? "Aucun produit trouvé" : "Aucun produit dans votre catalogue"}
+                        </p>
+                        {!searchTerm && (
+                          <Link to="/vendor/products/new">
+                            <Button>
+                              <Plus className="h-4 w-4 mr-2" />
+                              Ajouter votre premier produit
                             </Button>
                           </Link>
-                          <Link to={`/vendor/products/${product.id}/edit`}>
-                            <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
-                              <Edit className="h-4 w-4 sm:mr-0 mr-2" />
-                              <span className="sm:hidden">Modifier</span>
-                            </Button>
-                          </Link>
-                          <Button
-                            variant={product.is_active ? "outline" : "default"}
-                            size="sm"
-                            onClick={() => toggleProductStatus(product.id, product.is_active)}
-                            className="flex-1 sm:flex-none text-xs sm:text-sm"
-                          >
-                            {product.is_active ? 'Désactiver' : 'Activer'}
-                          </Button>
-                          <Button 
-                            variant="destructive" 
-                            size="sm" 
-                            onClick={() => deleteProduct(product.id)}
-                            className="flex-1 sm:flex-none"
-                          >
-                            <Trash className="h-4 w-4 sm:mr-0 mr-2" />
-                            <span className="sm:hidden">Supprimer</span>
-                          </Button>
-                        </div>
-                     </div>
-                  ))}
-                   {paginatedProducts.length === 0 && filteredProducts.length === 0 && (
-                     <div className="text-center py-8">
-                       <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                       <p className="text-muted-foreground mb-4">
-                         {searchTerm ? "Aucun produit trouvé" : "Aucun produit dans votre catalogue"}
-                       </p>
-                       {!searchTerm && (
-                         <Link to="/vendor/products/new">
-                           <Button>
-                             <Plus className="h-4 w-4 mr-2" />
-                             Ajouter votre premier produit
-                           </Button>
-                         </Link>
-                       )}
-                     </div>
-                   )}
-                 </div>
-               )}
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
                
                {/* Pagination */}
                {!loading && filteredProducts.length > 0 && (
