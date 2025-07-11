@@ -20,10 +20,11 @@ interface PaymentSelectorProps {
   amount: number;
   currency: string;
   orderId: string;
+  vendorId?: string; // Add vendorId to get vendor-specific payment gateways
   onPaymentComplete?: (success: boolean) => void;
 }
 
-export default function PaymentSelector({ amount, currency, orderId, onPaymentComplete }: PaymentSelectorProps) {
+export default function PaymentSelector({ amount, currency, orderId, vendorId, onPaymentComplete }: PaymentSelectorProps) {
   const { toast } = useToast();
   const [gateways, setGateways] = useState<PaymentGateway[]>([]);
   const [selectedGateway, setSelectedGateway] = useState<string>('');
@@ -31,27 +32,64 @@ export default function PaymentSelector({ amount, currency, orderId, onPaymentCo
 
   useEffect(() => {
     fetchActiveGateways();
-  }, []);
+  }, [vendorId, currency]);
 
   const fetchActiveGateways = async () => {
     try {
-      const { data, error } = await supabase
-        .from('payment_gateways')
-        .select('*')
-        .eq('is_active', true)
-        .contains('supported_currencies', [currency]);
-
-      if (error) {
-        console.error('Error fetching gateways:', error);
+      if (!vendorId) {
+        console.log('No vendorId provided');
         return;
       }
 
-      setGateways(data || []);
-      if (data && data.length > 0) {
-        setSelectedGateway(data[0].id);
+      // Récupérer les informations de paiement du vendeur
+      const { data: vendorData, error: vendorError } = await supabase
+        .from('vendors')
+        .select('moneroo_enabled, moneyfusion_enabled, moneroo_api_key, moneyfusion_api_url')
+        .eq('id', vendorId)
+        .single();
+
+      if (vendorError) {
+        console.error('Error fetching vendor payment config:', vendorError);
+        return;
+      }
+
+      const availableGateways: PaymentGateway[] = [];
+
+      // Ajouter Moneroo si configuré et activé
+      if (vendorData.moneroo_enabled && vendorData.moneroo_api_key) {
+        availableGateways.push({
+          id: 'moneroo',
+          name: 'Moneroo',
+          type: 'moneroo',
+          is_active: true,
+          test_mode: false,
+          supported_currencies: ['XAF', 'FCFA']
+        });
+      }
+
+      // Ajouter MoneyFusion si configuré et activé
+      if (vendorData.moneyfusion_enabled && vendorData.moneyfusion_api_url) {
+        availableGateways.push({
+          id: 'moneyfusion',
+          name: 'MoneyFusion',
+          type: 'moneyfusion',
+          is_active: true,
+          test_mode: false,
+          supported_currencies: ['XAF', 'FCFA']
+        });
+      }
+
+      // Filtrer les passerelles qui supportent la devise
+      const supportedGateways = availableGateways.filter(gateway => 
+        gateway.supported_currencies.includes(currency)
+      );
+
+      setGateways(supportedGateways);
+      if (supportedGateways.length > 0) {
+        setSelectedGateway(supportedGateways[0].id);
       }
     } catch (error) {
-      console.error('Error fetching gateways:', error);
+      console.error('Error fetching vendor payment gateways:', error);
     }
   };
 
@@ -106,7 +144,7 @@ export default function PaymentSelector({ amount, currency, orderId, onPaymentCo
   const handleMonerooPayment = async (orderId: string, amount: number) => {
     try {
       const { data, error } = await supabase.functions.invoke('create-moneroo-payment', {
-        body: { orderId, amount }
+        body: { orderId, amount, vendorId }
       });
 
       if (error) throw error;
@@ -138,6 +176,7 @@ export default function PaymentSelector({ amount, currency, orderId, onPaymentCo
         body: { 
           orderId, 
           amount,
+          vendorId,
           customerPhone: customerPhone.trim(),
           customerName: customerName.trim()
         }

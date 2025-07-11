@@ -15,7 +15,6 @@ import {
   Package
 } from 'lucide-react';
 import { MonerooPaymentButton } from '@/components/MonerooPaymentButton';
-import PaymentSelector from '@/components/PaymentSelector';
 import { supabase } from '@/integrations/supabase/client';
 
 interface CartItem {

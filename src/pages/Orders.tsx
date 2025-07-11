@@ -45,6 +45,7 @@ interface Order {
     quantity: number;
     price: number;
     total: number;
+    vendor_id: string;
   }>;
 }
 
@@ -76,7 +77,8 @@ export default function Orders() {
             variant_name,
             quantity,
             price,
-            total
+            total,
+            vendor_id
           )
         `)
         .eq('user_id', profile?.user_id)
@@ -402,6 +404,7 @@ export default function Orders() {
                                     amount={order.total_amount}
                                     currency={order.currency}
                                     orderId={order.id}
+                                    vendorId={order.items[0]?.vendor_id} // Get vendor from first item
                                     onPaymentComplete={(success) => {
                                       if (success) {
                                         toast({
