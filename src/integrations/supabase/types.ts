@@ -1104,6 +1104,10 @@ export type Database = {
         Args: { user_id: string; days_to_add: number; admin_id?: string }
         Returns: boolean
       }
+      fix_payment_status: {
+        Args: { p_transaction_id: string; p_new_status?: string }
+        Returns: Json
+      }
       generate_order_reference_code: {
         Args: Record<PropertyKey, never>
         Returns: string
