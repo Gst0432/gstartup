@@ -3,6 +3,9 @@ import { OrderItem, OrderPriority, VendorOrdersStats } from '@/types/vendorOrder
 export const getStatusBadgeVariant = (status: string) => {
   switch (status) {
     case 'fulfilled': return 'default';
+    case 'shipped': return 'default';
+    case 'delivered': return 'default';
+    case 'unfulfilled': return 'secondary';
     case 'pending': return 'secondary';
     case 'cancelled': return 'destructive';
     default: return 'secondary';
@@ -12,6 +15,9 @@ export const getStatusBadgeVariant = (status: string) => {
 export const getStatusLabel = (status: string) => {
   switch (status) {
     case 'fulfilled': return 'Expédié';
+    case 'shipped': return 'Expédié';
+    case 'delivered': return 'Livré';
+    case 'unfulfilled': return 'Non expédié';
     case 'pending': return 'En attente';
     case 'cancelled': return 'Annulé';
     default: return status;

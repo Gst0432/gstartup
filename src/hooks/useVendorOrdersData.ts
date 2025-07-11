@@ -32,41 +32,66 @@ export const useVendorOrdersData = () => {
         return;
       }
 
-      const { data, error } = await supabase
+      // Récupérer d'abord les order_items du vendeur
+      const { data: orderItemsData, error: orderItemsError } = await supabase
         .from('order_items')
         .select(`
           *,
           products(
             digital_file_url,
             is_digital
-          ),
-          orders!inner(
-            id,
-            order_number,
-            status,
-            payment_status,
-            fulfillment_status,
-            total_amount,
-            currency,
-            created_at,
-            updated_at,
-            customer_notes,
-            user_id
           )
         `)
         .eq('vendor_id', vendor.id)
         .order('created_at', { ascending: false });
 
-      console.log('📋 Query result:', { data, error });
-      console.log('📦 Order items count:', data?.length || 0);
+      console.log('📋 Order items data:', { orderItemsData, orderItemsError });
 
-      if (error) {
-        console.error('❌ Error fetching orders:', error);
+      if (orderItemsError) {
+        console.error('❌ Error fetching order items:', orderItemsError);
         return;
       }
 
-      // Récupérer les profils séparément pour éviter les problèmes de jointure
-      const userIds = [...new Set(data?.map(item => item.orders?.user_id).filter(Boolean))];
+      if (!orderItemsData || orderItemsData.length === 0) {
+        console.log('📦 No order items found for vendor');
+        setOrderItems([]);
+        return;
+      }
+
+      // Récupérer les commandes correspondantes
+      const orderIds = orderItemsData.map(item => item.order_id);
+      const { data: ordersData, error: ordersError } = await supabase
+        .from('orders')
+        .select(`
+          id,
+          order_number,
+          status,
+          payment_status,
+          fulfillment_status,
+          total_amount,
+          currency,
+          created_at,
+          updated_at,
+          customer_notes,
+          user_id
+        `)
+        .in('id', orderIds);
+
+      console.log('📋 Orders data:', { ordersData, ordersError });
+
+      if (ordersError) {
+        console.error('❌ Error fetching orders:', ordersError);
+        return;
+      }
+
+      // Créer un map des commandes pour jointure
+      const ordersMap = ordersData?.reduce((acc, order) => {
+        acc[order.id] = order;
+        return acc;
+      }, {} as Record<string, any>) || {};
+
+      // Récupérer les profils des utilisateurs
+      const userIds = ordersData ? [...new Set(ordersData.map(order => order.user_id).filter(Boolean))] : [];
       console.log('👥 User IDs to fetch:', userIds);
       
       const { data: profiles } = await supabase
@@ -82,17 +107,26 @@ export const useVendorOrdersData = () => {
         return acc;
       }, {} as Record<string, any>) || {};
 
-      const transformedData = data?.map(item => ({
-        ...item,
-        order: {
-          ...item.orders,
-          profiles: profilesMap[item.orders?.user_id] || {
-            display_name: 'Client anonyme',
-            email: 'Non renseigné',
-            phone: null
-          }
+      // Transformer les données en joignant order_items avec orders et profiles
+      const transformedData = orderItemsData?.map(item => {
+        const order = ordersMap[item.order_id];
+        if (!order) {
+          console.warn('⚠️ Order not found for item:', item.id);
+          return null;
         }
-      })) || [];
+        
+        return {
+          ...item,
+          order: {
+            ...order,
+            profiles: profilesMap[order.user_id] || {
+              display_name: 'Client anonyme',
+              email: 'Non renseigné',
+              phone: null
+            }
+          }
+        };
+      }).filter(Boolean) || [];
 
       console.log('✅ Transformed data:', transformedData.length, 'items');
       setOrderItems(transformedData);
