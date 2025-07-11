@@ -140,42 +140,71 @@ export default function ProductDetail() {
   };
 
   const handleBuy = async () => {
+    console.log('🛒 handleBuy called', { isAuthenticated, product: product?.id });
+    
     if (!isAuthenticated) {
       // Sauvegarder l'intention d'achat et inviter à s'inscrire
       if (product) {
+        console.log('💾 Saving pending purchase for product:', product.id);
         savePendingPurchase(product.id, 1);
         setShowAuthPrompt(true);
       }
       return;
     }
 
+    if (!product) {
+      toast({
+        title: "Erreur",
+        description: "Produit non trouvé",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+
     try {
+      console.log('🚀 Calling create-payment function for product:', product.id);
+      
       const { data, error } = await supabase.functions.invoke('create-payment', {
         body: { 
-          productId: product?.id,
+          productId: product.id,
           quantity: 1 
         }
       });
 
+      console.log('📡 Payment response:', { data, error });
+
       if (error) {
+        console.error('❌ Payment error:', error);
         toast({
-          title: "Erreur",
-          description: "Impossible de créer le paiement",
+          title: "Erreur de paiement",
+          description: error.message || "Impossible de créer le paiement",
           variant: "destructive"
         });
         return;
       }
 
-      if (data.success && data.payment_url) {
+      if (data?.success && data?.payment_url) {
+        console.log('✅ Redirecting to payment URL:', data.payment_url);
         window.open(data.payment_url, '_blank');
+      } else {
+        console.log('⚠️ Payment response missing URL:', data);
+        toast({
+          title: "Erreur",
+          description: data?.error || "URL de paiement non disponible",
+          variant: "destructive"
+        });
       }
     } catch (error) {
-      console.error('Payment error:', error);
+      console.error('💥 Payment error:', error);
       toast({
-        title: "Erreur", 
-        description: "Une erreur est survenue",
+        title: "Erreur de connexion",
+        description: "Une erreur est survenue lors du paiement. Vérifiez votre connexion.",
         variant: "destructive"
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -353,9 +382,23 @@ export default function ProductDetail() {
                   {t('preview')}
                 </Button>
               )}
-              <Button onClick={handleBuy} className="flex-1" size="lg">
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                {isAuthenticated ? t('buyNow') : t('buyRequireAuth')}
+              <Button 
+                onClick={handleBuy} 
+                className="flex-1" 
+                size="lg"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+                    Traitement...
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    {isAuthenticated ? t('buyNow') : t('buyRequireAuth')}
+                  </>
+                )}
               </Button>
             </div>
 
