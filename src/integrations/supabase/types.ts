@@ -1253,7 +1253,27 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      cron_jobs_status: {
+        Row: {
+          active: boolean | null
+          database: string | null
+          jobname: string | null
+          schedule: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          database?: string | null
+          jobname?: string | null
+          schedule?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          database?: string | null
+          jobname?: string | null
+          schedule?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       activate_premium: {
