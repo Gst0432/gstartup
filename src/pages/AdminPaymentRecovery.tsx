@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Zap, RefreshCw, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Zap, RefreshCw, AlertTriangle, CheckCircle, Clock, TrendingUp, Shield } from 'lucide-react';
 
 export default function AdminPaymentRecovery() {
   const [selectedTransactionId, setSelectedTransactionId] = useState('');
@@ -64,11 +64,74 @@ export default function AdminPaymentRecovery() {
       />
       
       <div className="space-y-6 p-6">
+        {/* Informations sur les statuts Moneroo */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <Card className="border-green-200 bg-green-50">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <div>
+                  <p className="text-sm font-medium text-green-800">Success</p>
+                  <p className="text-xs text-green-600">Statut final ✓</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-red-200 bg-red-50">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-red-600" />
+                <div>
+                  <p className="text-sm font-medium text-red-800">Failed</p>
+                  <p className="text-xs text-red-600">Statut final ✗</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-gray-200 bg-gray-50">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Shield className="h-4 w-4 text-gray-600" />
+                <div>
+                  <p className="text-sm font-medium text-gray-800">Cancelled</p>
+                  <p className="text-xs text-gray-600">Statut final ↻</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-blue-200 bg-blue-50">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-blue-600" />
+                <div>
+                  <p className="text-sm font-medium text-blue-800">Pending</p>
+                  <p className="text-xs text-blue-600">Transitoire ⏳</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-orange-200 bg-orange-50">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-orange-600" />
+                <div>
+                  <p className="text-sm font-medium text-orange-800">Initiated</p>
+                  <p className="text-xs text-orange-600">Transitoire 🚀</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Alert d'information */}
         <Alert className="border-blue-200 bg-blue-50">
           <AlertTriangle className="h-4 w-4 text-blue-600" />
           <AlertDescription className="text-blue-800">
-            <strong>Page de récupération des paiements :</strong> Utilisez cette interface pour débloquer manuellement les paiements Moneroo qui n'ont pas été confirmés automatiquement.
+            <strong>Page de récupération des paiements :</strong> Utilisez cette interface pour débloquer manuellement les paiements Moneroo qui n'ont pas été confirmés automatiquement. Le système vérifie automatiquement les paiements toutes les 10 minutes.
           </AlertDescription>
         </Alert>
 

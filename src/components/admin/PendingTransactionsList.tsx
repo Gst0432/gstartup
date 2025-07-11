@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { Copy, ExternalLink, RefreshCw } from 'lucide-react';
+import { Copy, ExternalLink, RefreshCw, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -48,9 +48,9 @@ export const PendingTransactionsList = ({ onTransactionSelect, refreshTrigger }:
             user_id
           )
         `)
-        .eq('status', 'pending')
+        .in('status', ['pending', 'initiated'])
         .order('created_at', { ascending: false })
-        .limit(20);
+        .limit(30);
 
       if (error) {
         throw error;
@@ -83,14 +83,20 @@ export const PendingTransactionsList = ({ onTransactionSelect, refreshTrigger }:
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      pending: { variant: 'secondary' as const, label: 'En attente' },
-      success: { variant: 'default' as const, label: 'Réussi' },
-      failed: { variant: 'destructive' as const, label: 'Échoué' },
-      cancelled: { variant: 'outline' as const, label: 'Annulé' }
+      pending: { variant: 'secondary' as const, label: 'En attente', description: 'Transitoire' },
+      initiated: { variant: 'outline' as const, label: 'Initié', description: 'Transitoire' },
+      success: { variant: 'default' as const, label: 'Réussi', description: 'Final ✓' },
+      failed: { variant: 'destructive' as const, label: 'Échoué', description: 'Final ✗' },
+      cancelled: { variant: 'outline' as const, label: 'Annulé', description: 'Final ↻' }
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
-    return <Badge variant={config.variant}>{config.label}</Badge>;
+    return (
+      <div className="text-right">
+        <Badge variant={config.variant}>{config.label}</Badge>
+        <p className="text-xs text-muted-foreground mt-1">{config.description}</p>
+      </div>
+    );
   };
 
   if (loading) {
@@ -112,9 +118,12 @@ export const PendingTransactionsList = ({ onTransactionSelect, refreshTrigger }:
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Transactions en Attente</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5 text-blue-500" />
+            Transactions en Attente
+          </CardTitle>
           <CardDescription>
-            {transactions.length} transaction(s) en attente de confirmation
+            {transactions.length} transaction(s) en attente de confirmation • Vérification auto toutes les 10 min
           </CardDescription>
         </div>
         <Button variant="outline" size="sm" onClick={fetchTransactions}>
@@ -124,44 +133,50 @@ export const PendingTransactionsList = ({ onTransactionSelect, refreshTrigger }:
       </CardHeader>
       <CardContent>
         {transactions.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            Aucune transaction en attente
+          <div className="text-center py-12">
+            <Clock className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+            <p className="text-muted-foreground font-medium">Aucune transaction en attente</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Toutes les transactions sont confirmées ou le système de vérification automatique fonctionne
+            </p>
           </div>
         ) : (
           <div className="space-y-3">
             {transactions.map((transaction) => (
               <div
                 key={transaction.id}
-                className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors group"
               >
-                <div className="flex-1 space-y-1">
+                <div className="flex-1 space-y-2">
                   <div className="flex items-center gap-2">
-                    <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
+                    <code className="text-sm font-mono bg-muted px-2 py-1 rounded group-hover:bg-background transition-colors">
                       {transaction.transaction_id}
                     </code>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => copyTransactionId(transaction.transaction_id)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <Copy className="h-3 w-3" />
                     </Button>
                   </div>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span>Commande: {transaction.orders.order_number}</span>
-                    <span>{transaction.amount} XAF</span>
+                    <span className="font-medium">Commande: {transaction.orders.order_number}</span>
+                    <span className="text-primary font-semibold">{transaction.amount} XAF</span>
                     <span>{format(new Date(transaction.created_at), 'dd MMM yyyy HH:mm', { locale: fr })}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   {getStatusBadge(transaction.status)}
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => onTransactionSelect?.(transaction.transaction_id)}
+                    className="shadow-none"
                   >
                     <ExternalLink className="h-3 w-3 mr-1" />
-                    Sélectionner
+                    Traiter
                   </Button>
                 </div>
               </div>
