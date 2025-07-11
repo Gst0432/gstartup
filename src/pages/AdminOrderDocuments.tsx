@@ -231,34 +231,42 @@ export default function AdminOrderDocuments() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email du client</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="client@example.com"
-                  value={searchEmail}
-                  onChange={(e) => setSearchEmail(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="reference">Référence de commande</Label>
-                <Input
-                  id="reference"
-                  placeholder="Numéro ou code de référence"
-                  value={searchReference}
-                  onChange={(e) => setSearchReference(e.target.value)}
-                />
-              </div>
-            </div>
-            <Button 
-              onClick={searchOrders} 
-              disabled={isSearching}
-              className="w-full md:w-auto"
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                searchOrders();
+              }}
+              className="space-y-4"
             >
-              {isSearching ? "Recherche..." : "Rechercher"}
-            </Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email du client</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="client@example.com"
+                    value={searchEmail}
+                    onChange={(e) => setSearchEmail(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="reference">Référence de commande</Label>
+                  <Input
+                    id="reference"
+                    placeholder="Numéro ou code de référence"
+                    value={searchReference}
+                    onChange={(e) => setSearchReference(e.target.value)}
+                  />
+                </div>
+              </div>
+              <Button 
+                type="submit"
+                disabled={isSearching}
+                className="w-full md:w-auto"
+              >
+                {isSearching ? "Recherche..." : "Rechercher"}
+              </Button>
+            </form>
           </CardContent>
         </Card>
 
