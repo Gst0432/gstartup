@@ -10,7 +10,7 @@ const corsHeaders = {
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 interface EmailNotificationRequest {
-  type: 'user_registration' | 'payment_success' | 'order_confirmation';
+  type: 'user_registration' | 'payment_success' | 'order_confirmation' | 'digital_product_delivery';
   to: string;
   data: any;
 }
@@ -49,6 +49,11 @@ serve(async (req) => {
       case 'order_confirmation':
         subject = "Confirmation de commande - 227makemoney.com";
         emailContent = generateOrderConfirmationEmail(data);
+        break;
+      
+      case 'digital_product_delivery':
+        subject = "Vos produits numériques sont prêts ! - 227makemoney.com";
+        emailContent = generateDigitalProductDeliveryEmail(data);
         break;
       
       default:
@@ -225,6 +230,74 @@ function generateOrderConfirmationEmail(data: any): string {
       <div class="footer">
         <p>227makemoney.com - Votre marketplace de confiance</p>
         <p>Si vous avez des questions, contactez-nous à contact@gstartup.pro</p>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+function generateDigitalProductDeliveryEmail(data: any): string {
+  const productsHtml = data.products?.map((product: any) => `
+    <div style="background: #f9fafb; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #2563eb;">
+      <h4 style="margin: 0 0 10px 0; color: #1f2937;">${product.name}</h4>
+      <a href="${product.downloadUrl}" 
+         style="display: inline-block; background: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;"
+         target="_blank">
+        📥 Télécharger maintenant
+      </a>
+    </div>
+  `).join('') || '';
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .header { background: #16a34a; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; }
+        .footer { background: #f3f4f6; padding: 20px; text-align: center; font-size: 12px; }
+        .download-section { background: #ecfdf5; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .alert { background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 5px; margin: 15px 0; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>🎉 Vos produits numériques sont prêts !</h1>
+      </div>
+      <div class="content">
+        <h2>Bonjour ${data.customer_name},</h2>
+        <p>Excellente nouvelle ! Votre paiement pour la commande <strong>${data.order_number}</strong> a été confirmé et vos produits numériques sont maintenant disponibles au téléchargement.</p>
+
+        <div class="download-section">
+          <h3>🔽 Vos téléchargements</h3>
+          ${productsHtml}
+        </div>
+
+        <div class="alert">
+          <strong>⚠️ Important :</strong>
+          <ul style="margin: 10px 0;">
+            <li>Ces liens de téléchargement sont personnels et ne doivent pas être partagés</li>
+            <li>Nous vous recommandons de télécharger vos fichiers immédiatement</li>
+            <li>Conservez ces fichiers en lieu sûr sur votre ordinateur</li>
+          </ul>
+        </div>
+
+        <p>Si vous rencontrez des problèmes avec les téléchargements ou si vous avez des questions sur vos produits, n'hésitez pas à nous contacter.</p>
+        
+        <p>Merci pour votre achat et votre confiance !</p>
+        
+        <p style="margin-top: 30px;">
+          <strong>L'équipe 227makemoney.com</strong>
+        </p>
+      </div>
+      <div class="footer">
+        <p>227makemoney.com - Votre marketplace de produits numériques de confiance</p>
+        <p>Support client : contact@gstartup.pro</p>
+        <p style="color: #6b7280; font-size: 11px; margin-top: 10px;">
+          Commande ${data.order_number} • ${new Date().toLocaleString('fr-FR')}
+        </p>
       </div>
     </body>
     </html>

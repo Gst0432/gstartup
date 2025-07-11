@@ -50,6 +50,33 @@ export type Database = {
         }
         Relationships: []
       }
+      auto_process_logs: {
+        Row: {
+          created_at: string
+          errors: Json | null
+          execution_time: unknown | null
+          id: string
+          processed_orders: number | null
+          total_orders: number | null
+        }
+        Insert: {
+          created_at?: string
+          errors?: Json | null
+          execution_time?: unknown | null
+          id?: string
+          processed_orders?: number | null
+          total_orders?: number | null
+        }
+        Update: {
+          created_at?: string
+          errors?: Json | null
+          execution_time?: unknown | null
+          id?: string
+          processed_orders?: number | null
+          total_orders?: number | null
+        }
+        Relationships: []
+      }
       cart_items: {
         Row: {
           cart_id: string

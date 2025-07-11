@@ -240,6 +240,14 @@ export default function AdminDashboard() {
 
   const managementSections = [
     {
+      title: 'Automatisation',
+      description: 'Gestion automatique des commandes',
+      icon: Settings,
+      href: '/admin/auto-process',
+      color: 'bg-emerald-500',
+      count: null
+    },
+    {
       title: 'Gestion des Utilisateurs',
       description: 'Voir et gérer tous les utilisateurs',
       icon: Users,
