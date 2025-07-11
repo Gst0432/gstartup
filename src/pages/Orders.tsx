@@ -47,6 +47,10 @@ interface Order {
     price: number;
     total: number;
     vendor_id: string;
+    products: {
+      digital_file_url: string | null;
+      is_digital: boolean | null;
+    };
   }>;
 }
 
@@ -79,7 +83,11 @@ export default function Orders() {
             quantity,
             price,
             total,
-            vendor_id
+            vendor_id,
+            products(
+              digital_file_url,
+              is_digital
+            )
           )
         `)
         .eq('user_id', profile?.user_id)
@@ -138,6 +146,20 @@ export default function Orders() {
 
   const handleRetryPayment = (orderId: string) => {
     setRetryOrderId(orderId);
+  };
+
+  const handleDownloadProduct = (item: Order['items'][0]) => {
+    if (!item.products.digital_file_url) {
+      toast({
+        title: "Erreur",
+        description: "Aucun fichier disponible pour ce produit",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Ouvrir le fichier dans un nouvel onglet pour téléchargement
+    window.open(item.products.digital_file_url, '_blank');
   };
 
   const getStatusBadgeVariant = (status: string) => {
@@ -420,18 +442,6 @@ export default function Orders() {
                                 </DialogContent>
                               </Dialog>
                             )}
-                            
-                            {/* Bouton PDF - seulement pour les commandes payées */}
-                            {order.payment_status === 'paid' && (
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => generateOrderPDF(order)}
-                              >
-                                <Download className="h-4 w-4 mr-1" />
-                                PDF
-                              </Button>
-                            )}
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
@@ -472,6 +482,20 @@ export default function Orders() {
                               </div>
                               <div className="flex items-center gap-2">
                                 <span className="font-medium">{item.total.toLocaleString()} FCFA</span>
+                                
+                                {/* Bouton de téléchargement du produit - seulement si payé et fichier disponible */}
+                                {order.payment_status === 'paid' && item.products?.digital_file_url && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleDownloadProduct(item)}
+                                    className="text-xs"
+                                  >
+                                    <Download className="h-3 w-3 mr-1" />
+                                    Télécharger
+                                  </Button>
+                                )}
+                                
                                 {order.payment_status === 'completed' && (
                                   <ReviewForm
                                     productId={item.product_id}
