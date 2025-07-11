@@ -12,16 +12,23 @@ serve(async (req) => {
   }
 
   try {
+    console.log('🚀 Create payment function started');
+    
     const { productId, quantity = 1 } = await req.json();
+    console.log('📦 Request data:', { productId, quantity });
 
-    // Create Supabase client
+    // Create Supabase clients - use anon key for auth, service key for data operations
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+    console.log('🔐 Supabase clients created');
 
     // Get product details with vendor payment config
-    const { data: product, error: productError } = await supabase
+    const { data: product, error: productError } = await supabaseAdmin
       .from('products')
       .select(`
         *,
@@ -41,8 +48,11 @@ serve(async (req) => {
       .single();
 
     if (productError || !product) {
+      console.error('❌ Product error:', productError);
       throw new Error('Product not found');
     }
+
+    console.log('✅ Product found:', { id: product.id, name: product.name, vendor: product.vendor?.id });
 
     // Get user if authenticated
     const authHeader = req.headers.get("Authorization");
@@ -50,22 +60,37 @@ serve(async (req) => {
     let userProfile = null;
     
     if (authHeader) {
+      console.log('🔑 Auth header found, authenticating user');
       const token = authHeader.replace("Bearer ", "");
-      const { data: authData } = await supabase.auth.getUser(token);
+      const { data: authData, error: authError } = await supabaseAuth.auth.getUser(token);
+      
+      if (authError) {
+        console.error('❌ Auth error:', authError);
+        throw new Error('Authentication failed');
+      }
+      
       user = authData.user;
+      console.log('👤 User authenticated:', { id: user?.id, email: user?.email });
       
       if (user) {
         // Get user profile for additional info
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabaseAdmin
           .from('profiles')
           .select('*')
           .eq('user_id', user.id)
           .single();
-        userProfile = profile;
+          
+        if (profileError) {
+          console.warn('⚠️ Profile not found:', profileError);
+        } else {
+          userProfile = profile;
+          console.log('👤 User profile loaded:', { display_name: profile?.display_name });
+        }
       }
     }
     
     if (!user) {
+      console.error('❌ No user authenticated');
       throw new Error('Utilisateur non connecté');
     }
 
@@ -83,7 +108,7 @@ serve(async (req) => {
       payment_status: 'pending'
     };
 
-    const { data: order, error: orderError } = await supabase
+    const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
       .insert(orderData)
       .select()
@@ -94,7 +119,7 @@ serve(async (req) => {
     }
 
     // Create order item
-    await supabase
+    await supabaseAdmin
       .from('order_items')
       .insert({
         order_id: order.id,
@@ -153,7 +178,7 @@ serve(async (req) => {
       }
 
       // Save MoneyFusion transaction
-      await supabase
+      await supabaseAdmin
         .from('moneyfusion_transactions')
         .insert({
           order_id: order.id,
@@ -218,7 +243,7 @@ serve(async (req) => {
       }
 
       // Save Moneroo transaction with the correct data structure
-      await supabase
+      await supabaseAdmin
         .from('moneroo_transactions')
         .insert({
           order_id: order.id,
