@@ -421,14 +421,17 @@ export default function Orders() {
                               </Dialog>
                             )}
                             
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => generateOrderPDF(order)}
-                            >
-                              <Download className="h-4 w-4 mr-1" />
-                              PDF
-                            </Button>
+                            {/* Bouton PDF - seulement pour les commandes payées */}
+                            {order.payment_status === 'paid' && (
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => generateOrderPDF(order)}
+                              >
+                                <Download className="h-4 w-4 mr-1" />
+                                PDF
+                              </Button>
+                            )}
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
