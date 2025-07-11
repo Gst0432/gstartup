@@ -103,23 +103,29 @@ Deno.serve(async (req) => {
 
         switch (monerooData.data?.status?.toLowerCase()) {
           case 'success':
-          case 'succeeded':
-          case 'completed':
             newStatus = 'success'
             orderStatus = 'confirmed'
             paymentStatus = 'paid'
             break
           case 'failed':
-          case 'error':
             newStatus = 'failed'
             orderStatus = 'cancelled'
             paymentStatus = 'failed'
             break
           case 'cancelled':
-          case 'canceled':
             newStatus = 'cancelled'
             orderStatus = 'cancelled'
             paymentStatus = 'cancelled'
+            break
+          case 'pending':
+            newStatus = 'pending'
+            orderStatus = 'pending'
+            paymentStatus = 'pending'
+            break
+          case 'initiated':
+            newStatus = 'pending'
+            orderStatus = 'pending'
+            paymentStatus = 'pending'
             break
           default:
             // Status unchanged - still pending

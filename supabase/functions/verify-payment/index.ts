@@ -73,26 +73,30 @@ serve(async (req) => {
     let paymentStatus = "pending";
 
     switch (monerooStatus?.toLowerCase()) {
-      case "successful":
       case "success":
-      case "completed":
-      case "paid":
         newStatus = "success";
         orderStatus = "confirmed";
         paymentStatus = "paid";
         break;
       case "failed":
-      case "error":
-      case "declined":
         newStatus = "failed";
         orderStatus = "cancelled";
         paymentStatus = "failed";
         break;
       case "cancelled":
-      case "canceled":
         newStatus = "cancelled";
         orderStatus = "cancelled";
         paymentStatus = "cancelled";
+        break;
+      case "pending":
+        newStatus = "pending";
+        orderStatus = "pending";
+        paymentStatus = "pending";
+        break;
+      case "initiated":
+        newStatus = "pending";
+        orderStatus = "pending";
+        paymentStatus = "pending";
         break;
       default:
         newStatus = "pending";
