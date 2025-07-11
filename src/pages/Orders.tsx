@@ -22,7 +22,8 @@ import {
   Truck,
   Trash2,
   MessageSquare,
-  RotateCcw
+  RotateCcw,
+  FileText
 } from 'lucide-react';
 import { generateOrderPDF } from '@/utils/pdfGenerator';
 import { supabase } from '@/integrations/supabase/client';
@@ -51,6 +52,13 @@ interface Order {
       digital_file_url: string | null;
       is_digital: boolean | null;
     };
+  }>;
+  order_documents?: Array<{
+    id: string;
+    document_name: string;
+    document_url: string;
+    document_type: string;
+    created_at: string;
   }>;
 }
 
@@ -132,6 +140,13 @@ export default function Orders() {
               digital_file_url,
               is_digital
             )
+          ),
+          order_documents(
+            id,
+            document_name,
+            document_url,
+            document_type,
+            created_at
           )
         `)
         .eq('user_id', profile?.user_id)
@@ -146,7 +161,8 @@ export default function Orders() {
 
       const transformedData = paidOrdersData?.map(order => ({
         ...order,
-        items: order.order_items || []
+        items: order.order_items || [],
+        order_documents: order.order_documents || []
       })) || [];
 
       setOrders(transformedData);
@@ -561,6 +577,36 @@ export default function Orders() {
                             </div>
                           ))}
                         </div>
+
+                        {/* Documents envoyés par l'admin */}
+                        {order.order_documents && order.order_documents.length > 0 && (
+                          <div className="mt-4 pt-4 border-t space-y-2">
+                            <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                              <FileText className="h-4 w-4" />
+                              Documents de commande:
+                            </p>
+                            {order.order_documents.map((doc) => (
+                              <div key={doc.id} className="flex items-center justify-between text-sm bg-blue-50 dark:bg-blue-950/30 p-3 rounded border border-blue-200 dark:border-blue-800">
+                                <div className="flex items-center gap-2">
+                                  <FileText className="h-4 w-4 text-blue-600" />
+                                  <span className="font-medium">{doc.document_name}</span>
+                                  <Badge variant="outline" className="text-xs">
+                                    {new Date(doc.created_at).toLocaleDateString('fr-FR')}
+                                  </Badge>
+                                </div>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => window.open(doc.document_url, '_blank')}
+                                  className="text-xs"
+                                >
+                                  <Download className="h-3 w-3 mr-1" />
+                                  Télécharger
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     );
                   })}

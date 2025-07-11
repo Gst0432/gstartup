@@ -20,7 +20,8 @@ import {
   Languages,
   DollarSign,
   Images,
-  Monitor
+  Monitor,
+  FileText
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
@@ -67,6 +68,7 @@ export const Sidebar = ({ role, onClose, isMobile = false }: SidebarProps) => {
     { title: 'Commandes', url: '/admin/orders', icon: ShoppingCart },
     { title: 'Surveillance', url: '/admin/orders-monitoring', icon: Monitor },
     { title: 'Récupération', url: '/admin/payment-recovery', icon: CreditCard },
+    { title: 'Documents', url: '/admin/order-documents', icon: FileText },
     { title: 'Catégories', url: '/admin/categories', icon: Settings },
     { title: 'Images Pub', url: '/admin/advertisements', icon: Images },
     { title: 'Retraits', url: '/admin/withdrawals', icon: CreditCard },

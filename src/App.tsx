@@ -42,6 +42,7 @@ import AdminReconciliation from "./pages/AdminReconciliation";
 import AdminOrdersMonitoring from "./pages/AdminOrdersMonitoring";
 import AdminAutoProcess from "./pages/AdminAutoProcess";
 import AdminPaymentRecovery from "./pages/AdminPaymentRecovery";
+import AdminOrderDocuments from "./pages/AdminOrderDocuments";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancelled from "./pages/PaymentCancelled";
 import VendorStore from "./pages/VendorStore";
@@ -226,6 +227,11 @@ const App = () => (
           <Route path="/admin/payment-recovery" element={
             <ProtectedRoute requiredRole="admin">
               <AdminPaymentRecovery />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/order-documents" element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminOrderDocuments />
             </ProtectedRoute>
           } />
           <Route path="/boutique/:storeSlug" element={<StorePage />} />

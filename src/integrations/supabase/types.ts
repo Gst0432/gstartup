@@ -430,6 +430,57 @@ export type Database = {
           },
         ]
       }
+      order_documents: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          document_name: string
+          document_type: string | null
+          document_url: string
+          file_size: number | null
+          id: string
+          order_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          document_name: string
+          document_type?: string | null
+          document_url: string
+          file_size?: number | null
+          id?: string
+          order_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          document_name?: string
+          document_type?: string | null
+          document_url?: string
+          file_size?: number | null
+          id?: string
+          order_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_documents_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "order_documents_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           created_at: string
