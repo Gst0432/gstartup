@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { DashboardLayout } from '@/components/DashboardLayout';
 import { Wallet, TrendingUp, Clock, CheckCircle } from 'lucide-react';
 
 interface VendorBalance {
@@ -177,10 +178,17 @@ export default function VendorWithdrawals() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Retraits</h1>
-      </div>
+    <DashboardLayout>
+      <div className="min-h-screen bg-muted/30">
+        <header className="bg-background border-b">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <h1 className="text-3xl font-bold">Retraits</h1>
+            </div>
+          </div>
+        </header>
+
+        <div className="container mx-auto px-4 py-8 space-y-6">
 
       {/* Balance Overview */}
       <div className="grid gap-4 md:grid-cols-3">
@@ -226,7 +234,7 @@ export default function VendorWithdrawals() {
         <CardHeader>
           <CardTitle>Nouvelle Demande de Retrait</CardTitle>
           <CardDescription>
-            Demandez un retrait de vos gains via Moneroo
+            Demandez un retrait de vos gains via GS Money
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -247,14 +255,17 @@ export default function VendorWithdrawals() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Numéro Moneroo</Label>
+              <Label htmlFor="phone">Email GS Money</Label>
               <Input
                 id="phone"
-                type="tel"
-                placeholder="Ex: 237XXXXXXXXX"
+                type="email"
+                placeholder="votre@email.com"
                 value={monerooPhone}
                 onChange={(e) => setMonerooPhone(e.target.value)}
               />
+              <p className="text-sm text-muted-foreground">
+                Pas encore inscrit ? <a href="https://gsmoney.pro" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Créer un compte GS Money</a>
+              </p>
             </div>
           </div>
 
@@ -299,9 +310,9 @@ export default function VendorWithdrawals() {
                         minute: '2-digit'
                       })}
                     </p>
-                    {request.moneroo_phone && (
+                     {request.moneroo_phone && (
                       <p className="text-sm text-muted-foreground">
-                        Moneroo: {request.moneroo_phone}
+                        GS Money: {request.moneroo_phone}
                       </p>
                     )}
                     {request.rejection_reason && (
@@ -321,6 +332,8 @@ export default function VendorWithdrawals() {
           </div>
         </CardContent>
       </Card>
-    </div>
+        </div>
+      </div>
+    </DashboardLayout>
   );
 }

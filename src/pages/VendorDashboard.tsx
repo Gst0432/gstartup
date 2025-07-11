@@ -95,11 +95,15 @@ export default function VendorDashboard() {
           .select('*', { count: 'exact', head: true })
           .eq('vendor_id', vendorData.id);
 
-        // Calculate total revenue
+        // Calculate total revenue from paid orders only
         const { data: orderItems } = await supabase
           .from('order_items')
-          .select('total')
-          .eq('vendor_id', vendorData.id);
+          .select(`
+            total,
+            orders!inner(payment_status)
+          `)
+          .eq('vendor_id', vendorData.id)
+          .eq('orders.payment_status', 'paid');
 
         const totalRevenue = orderItems?.reduce((sum, item) => sum + Number(item.total), 0) || 0;
 
@@ -261,9 +265,9 @@ export default function VendorDashboard() {
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${stats.totalRevenue.toFixed(2)}</div>
+                <div className="text-2xl font-bold">{stats.totalRevenue.toLocaleString()} FCFA</div>
                 <p className="text-xs text-muted-foreground">
-                  Revenus totaux
+                  Ventes payées seulement
                 </p>
               </CardContent>
             </Card>
