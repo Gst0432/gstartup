@@ -235,6 +235,47 @@ export type Database = {
           },
         ]
       }
+      delivery_logs: {
+        Row: {
+          created_at: string
+          delivery_status: string
+          delivery_type: string
+          email_sent_to: string
+          id: string
+          order_id: string
+          products_delivered: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          delivery_status?: string
+          delivery_type?: string
+          email_sent_to: string
+          id?: string
+          order_id: string
+          products_delivered?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          delivery_status?: string
+          delivery_type?: string
+          email_sent_to?: string
+          id?: string
+          order_id?: string
+          products_delivered?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_logs_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       global_payment_config: {
         Row: {
           commission_rate: number

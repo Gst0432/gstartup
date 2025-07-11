@@ -107,11 +107,10 @@ serve(async (req) => {
       return new Response("Failed to update order", { status: 500 });
     }
 
-    // Log selon le statut et envoyer des notifications
+    // Traitement automatique pour paiement réussi
     if (newStatus === "success") {
       console.log(`✅ Payment successful for order ${transaction.orders?.order_number || transaction.orders?.reference_code}`);
       
-      // Send email notification to customer
       if (transaction.orders) {
         const { data: customerProfile } = await supabase
           .from("profiles")
@@ -120,54 +119,111 @@ serve(async (req) => {
           .single();
 
         if (customerProfile) {
-          // Send order confirmation to customer
-          await supabase.functions.invoke('send-email-notifications', {
-            body: {
-              type: 'order_confirmation',
-              to: customerProfile.email,
-              data: {
-                customer_name: customerProfile.display_name,
-                order_number: transaction.orders.order_number,
-                total_amount: transaction.orders.total_amount,
-                currency: transaction.orders.currency,
-                status: 'confirmed'
-              }
-            }
-          });
-        }
+          // Get order items with product details for digital delivery
+          const { data: orderItems } = await supabase
+            .from("order_items")
+            .select(`
+              *,
+              products(
+                name,
+                is_digital,
+                digital_file_url
+              ),
+              vendors(
+                business_name,
+                notification_email,
+                user_id,
+                profiles(email, display_name)
+              )
+            `)
+            .eq("order_id", transaction.order_id);
 
-        // Get vendor info and send payment notification
-        const { data: orderItems } = await supabase
-          .from("order_items")
-          .select(`
-            vendor_id,
-            vendors(
-              business_name,
-              notification_email,
-              user_id,
-              profiles(email, display_name)
-            )
-          `)
-          .eq("order_id", transaction.order_id);
+          // Check for digital products and deliver them automatically
+          const digitalProducts = orderItems?.filter(item => 
+            item.products?.is_digital && item.products?.digital_file_url
+          ) || [];
 
-        if (orderItems && orderItems.length > 0) {
-          const vendorInfo = orderItems[0].vendors;
-          if (vendorInfo?.notification_email || vendorInfo?.profiles?.email) {
-            const vendorEmail = vendorInfo.notification_email || vendorInfo.profiles?.email;
+          if (digitalProducts.length > 0) {
+            console.log(`🚀 Delivering ${digitalProducts.length} digital products automatically`);
             
+            // Prepare digital products data for email
+            const digitalProductsData = digitalProducts.map(item => ({
+              name: item.products.name,
+              downloadUrl: item.products.digital_file_url,
+              quantity: item.quantity
+            }));
+
+            // Send digital product delivery email
             await supabase.functions.invoke('send-email-notifications', {
               body: {
-                type: 'payment_success',
-                to: vendorEmail,
+                type: 'digital_product_delivery',
+                to: customerProfile.email,
                 data: {
-                  amount: transaction.amount,
-                  currency: transaction.currency,
+                  customer_name: customerProfile.display_name,
                   order_number: transaction.orders.order_number,
-                  customer_name: customerProfile?.display_name || 'Client',
-                  payment_method: 'Moneroo'
+                  products: digitalProductsData
                 }
               }
             });
+
+            // Update fulfillment status to fulfilled for digital products
+            await supabase
+              .from("orders")
+              .update({
+                fulfillment_status: 'fulfilled',
+                updated_at: new Date().toISOString()
+              })
+              .eq("id", transaction.order_id);
+
+            // Log the delivery
+            await supabase
+              .from("delivery_logs")
+              .insert({
+                order_id: transaction.order_id,
+                delivery_type: 'digital',
+                products_delivered: digitalProductsData,
+                email_sent_to: customerProfile.email,
+                delivery_status: 'success'
+              });
+
+            console.log(`✅ Digital products delivered successfully for order ${transaction.orders.order_number}`);
+          } else {
+            // Send regular order confirmation for non-digital or mixed orders
+            await supabase.functions.invoke('send-email-notifications', {
+              body: {
+                type: 'order_confirmation',
+                to: customerProfile.email,
+                data: {
+                  customer_name: customerProfile.display_name,
+                  order_number: transaction.orders.order_number,
+                  total_amount: transaction.orders.total_amount,
+                  currency: transaction.orders.currency,
+                  status: 'confirmed'
+                }
+              }
+            });
+          }
+
+          // Send payment notification to vendor(s)
+          if (orderItems && orderItems.length > 0) {
+            const vendorInfo = orderItems[0].vendors;
+            if (vendorInfo?.notification_email || vendorInfo?.profiles?.email) {
+              const vendorEmail = vendorInfo.notification_email || vendorInfo.profiles?.email;
+              
+              await supabase.functions.invoke('send-email-notifications', {
+                body: {
+                  type: 'payment_success',
+                  to: vendorEmail,
+                  data: {
+                    amount: transaction.amount,
+                    currency: transaction.currency,
+                    order_number: transaction.orders.order_number,
+                    customer_name: customerProfile?.display_name || 'Client',
+                    payment_method: 'Moneroo'
+                  }
+                }
+              });
+            }
           }
         }
       }
