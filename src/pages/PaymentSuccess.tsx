@@ -72,6 +72,25 @@ export default function PaymentSuccess() {
         ...data,
         items: data.order_items || []
       });
+
+      // Mettre à jour le statut de la commande si elle est toujours en attente
+      if (data.payment_status === 'pending') {
+        await supabase
+          .from('orders')
+          .update({ 
+            payment_status: 'paid', 
+            status: 'confirmed' 
+          })
+          .eq('id', data.id);
+        
+        // Mettre à jour l'état local
+        setOrderDetails({
+          ...data,
+          payment_status: 'paid',
+          status: 'confirmed',
+          items: data.order_items || []
+        });
+      }
     } catch (error) {
       console.error('Error:', error);
     } finally {
