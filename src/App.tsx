@@ -44,6 +44,7 @@ import NotFound from "./pages/NotFound";
 import VendorPricing from "./pages/VendorPricing";
 import VendorGuide from "./pages/VendorGuide";
 import VendorSupport from "./pages/VendorSupport";
+import Portfolio from "./pages/Portfolio";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
           <Route path="/vendor-pricing" element={<VendorPricing />} />
           <Route path="/vendor-guide" element={<VendorGuide />} />
           <Route path="/vendor-support" element={<VendorSupport />} />
+          <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/boutiques" element={<ShopsPage />} />
           <Route path="/auth" element={<Auth />} />
