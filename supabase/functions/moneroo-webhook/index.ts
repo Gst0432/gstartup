@@ -21,11 +21,11 @@ serve(async (req) => {
     const webhookData = await req.json();
     console.log("Moneroo webhook received:", JSON.stringify(webhookData, null, 2));
 
-    // Selon la documentation Moneroo, les webhooks contiennent directement les données
-    // Le transaction_id est maintenant dans webhookData.id (selon la structure de leur API)
-    const transactionId = webhookData.id;
-    const status = webhookData.status;
-    const metadata = webhookData.metadata || {};
+    // Extract transaction data from webhook payload
+    // Moneroo sends the transaction data in the webhook
+    const transactionId = webhookData.id || webhookData.transaction_id || webhookData.data?.id;
+    const status = webhookData.status || webhookData.data?.status;
+    const metadata = webhookData.metadata || webhookData.data?.metadata || {};
 
     if (!transactionId) {
       console.error("Transaction ID not found in webhook data");

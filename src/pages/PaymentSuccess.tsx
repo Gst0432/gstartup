@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { CheckCircle, Package, ArrowRight, Copy, Search } from 'lucide-react';
+import { CheckCircle, Package, ArrowRight, Copy, Search, AlertCircle, Loader2 } from 'lucide-react';
 
 interface OrderDetails {
   id: string;
@@ -26,21 +26,85 @@ interface OrderDetails {
 
 export default function PaymentSuccess() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationResult, setVerificationResult] = useState<{
+    success: boolean;
+    status?: string;
+  } | null>(null);
   const { toast } = useToast();
   
   const orderReference = searchParams.get('order') || localStorage.getItem('pending_order_reference');
+  const paymentId = searchParams.get('paymentId');
+  const paymentStatus = searchParams.get('paymentStatus');
 
   useEffect(() => {
-    if (orderReference) {
-      fetchOrderDetails();
-      // Nettoyer le localStorage
-      localStorage.removeItem('pending_order_reference');
-    } else {
-      setLoading(false);
+    const initialize = async () => {
+      // Si on a un paymentId, vérifier d'abord le paiement
+      if (paymentId) {
+        await verifyPayment();
+      }
+      
+      if (orderReference) {
+        await fetchOrderDetails();
+        // Nettoyer le localStorage
+        localStorage.removeItem('pending_order_reference');
+      } else {
+        setLoading(false);
+      }
+    };
+
+    initialize();
+  }, [orderReference, paymentId]);
+
+  const verifyPayment = async () => {
+    if (!paymentId) return;
+
+    setIsVerifying(true);
+    try {
+      console.log('🔍 Verifying payment:', paymentId);
+      
+      const { data, error } = await supabase.functions.invoke('verify-payment', {
+        body: { transactionId: paymentId }
+      });
+
+      if (error) {
+        console.error('❌ Verification error:', error);
+        setVerificationResult({ success: false });
+        toast({
+          title: "Erreur de vérification",
+          description: "Impossible de vérifier le statut du paiement",
+          variant: "destructive"
+        });
+      } else {
+        console.log('✅ Verification result:', data);
+        setVerificationResult({
+          success: data.success && data.status === 'success',
+          status: data.status
+        });
+
+        if (data.success && data.status === 'success') {
+          toast({
+            title: "Paiement confirmé",
+            description: "Votre paiement a été traité avec succès",
+            variant: "default"
+          });
+        }
+      }
+    } catch (error) {
+      console.error('❌ Payment verification failed:', error);
+      setVerificationResult({ success: false });
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la vérification",
+        variant: "destructive"
+      });
+    } finally {
+      setIsVerifying(false);
     }
-  }, [orderReference]);
+  };
 
   const fetchOrderDetails = async () => {
     try {
@@ -73,24 +137,10 @@ export default function PaymentSuccess() {
         items: data.order_items || []
       });
 
-      // Mettre à jour le statut de la commande si elle est toujours en attente
-      if (data.payment_status === 'pending') {
-        await supabase
-          .from('orders')
-          .update({ 
-            payment_status: 'paid', 
-            status: 'confirmed' 
-          })
-          .eq('id', data.id);
-        
-        // Mettre à jour l'état local
-        setOrderDetails({
-          ...data,
-          payment_status: 'paid',
-          status: 'confirmed',
-          items: data.order_items || []
-        });
-      }
+      setOrderDetails({
+        ...data,
+        items: data.order_items || []
+      });
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -108,10 +158,27 @@ export default function PaymentSuccess() {
     }
   };
 
-  if (loading) {
+  if (loading || isVerifying) {
     return (
       <div className="min-h-screen bg-muted/30 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <Loader2 className="h-6 w-6 text-primary animate-spin" />
+            </div>
+            <CardTitle>
+              {isVerifying ? 'Vérification du paiement' : 'Chargement'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="text-muted-foreground">
+              {isVerifying 
+                ? 'Nous vérifions le statut de votre paiement...'
+                : 'Chargement des détails de votre commande...'
+              }
+            </p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -139,16 +206,48 @@ export default function PaymentSuccess() {
     <div className="min-h-screen bg-muted/30">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
-          {/* En-tête de succès */}
+          {/* En-tête de succès/statut */}
           <Card className="mb-6">
             <CardContent className="text-center py-8">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="h-8 w-8 text-green-600" />
-              </div>
-              <h1 className="text-2xl font-bold mb-2">Paiement réussi !</h1>
+              {verificationResult?.success === false ? (
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <AlertCircle className="h-8 w-8 text-red-600" />
+                </div>
+              ) : verificationResult?.status === 'pending' ? (
+                <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <AlertCircle className="h-8 w-8 text-yellow-600" />
+                </div>
+              ) : (
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="h-8 w-8 text-green-600" />
+                </div>
+              )}
+              
+              <h1 className="text-2xl font-bold mb-2">
+                {verificationResult?.success === false 
+                  ? 'Problème de paiement'
+                  : verificationResult?.status === 'pending'
+                    ? 'Paiement en cours'
+                    : 'Paiement réussi !'
+                }
+              </h1>
+              
               <p className="text-muted-foreground mb-4">
-                Votre commande a été confirmée et sera traitée sous peu
+                {verificationResult?.success === false 
+                  ? 'Il y a eu un problème avec votre paiement. Contactez notre support si nécessaire.'
+                  : verificationResult?.status === 'pending'
+                    ? 'Votre paiement est en cours de traitement. Vous serez notifié une fois terminé.'
+                    : 'Votre commande a été confirmée et sera traitée sous peu'
+                }
               </p>
+              
+              {paymentId && (
+                <div className="bg-muted p-3 rounded-lg mb-4">
+                  <p className="text-sm text-muted-foreground">ID de transaction</p>
+                  <p className="font-mono text-sm">{paymentId}</p>
+                </div>
+              )}
+              
               <Badge variant="default" className="text-sm">
                 <Package className="h-4 w-4 mr-1" />
                 Commande #{orderDetails.order_number}

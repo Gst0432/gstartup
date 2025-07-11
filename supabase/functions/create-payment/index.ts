@@ -176,11 +176,13 @@ serve(async (req) => {
     });
 
     const monerooData = await monerooResponse.json();
+    console.log('Moneroo API response status:', monerooResponse.status);
     console.log('Moneroo API response:', monerooData);
 
-    if (!monerooResponse.ok) {
+    // Moneroo returns 201 for successful payment initialization
+    if (monerooResponse.status !== 201) {
       console.error('Moneroo API error:', monerooData);
-      throw new Error(`Moneroo API error: ${monerooData.message || 'Unknown error'}`);
+      throw new Error(`Moneroo API error: ${monerooData.message || 'Failed to initialize payment'}`);
     }
 
     // Save Moneroo transaction with the correct data structure
@@ -196,8 +198,9 @@ serve(async (req) => {
         moneroo_response: monerooData
       });
 
-    const paymentUrl = monerooData.data.checkout_url;
-    const transactionId = monerooData.data.id;
+    // Extract payment URL and transaction ID from Moneroo response
+    const paymentUrl = monerooData.data?.checkout_url;
+    const transactionId = monerooData.data?.id;
 
     if (!paymentUrl) {
       throw new Error('URL de paiement non générée');
