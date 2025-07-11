@@ -135,10 +135,8 @@ export default function Orders() {
           )
         `)
         .eq('user_id', profile?.user_id)
-        .in('status', ['completed', 'confirmed', 'fulfilled'])
+        .eq('status', 'confirmed')
         .eq('payment_status', 'paid')
-        .neq('status', 'pending')
-        .neq('payment_status', 'pending')
         .order('created_at', { ascending: false });
 
       if (paidError) {
@@ -214,6 +212,7 @@ export default function Orders() {
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
       case 'completed':
+      case 'confirmed':
       case 'fulfilled': 
         return 'default';
       case 'pending':
@@ -230,6 +229,7 @@ export default function Orders() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'completed':
+      case 'confirmed':
       case 'fulfilled': 
         return CheckCircle;
       case 'pending':
@@ -252,6 +252,7 @@ export default function Orders() {
       case 'shipped': return 'Expédié';
       case 'fulfilled': return 'Livré';
       case 'completed': return 'Terminé';
+      case 'confirmed': return 'Confirmé';
       case 'cancelled': return 'Annulé';
       case 'failed': return 'Échoué';
       default: return status;
