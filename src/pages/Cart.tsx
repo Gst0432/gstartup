@@ -205,7 +205,10 @@ export default function Cart() {
                 <p className="text-muted-foreground mb-4">
                   Découvrez notre marketplace et ajoutez des produits à votre panier
                 </p>
-                <Button>
+                <Button 
+                  onClick={() => window.location.href = '/marketplace'}
+                  className="hover-scale"
+                >
                   Parcourir le Marketplace
                 </Button>
               </CardContent>
@@ -226,8 +229,12 @@ export default function Cart() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {cartItems.map((item) => (
-                        <div key={item.id} className="flex items-center gap-4 p-4 border rounded-lg">
+                      {cartItems.map((item, index) => (
+                        <div 
+                          key={item.id} 
+                          className="animate-fade-in flex items-center gap-4 p-4 border rounded-lg hover-scale transition-all duration-300"
+                          style={{ animationDelay: `${index * 0.1}s` }}
+                        >
                           {item.product.images?.[0] ? (
                             <img
                               src={item.product.images[0]}
@@ -342,7 +349,11 @@ export default function Cart() {
                       className="w-full"
                     />
                     
-                    <Button variant="outline" className="w-full">
+                    <Button 
+                      variant="outline" 
+                      className="w-full hover-scale"
+                      onClick={() => window.location.href = '/marketplace'}
+                    >
                       Continuer mes achats
                     </Button>
                     

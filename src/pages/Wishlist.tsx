@@ -179,8 +179,15 @@ export default function Wishlist() {
 
       toast({
         title: "Succès",
-        description: "Produit ajouté au panier",
+        description: "Produit ajouté au panier avec succès !",
       });
+      
+      // Option: retirer automatiquement de la wishlist après ajout au panier
+      // Uncomment les lignes suivantes si souhaité
+      // setTimeout(() => {
+      //   const itemToRemove = wishlistItems.find(item => item.product.id === productId);
+      //   if (itemToRemove) removeFromWishlist(itemToRemove.id);
+      // }, 1000);
     } catch (error) {
       console.error('Error adding to cart:', error);
     }
@@ -269,15 +276,22 @@ export default function Wishlist() {
                     }
                   </p>
                   {!searchTerm && (
-                    <Button>
+                    <Button 
+                      onClick={() => window.location.href = '/marketplace'}
+                      className="hover-scale"
+                    >
                       Parcourir le Marketplace
                     </Button>
                   )}
                 </div>
               ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredItems.map((item) => (
-                    <div key={item.id} className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                  {filteredItems.map((item, index) => (
+                    <div 
+                      key={item.id} 
+                      className="animate-fade-in border rounded-lg overflow-hidden hover-scale transition-all duration-300 group"
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
                       <div className="relative">
                         {item.product.images?.[0] ? (
                           <img
@@ -334,7 +348,7 @@ export default function Wishlist() {
                         
                         <div className="flex items-center gap-2">
                           <Button 
-                            className="flex-1"
+                            className="flex-1 group-hover:bg-primary/90 transition-colors"
                             disabled={!item.product.is_active}
                             onClick={() => addToCart(item.product.id)}
                           >
@@ -345,6 +359,7 @@ export default function Wishlist() {
                             variant="outline"
                             size="sm"
                             onClick={() => removeFromWishlist(item.id)}
+                            className="text-red-500 hover:text-red-600 hover:bg-red-50"
                           >
                             <Heart className="h-4 w-4 fill-current" />
                           </Button>
