@@ -9,6 +9,8 @@ import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { VendorAutomationWidget } from '@/components/vendor/VendorAutomationWidget';
+import { VendorBalanceWidget } from '@/components/vendor/VendorBalanceWidget';
 import { 
   Store, 
   Package, 
@@ -383,6 +385,12 @@ export default function VendorDashboard() {
               );
             })}
           </div>
+        </div>
+
+        {/* Widgets d'automatisation et balance */}
+        <div className="grid lg:grid-cols-2 gap-6 mb-6">
+          <VendorAutomationWidget />
+          <VendorBalanceWidget />
         </div>
 
         {/* Insights et performances */}

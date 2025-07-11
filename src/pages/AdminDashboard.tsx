@@ -19,7 +19,8 @@ import {
   Eye,
   Edit,
   Trash,
-  CreditCard
+  CreditCard,
+  RefreshCw
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useState, useEffect } from 'react';
@@ -245,6 +246,14 @@ export default function AdminDashboard() {
       icon: Settings,
       href: '/admin/auto-process',
       color: 'bg-emerald-500',
+      count: null
+    },
+    {
+      title: 'Réconciliation',
+      description: 'Résoudre commandes bloquées',
+      icon: RefreshCw,
+      href: '/admin/reconciliation',
+      color: 'bg-cyan-500',
       count: null
     },
     {
