@@ -91,6 +91,8 @@ export default function Orders() {
           )
         `)
         .eq('user_id', profile?.user_id)
+        .in('status', ['completed', 'confirmed'])
+        .eq('payment_status', 'paid')
         .order('created_at', { ascending: false });
 
       if (error) {
