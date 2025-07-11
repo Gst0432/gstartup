@@ -12,12 +12,16 @@ export const useVendorOrdersData = () => {
 
   const fetchOrders = async () => {
     try {
+      console.log('🔍 Fetching orders for user:', profile?.user_id);
+      
       // Get vendor info
       const { data: vendor } = await supabase
         .from('vendors')
         .select('id')
         .eq('user_id', profile?.user_id)
         .single();
+
+      console.log('👤 Vendor found:', vendor);
 
       if (!vendor) {
         toast({
@@ -43,29 +47,50 @@ export const useVendorOrdersData = () => {
             created_at,
             updated_at,
             customer_notes,
-            profiles!inner(
-              display_name,
-              email,
-              phone
-            )
+            user_id
           )
         `)
         .eq('vendor_id', vendor.id)
         .order('created_at', { ascending: false });
 
+      console.log('📋 Query result:', { data, error });
+      console.log('📦 Order items count:', data?.length || 0);
+
       if (error) {
-        console.error('Error fetching orders:', error);
+        console.error('❌ Error fetching orders:', error);
         return;
       }
+
+      // Récupérer les profils séparément pour éviter les problèmes de jointure
+      const userIds = [...new Set(data?.map(item => item.orders?.user_id).filter(Boolean))];
+      console.log('👥 User IDs to fetch:', userIds);
+      
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, email, phone')
+        .in('user_id', userIds);
+
+      console.log('👤 Profiles found:', profiles);
+
+      // Créer un map des profils pour une recherche rapide
+      const profilesMap = profiles?.reduce((acc, profile) => {
+        acc[profile.user_id] = profile;
+        return acc;
+      }, {} as Record<string, any>) || {};
 
       const transformedData = data?.map(item => ({
         ...item,
         order: {
           ...item.orders,
-          profiles: item.orders.profiles
+          profiles: profilesMap[item.orders?.user_id] || {
+            display_name: 'Client anonyme',
+            email: 'Non renseigné',
+            phone: null
+          }
         }
       })) || [];
 
+      console.log('✅ Transformed data:', transformedData.length, 'items');
       setOrderItems(transformedData);
     } catch (error) {
       console.error('Error fetching orders:', error);
