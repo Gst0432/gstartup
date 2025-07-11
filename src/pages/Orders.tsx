@@ -234,9 +234,9 @@ export default function Orders() {
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold">Mes Commandes</h1>
+                <h1 className="text-2xl font-bold">Mes Achats</h1>
                 <p className="text-muted-foreground">
-                  Suivez l'état de vos commandes
+                  Vos produits achetés et téléchargements
                 </p>
               </div>
               <div className="flex items-center gap-4">

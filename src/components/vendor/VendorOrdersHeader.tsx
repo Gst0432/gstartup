@@ -11,9 +11,9 @@ export const VendorOrdersHeader = ({ ordersCount }: VendorOrdersHeaderProps) => 
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Mes Commandes</h1>
+            <h1 className="text-2xl font-bold">Mes Ventes</h1>
             <p className="text-muted-foreground">
-              Gérer les commandes de vos produits
+              Commandes de vos produits uniquement
             </p>
           </div>
           <div className="flex items-center gap-4">

@@ -272,12 +272,12 @@ export default function AdminOrders() {
         <header className="bg-background border-b">
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold">Gestion des Commandes</h1>
-                <p className="text-muted-foreground">
-                  Voir et gérer toutes les commandes de la plateforme
-                </p>
-              </div>
+            <div>
+              <h1 className="text-2xl font-bold">Gestion des Commandes</h1>
+              <p className="text-muted-foreground">
+                Vue administrative - Toutes les commandes de la plateforme
+              </p>
+            </div>
               <div className="flex items-center gap-4">
                 <Badge variant="outline" className="gap-2">
                   <ShoppingCart className="h-4 w-4" />
