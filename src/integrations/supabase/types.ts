@@ -873,8 +873,11 @@ export type Database = {
           email: string
           id: string
           is_verified: boolean
+          last_order_date: string | null
           phone: string | null
           role: string
+          total_orders: number | null
+          total_spent: number | null
           updated_at: string
           user_id: string
         }
@@ -886,8 +889,11 @@ export type Database = {
           email: string
           id?: string
           is_verified?: boolean
+          last_order_date?: string | null
           phone?: string | null
           role?: string
+          total_orders?: number | null
+          total_spent?: number | null
           updated_at?: string
           user_id: string
         }
@@ -899,8 +905,11 @@ export type Database = {
           email?: string
           id?: string
           is_verified?: boolean
+          last_order_date?: string | null
           phone?: string | null
           role?: string
+          total_orders?: number | null
+          total_spent?: number | null
           updated_at?: string
           user_id?: string
         }
