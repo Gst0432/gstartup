@@ -36,11 +36,16 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface OrderItem {
   id: string;
+  product_id: string;
   product_name: string;
   variant_name: string | null;
   quantity: number;
   price: number;
   total: number;
+  products?: {
+    digital_file_url: string | null;
+    is_digital: boolean | null;
+  };
 }
 
 interface Order {
@@ -85,7 +90,13 @@ export default function AdminOrders() {
         .select(`
           *,
           profiles!orders_user_id_fkey(display_name, email, phone),
-          order_items(*)
+          order_items(
+            *,
+            products(
+              digital_file_url,
+              is_digital
+            )
+          )
         `)
         .order('created_at', { ascending: false });
 
@@ -159,6 +170,19 @@ export default function AdminOrders() {
     } catch (error) {
       console.error('Error updating order status:', error);
     }
+  };
+
+  const handleDownloadProduct = (item: OrderItem) => {
+    if (!item.products?.digital_file_url) {
+      toast({
+        title: "Erreur",
+        description: "Aucun fichier numérique disponible pour ce produit",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    window.open(item.products.digital_file_url, '_blank');
   };
 
   const getStatusBadge = (status: string, type: 'status' | 'payment' | 'fulfillment') => {
@@ -514,22 +538,36 @@ export default function AdminOrders() {
                                       </CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                      <div className="space-y-3">
-                                        {selectedOrder.order_items?.map((item) => (
-                                          <div key={item.id} className="flex items-center justify-between p-3 bg-muted/50 rounded">
-                                            <div>
-                                              <p className="font-medium">{item.product_name}</p>
-                                              {item.variant_name && (
-                                                <p className="text-sm text-muted-foreground">Variante: {item.variant_name}</p>
-                                              )}
-                                              <p className="text-sm">Quantité: {item.quantity}</p>
-                                            </div>
-                                            <div className="text-right">
-                                              <p className="font-medium">{item.total.toLocaleString()} FCFA</p>
-                                              <p className="text-sm text-muted-foreground">{item.price.toLocaleString()} FCFA/unité</p>
-                                            </div>
-                                          </div>
-                                        ))}
+                                       <div className="space-y-3">
+                                         {selectedOrder.order_items?.map((item) => (
+                                           <div key={item.id} className="flex items-center justify-between p-3 bg-muted/50 rounded">
+                                             <div>
+                                               <p className="font-medium">{item.product_name}</p>
+                                               {item.variant_name && (
+                                                 <p className="text-sm text-muted-foreground">Variante: {item.variant_name}</p>
+                                               )}
+                                               <p className="text-sm">Quantité: {item.quantity}</p>
+                                             </div>
+                                             <div className="flex items-center gap-3">
+                                               <div className="text-right">
+                                                 <p className="font-medium">{item.total.toLocaleString()} FCFA</p>
+                                                 <p className="text-sm text-muted-foreground">{item.price.toLocaleString()} FCFA/unité</p>
+                                               </div>
+                                               {/* Bouton de téléchargement du fichier produit */}
+                                               {item.products?.digital_file_url && (
+                                                 <Button
+                                                   variant="outline"
+                                                   size="sm"
+                                                   onClick={() => handleDownloadProduct(item)}
+                                                   className="bg-blue-50 hover:bg-blue-100 text-blue-700"
+                                                 >
+                                                   <Download className="h-3 w-3 mr-1" />
+                                                   Fichier
+                                                 </Button>
+                                               )}
+                                             </div>
+                                           </div>
+                                         ))}
                                       </div>
                                     </CardContent>
                                   </Card>

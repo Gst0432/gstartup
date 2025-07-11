@@ -1,11 +1,16 @@
 export interface OrderItem {
   id: string;
   order_id: string;
+  product_id: string;
   product_name: string;
   variant_name: string | null;
   quantity: number;
   price: number;
   total: number;
+  products?: {
+    digital_file_url: string | null;
+    is_digital: boolean | null;
+  };
   order: {
     id: string;
     order_number: string;

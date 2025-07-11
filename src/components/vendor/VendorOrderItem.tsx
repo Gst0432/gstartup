@@ -19,6 +19,7 @@ import { OrderItem } from '@/types/vendorOrders';
 import { getOrderPriority, getStatusBadgeVariant, getStatusLabel } from '@/utils/vendorOrdersUtils';
 import { generateOrderPDF } from '@/utils/pdfGenerator';
 import { VendorOrderDetailsDialog } from './VendorOrderDetailsDialog';
+import { useToast } from '@/hooks/use-toast';
 
 interface VendorOrderItemProps {
   item: OrderItem;
@@ -27,6 +28,7 @@ interface VendorOrderItemProps {
 
 export const VendorOrderItem = ({ item, onUpdateFulfillmentStatus }: VendorOrderItemProps) => {
   const [deliveryNote, setDeliveryNote] = useState('');
+  const { toast } = useToast();
   
   const priority = getOrderPriority(item);
   const priorityColors = {
@@ -40,6 +42,19 @@ export const VendorOrderItem = ({ item, onUpdateFulfillmentStatus }: VendorOrder
     if (success) {
       setDeliveryNote('');
     }
+  };
+
+  const handleDownloadProduct = () => {
+    if (!item.products?.digital_file_url) {
+      toast({
+        title: "Erreur",
+        description: "Aucun fichier numérique disponible pour ce produit",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    window.open(item.products.digital_file_url, '_blank');
   };
 
   return (
@@ -124,15 +139,32 @@ export const VendorOrderItem = ({ item, onUpdateFulfillmentStatus }: VendorOrder
         </div>
       </div>
       
-      <div className="flex items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => generateOrderPDF(item.order)}
-        >
-          <Download className="h-4 w-4 mr-1" />
-          PDF
-        </Button>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => generateOrderPDF(item.order)}
+          >
+            <Download className="h-4 w-4 mr-1" />
+            Facture PDF
+          </Button>
+          
+          {/* Bouton pour télécharger le fichier produit */}
+          {item.products?.digital_file_url && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadProduct}
+              className="bg-blue-50 hover:bg-blue-100 text-blue-700"
+            >
+              <Download className="h-4 w-4 mr-1" />
+              Fichier Produit
+            </Button>
+          )}
+        </div>
+        
+        <div className="flex items-center gap-2">
         
         <VendorOrderDetailsDialog 
           item={item}
@@ -161,6 +193,7 @@ export const VendorOrderItem = ({ item, onUpdateFulfillmentStatus }: VendorOrder
             Marquer livré
           </Button>
         )}
+        </div>
       </div>
     </div>
   );

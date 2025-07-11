@@ -36,6 +36,10 @@ export const useVendorOrdersData = () => {
         .from('order_items')
         .select(`
           *,
+          products(
+            digital_file_url,
+            is_digital
+          ),
           orders!inner(
             id,
             order_number,
