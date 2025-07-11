@@ -127,6 +127,9 @@ serve(async (req) => {
           });
         }
 
+        // Envoyer email de notification de paiement aux vendeurs
+        await notifyVendorsOfPayment(supabase, order);
+
         processedCount++;
         logStep(`Commande ${order.order_number} traitée avec succès`);
 
@@ -229,7 +232,7 @@ async function updateVendorBalances(supabase: any) {
     for (const order of recentOrders) {
       for (const item of order.order_items) {
         const currentTotal = vendorTotals.get(item.vendor_id) || 0;
-        const vendorAmount = item.total * 0.95; // 95% après commission de 5%
+        const vendorAmount = item.total; // 100% pour les vendeurs (commission = 0%)
         vendorTotals.set(item.vendor_id, currentTotal + vendorAmount);
       }
     }
@@ -259,5 +262,68 @@ async function updateVendorBalances(supabase: any) {
 
   } catch (error) {
     logStep("Erreur lors de la mise à jour des balances des vendeurs", error);
+  }
+}
+
+async function notifyVendorsOfPayment(supabase: any, order: any) {
+  try {
+    // Grouper les items par vendeur
+    const vendorGroups = new Map();
+    
+    for (const item of order.order_items) {
+      if (!vendorGroups.has(item.vendor_id)) {
+        vendorGroups.set(item.vendor_id, []);
+      }
+      vendorGroups.get(item.vendor_id).push(item);
+    }
+
+    // Envoyer un email à chaque vendeur
+    for (const [vendorId, items] of vendorGroups) {
+      // Récupérer les infos du vendeur
+      const { data: vendor } = await supabase
+        .from('vendors')
+        .select(`
+          business_name,
+          notification_email,
+          profiles!inner(email, display_name)
+        `)
+        .eq('id', vendorId)
+        .single();
+
+      if (!vendor) continue;
+
+      const vendorEmail = vendor.notification_email || vendor.profiles.email;
+      const totalAmount = items.reduce((sum: number, item: any) => sum + item.total, 0);
+
+      // Envoyer email de notification de paiement
+      await supabase.functions.invoke('send-email-notifications', {
+        body: {
+          type: 'payment_success',
+          to: vendorEmail,
+          data: {
+            amount: totalAmount,
+            currency: 'XAF',
+            order_number: order.order_number,
+            customer_name: order.profiles.display_name,
+            payment_method: 'Moneroo',
+            items: items.map((item: any) => ({
+              product_name: item.product_name,
+              quantity: item.quantity || 1,
+              price: item.price || item.total,
+              total: item.total
+            }))
+          }
+        }
+      });
+
+      logStep(`Email de notification envoyé au vendeur ${vendor.business_name}`, {
+        vendorId,
+        email: vendorEmail,
+        amount: totalAmount
+      });
+    }
+
+  } catch (error) {
+    logStep("Erreur lors de l'envoi des notifications aux vendeurs", error);
   }
 }
