@@ -14,7 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, Save } from 'lucide-react';
 
-export default function VendorProductEdit() {
+function VendorProductEdit() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { profile } = useAuth();
@@ -299,3 +299,5 @@ export default function VendorProductEdit() {
     </DashboardLayout>
   );
 }
+
+export default VendorProductEdit;
