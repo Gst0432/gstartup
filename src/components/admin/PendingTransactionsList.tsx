@@ -145,38 +145,39 @@ export const PendingTransactionsList = ({ onTransactionSelect, refreshTrigger }:
             {transactions.map((transaction) => (
               <div
                 key={transaction.id}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors group"
+                className="flex flex-col md:flex-row md:items-center justify-between p-3 md:p-4 border rounded-lg hover:bg-muted/50 transition-colors group gap-3 md:gap-0"
               >
                 <div className="flex-1 space-y-2">
                   <div className="flex items-center gap-2">
-                    <code className="text-sm font-mono bg-muted px-2 py-1 rounded group-hover:bg-background transition-colors">
+                    <code className="text-xs md:text-sm font-mono bg-muted px-2 py-1 rounded group-hover:bg-background transition-colors break-all">
                       {transaction.transaction_id}
                     </code>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => copyTransactionId(transaction.transaction_id)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
                     >
                       <Copy className="h-3 w-3" />
                     </Button>
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 text-xs md:text-sm text-muted-foreground">
                     <span className="font-medium">Commande: {transaction.orders.order_number}</span>
                     <span className="text-primary font-semibold">{transaction.amount} XAF</span>
-                    <span>{format(new Date(transaction.created_at), 'dd MMM yyyy HH:mm', { locale: fr })}</span>
+                    <span className="text-xs">{format(new Date(transaction.created_at), 'dd MMM yyyy HH:mm', { locale: fr })}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between md:justify-end gap-3">
                   {getStatusBadge(transaction.status)}
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => onTransactionSelect?.(transaction.transaction_id)}
-                    className="shadow-none"
+                    className="shadow-none flex-shrink-0"
                   >
                     <ExternalLink className="h-3 w-3 mr-1" />
-                    Traiter
+                    <span className="hidden md:inline">Traiter</span>
+                    <span className="md:hidden">OK</span>
                   </Button>
                 </div>
               </div>
