@@ -77,6 +77,39 @@ export type Database = {
         }
         Relationships: []
       }
+      auto_verify_logs: {
+        Row: {
+          created_at: string | null
+          errors: Json | null
+          execution_time: unknown | null
+          id: string
+          success: boolean | null
+          total_pending: number | null
+          updated_count: number | null
+          verified_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          errors?: Json | null
+          execution_time?: unknown | null
+          id?: string
+          success?: boolean | null
+          total_pending?: number | null
+          updated_count?: number | null
+          verified_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          errors?: Json | null
+          execution_time?: unknown | null
+          id?: string
+          success?: boolean | null
+          total_pending?: number | null
+          updated_count?: number | null
+          verified_count?: number | null
+        }
+        Relationships: []
+      }
       cart_items: {
         Row: {
           cart_id: string

@@ -73,3 +73,6 @@ verify_jwt = false
 
 [functions.verify-payment]
 verify_jwt = false
+
+[functions.auto-verify-payments]
+verify_jwt = false
