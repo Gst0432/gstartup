@@ -49,7 +49,7 @@ export const usePendingPurchase = () => {
     if (!pendingPurchase) return null;
 
     try {
-      const { data, error } = await supabase.functions.invoke('create-payment', {
+      const { data, error } = await supabase.functions.invoke('process-payment', {
         body: {
           productId: pendingPurchase.productId,
           quantity: pendingPurchase.quantity

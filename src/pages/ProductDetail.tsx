@@ -166,7 +166,7 @@ export default function ProductDetail() {
     try {
       console.log('🚀 Calling create-payment function for product:', product.id);
       
-      const { data, error } = await supabase.functions.invoke('create-payment', {
+      const { data, error } = await supabase.functions.invoke('process-payment', {
         body: { 
           productId: product.id,
           quantity: 1 

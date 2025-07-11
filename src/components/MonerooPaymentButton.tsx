@@ -51,12 +51,12 @@ export function MonerooPaymentButton({
     onPaymentStart?.();
 
     try {
-      // Pour l'instant, utiliser le premier produit du panier
-      const firstItem = cartItems[0];
-      const { data, error } = await supabase.functions.invoke('create-payment', {
+      const { data, error } = await supabase.functions.invoke('process-payment', {
         body: {
-          productId: firstItem.product_id,
-          quantity: firstItem.quantity
+          cartItems: cartItems,
+          shippingAddress: shippingAddress,
+          billingAddress: billingAddress,
+          paymentMethod: paymentMethod
         }
       });
 
@@ -69,12 +69,12 @@ export function MonerooPaymentButton({
       }
 
       // Stocker la référence de commande pour le suivi
-      localStorage.setItem('pending_order_reference', data.order_reference);
+      localStorage.setItem('pending_order_reference', data.order_number);
 
       // Rediriger vers Moneroo pour le paiement
       window.location.href = data.payment_url;
 
-      onPaymentSuccess?.(data.order_reference);
+      onPaymentSuccess?.(data.order_number);
 
     } catch (error) {
       console.error('Payment error:', error);
