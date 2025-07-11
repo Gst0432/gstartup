@@ -41,16 +41,17 @@ serve(async (req) => {
       .eq('is_active', true)
       .single();
 
-    // Get global payment configuration
+    // Get Moneroo payment gateway configuration
     const { data: globalConfig, error: configError } = await supabaseAdmin
-      .from('global_payment_config')
+      .from('payment_gateways')
       .select('*')
+      .eq('type', 'moneroo')
       .eq('is_active', true)
       .single();
 
-    if (configError || !globalConfig || !globalConfig.moneroo_api_key) {
-      console.error('❌ Global payment config error:', configError);
-      throw new Error('Configuration de paiement non disponible');
+    if (configError || !globalConfig || !globalConfig.api_key) {
+      console.error('❌ Moneroo payment config error:', configError);
+      throw new Error('Configuration de paiement Moneroo non disponible');
     }
 
     if (productError || !product) {
@@ -168,7 +169,7 @@ serve(async (req) => {
     const monerooResponse = await fetch('https://api.moneroo.io/v1/payments/initialize', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${globalConfig.moneroo_api_key}`,
+        'Authorization': `Bearer ${globalConfig.api_key}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
