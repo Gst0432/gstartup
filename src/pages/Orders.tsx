@@ -24,6 +24,7 @@ import {
   MessageSquare,
   RotateCcw
 } from 'lucide-react';
+import { generateOrderPDF } from '@/utils/pdfGenerator';
 import { supabase } from '@/integrations/supabase/client';
 import PaymentSelector from '@/components/PaymentSelector';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -422,11 +423,13 @@ export default function Orders() {
                               </Dialog>
                             )}
                             
-                            <Button variant="outline" size="sm">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button variant="outline" size="sm">
-                              <Download className="h-4 w-4" />
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => generateOrderPDF(order)}
+                            >
+                              <Download className="h-4 w-4 mr-1" />
+                              PDF
                             </Button>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>

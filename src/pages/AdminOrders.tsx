@@ -27,8 +27,11 @@ import {
   User,
   Phone,
   Mail,
-  MapPin
+  MapPin,
+  Download,
+  Edit
 } from 'lucide-react';
+import { generateOrderPDF } from '@/utils/pdfGenerator';
 import { supabase } from '@/integrations/supabase/client';
 
 interface OrderItem {
@@ -450,14 +453,22 @@ export default function AdminOrders() {
                             <span>Articles: {order.order_items?.length || 0}</span>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" size="sm" onClick={() => setSelectedOrder(order)}>
-                                <Eye className="h-4 w-4 mr-1" />
-                                Détails
-                              </Button>
-                            </DialogTrigger>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => generateOrderPDF(order)}
+                            >
+                              <Download className="h-4 w-4 mr-1" />
+                              PDF
+                            </Button>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="outline" size="sm" onClick={() => setSelectedOrder(order)}>
+                                  <Eye className="h-4 w-4 mr-1" />
+                                  Détails
+                                </Button>
+                              </DialogTrigger>
                             <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                               <DialogHeader>
                                 <DialogTitle>Détails de la commande #{order.order_number}</DialogTitle>

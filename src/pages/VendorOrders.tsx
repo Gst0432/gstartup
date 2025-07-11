@@ -24,8 +24,11 @@ import {
   Phone,
   Mail,
   AlertCircle,
-  Truck
+  Truck,
+  Download,
+  Edit
 } from 'lucide-react';
+import { generateOrderPDF } from '@/utils/pdfGenerator';
 import { supabase } from '@/integrations/supabase/client';
 
 interface OrderItem {
@@ -43,6 +46,7 @@ interface OrderItem {
     payment_status: string;
     fulfillment_status: string;
     total_amount: number;
+    currency: string;
     created_at: string;
     updated_at: string;
     customer_notes: string | null;
@@ -99,6 +103,7 @@ export default function VendorOrders() {
             payment_status,
             fulfillment_status,
             total_amount,
+            currency,
             created_at,
             updated_at,
             customer_notes,
@@ -439,6 +444,14 @@ export default function VendorOrders() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => generateOrderPDF(item.order)}
+                          >
+                            <Download className="h-4 w-4 mr-1" />
+                            PDF
+                          </Button>
                           <Dialog>
                             <DialogTrigger asChild>
                               <Button variant="outline" size="sm" onClick={() => setSelectedOrderItem(item)}>
@@ -497,24 +510,43 @@ export default function VendorOrders() {
 
                                   <Card>
                                     <CardHeader>
-                                      <CardTitle className="text-lg">Actions de Livraison</CardTitle>
+                                      <CardTitle className="text-lg flex items-center gap-2">
+                                        <Edit className="h-5 w-5" />
+                                        Actions de Livraison
+                                      </CardTitle>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
-                                      <div>
-                                        <label className="text-sm font-medium">Statut d'expédition:</label>
-                                        <Select
-                                          value={selectedOrderItem.order.fulfillment_status}
-                                          onValueChange={(value) => updateFulfillmentStatus(selectedOrderItem.order.id, value)}
-                                        >
-                                          <SelectTrigger className="mt-2">
-                                            <SelectValue />
-                                          </SelectTrigger>
-                                          <SelectContent>
-                                            <SelectItem value="unfulfilled">Non expédié</SelectItem>
-                                            <SelectItem value="shipped">Expédié</SelectItem>
-                                            <SelectItem value="delivered">Livré</SelectItem>
-                                          </SelectContent>
-                                        </Select>
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                          <label className="text-sm font-medium">Statut d'expédition:</label>
+                                          <Select
+                                            value={selectedOrderItem.order.fulfillment_status}
+                                            onValueChange={(value) => updateFulfillmentStatus(selectedOrderItem.order.id, value)}
+                                          >
+                                            <SelectTrigger className="mt-2">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="unfulfilled">Non expédié</SelectItem>
+                                              <SelectItem value="shipped">Expédié</SelectItem>
+                                              <SelectItem value="delivered">Livré</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                        <div>
+                                          <label className="text-sm font-medium">Actions rapides:</label>
+                                          <div className="flex gap-2 mt-2">
+                                            <Button
+                                              variant="outline"
+                                              size="sm"
+                                              onClick={() => generateOrderPDF(selectedOrderItem.order)}
+                                              className="flex-1"
+                                            >
+                                              <Download className="h-4 w-4 mr-2" />
+                                              PDF
+                                            </Button>
+                                          </div>
+                                        </div>
                                       </div>
                                       <div>
                                         <label className="text-sm font-medium">Note de livraison:</label>
