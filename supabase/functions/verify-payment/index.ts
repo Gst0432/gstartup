@@ -36,11 +36,12 @@ serve(async (req) => {
 
     console.log('✅ Using global Moneroo configuration');
 
-    // Verify payment status with Moneroo API
-    const verifyResponse = await fetch(`https://api.moneroo.io/v1/payments/${transactionId}`, {
+    // Verify payment status with Moneroo API using the verify endpoint
+    const verifyResponse = await fetch(`https://api.moneroo.io/v1/payments/${transactionId}/verify`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${globalConfig.moneroo_api_key}`,
+        'Content-Type': 'application/json',
         'Accept': 'application/json'
       }
     });
