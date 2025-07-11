@@ -91,7 +91,8 @@ Deno.serve(async (req) => {
         }
 
         const monerooData = await monerooResponse.json()
-        console.log(`📊 Moneroo status for ${transaction.transaction_id}:`, monerooData.status)
+        console.log(`📊 Moneroo response for ${transaction.transaction_id}:`, JSON.stringify(monerooData, null, 2))
+        console.log(`📊 Moneroo status for ${transaction.transaction_id}:`, monerooData.data?.status)
 
         verifiedCount++
 
@@ -100,7 +101,7 @@ Deno.serve(async (req) => {
         let orderStatus = 'pending'
         let paymentStatus = 'pending'
 
-        switch (monerooData.status?.toLowerCase()) {
+        switch (monerooData.data?.status?.toLowerCase()) {
           case 'success':
           case 'succeeded':
           case 'completed':
