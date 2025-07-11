@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import VendorDashboard from "./pages/VendorDashboard";
 import VendorProducts from "./pages/VendorProducts";
 import VendorProductNew from "./pages/VendorProductNew";
+import VendorProductEdit from "./pages/VendorProductEdit";
 import VendorOrders from "./pages/VendorOrders";
 import VendorAnalytics from "./pages/VendorAnalytics";
 import VendorReviews from "./pages/VendorReviews";
@@ -84,6 +85,11 @@ const App = () => (
           <Route path="/vendor/products/new" element={
             <ProtectedRoute requiredRole="vendor">
               <VendorProductNew />
+            </ProtectedRoute>
+          } />
+          <Route path="/vendor/products/:id/edit" element={
+            <ProtectedRoute requiredRole="vendor">
+              <VendorProductEdit />
             </ProtectedRoute>
           } />
           <Route path="/vendor/orders" element={

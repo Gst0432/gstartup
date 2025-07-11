@@ -38,7 +38,7 @@ export function useVendorProducts() {
         .from('products')
         .select(`
           *,
-          categories!inner(name)
+          categories!inner(id, name)
         `)
         .eq('vendor_id', vendor.id)
         .order('created_at', { ascending: false });
