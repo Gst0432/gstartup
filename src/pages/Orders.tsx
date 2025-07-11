@@ -135,8 +135,10 @@ export default function Orders() {
           )
         `)
         .eq('user_id', profile?.user_id)
-        .in('status', ['completed', 'confirmed'])
+        .in('status', ['completed', 'confirmed', 'fulfilled'])
         .eq('payment_status', 'paid')
+        .neq('status', 'pending')
+        .neq('payment_status', 'pending')
         .order('created_at', { ascending: false });
 
       if (paidError) {
