@@ -105,20 +105,22 @@ export default function VendorDashboard() {
       const orderItems = ordersResult.data || [];
       const vendor = vendorResult.data;
 
-      // Calculer les statistiques uniquement pour les commandes payées
+      // Calculer les statistiques uniquement pour les commandes confirmées et payées
       const orders = orderItems.map(item => item.orders).filter(order => order);
-      const paidOrders = orders.filter(order => order.payment_status === 'paid');
-      const uniquePaidOrders = Array.from(new Set(paidOrders.map(o => o.id))).map(id => 
-        paidOrders.find(o => o.id === id)
+      const confirmedPaidOrders = orders.filter(order => 
+        order.payment_status === 'paid' && order.status === 'confirmed'
+      );
+      const uniqueConfirmedPaidOrders = Array.from(new Set(confirmedPaidOrders.map(o => o.id))).map(id => 
+        confirmedPaidOrders.find(o => o.id === id)
       );
       
-      // Filtrer les order_items pour les commandes payées seulement
-      const paidOrderItems = orderItems.filter(item => 
-        item.orders && item.orders.payment_status === 'paid'
+      // Filtrer les order_items pour les commandes confirmées et payées seulement
+      const confirmedPaidOrderItems = orderItems.filter(item => 
+        item.orders && item.orders.payment_status === 'paid' && item.orders.status === 'confirmed'
       );
       
-      const revenue = paidOrderItems.reduce((sum, item) => sum + (item.total || 0), 0);
-      const uniqueCustomers = new Set(paidOrders.map(o => o.user_id)).size;
+      const revenue = confirmedPaidOrderItems.reduce((sum, item) => sum + (item.total || 0), 0);
+      const uniqueCustomers = new Set(confirmedPaidOrders.map(o => o.user_id)).size;
       
       // Calculer les commandes en attente et complétées (toutes les commandes)
       const allUniqueOrders = Array.from(new Set(orders.map(o => o.id))).map(id => 
@@ -127,10 +129,10 @@ export default function VendorDashboard() {
       const pendingOrders = allUniqueOrders.filter(o => o.status === 'pending').length;
       const completedOrders = allUniqueOrders.filter(o => o.status === 'completed').length;
       
-      // Revenus du mois en cours (commandes payées seulement)
+      // Revenus du mois en cours (commandes confirmées et payées seulement)
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
-      const monthlyRevenue = paidOrderItems
+      const monthlyRevenue = confirmedPaidOrderItems
         .filter(item => {
           const orderDate = new Date(item.orders.created_at);
           return orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear;
@@ -153,11 +155,11 @@ export default function VendorDashboard() {
 
       setStats({
         totalProducts: products.length,
-        totalOrders: uniquePaidOrders.length,
+        totalOrders: uniqueConfirmedPaidOrders.length,
         totalRevenue: revenue,
         totalCustomers: uniqueCustomers,
         averageRating: vendor?.rating || 0,
-        recentOrders: uniquePaidOrders.slice(-5).reverse(),
+        recentOrders: uniqueConfirmedPaidOrders.slice(-5).reverse(),
         subscriptionStatus: vendor?.subscription_status || 'inactive',
         subscriptionExpiry: vendor?.subscription_expires_at || '',
         pendingOrders,
@@ -319,7 +321,7 @@ export default function VendorDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Commandes Payées</p>
+                  <p className="text-sm font-medium text-muted-foreground">Ventes Confirmées</p>
                   <p className="text-2xl font-bold">{stats.totalOrders}</p>
                   <div className="flex gap-2 text-xs">
                     <span className="text-orange-500">{stats.pendingOrders} en attente</span>

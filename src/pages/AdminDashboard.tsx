@@ -114,34 +114,41 @@ export default function AdminDashboard() {
         .eq('is_active', true);
 
       // Fetch orders count and data
-      const { data: ordersData, count: totalOrders } = await supabase
+      const { data: ordersData, count: allOrdersCount } = await supabase
         .from('orders')
         .select('*, order_items(*)', { count: 'exact' });
 
-      // Calculate revenue and order stats
-      const totalRevenue = ordersData?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0;
+      // Filter confirmed and paid orders only for revenue and count
+      const confirmedPaidOrders = ordersData?.filter(order => 
+        order.status === 'confirmed' && order.payment_status === 'paid'
+      ) || [];
+
+      // Calculate revenue and order stats (only confirmed and paid orders)
+      const totalRevenue = confirmedPaidOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0);
+      const totalOrders = confirmedPaidOrders.length;
       
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
-      const monthlyRevenue = ordersData?.filter(order => {
+      const monthlyRevenue = confirmedPaidOrders.filter(order => {
         const orderDate = new Date(order.created_at);
         return orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear;
-      }).reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0;
+      }).reduce((sum, order) => sum + (order.total_amount || 0), 0);
 
+      // Status counts (all orders)
       const pendingOrders = ordersData?.filter(order => order.status === 'pending').length || 0;
       const completedOrders = ordersData?.filter(order => order.status === 'completed').length || 0;
 
-      // Get recent activity (last 10 orders)
-      const recentActivity = ordersData?.slice(-10).reverse() || [];
+      // Get recent activity (last 10 confirmed and paid orders)
+      const recentActivity = confirmedPaidOrders.slice(-10).reverse();
 
       // Active users in last 24h (simulation)
       const activeUsers = Math.floor(Math.random() * 50) + 10;
 
-      setStats({
+        setStats({
         totalUsers: totalUsers || 0,
         totalVendors: totalVendors || 0,
         totalProducts: totalProducts || 0,
-        totalOrders: totalOrders || 0,
+        totalOrders,
         pendingVendors: pendingVendors || 0,
         activeProducts: activeProducts || 0,
         totalRevenue,
