@@ -27,25 +27,31 @@ serve(async (req) => {
 
     console.log('🔐 Supabase clients created');
 
-    // Get product details with vendor payment config
+    // Get product details with vendor info
     const { data: product, error: productError } = await supabaseAdmin
       .from('products')
       .select(`
         *,
         vendor:vendors!products_vendor_id_fkey(
           id,
-          business_name,
-          payment_config,
-          moneroo_enabled,
-          moneroo_api_key,
-          moneroo_secret_key,
-          moneyfusion_enabled,
-          moneyfusion_api_url
+          business_name
         )
       `)
       .eq('id', productId)
       .eq('is_active', true)
       .single();
+
+    // Get global payment configuration
+    const { data: globalConfig, error: configError } = await supabaseAdmin
+      .from('global_payment_config')
+      .select('*')
+      .eq('is_active', true)
+      .single();
+
+    if (configError || !globalConfig || !globalConfig.moneroo_api_key) {
+      console.error('❌ Global payment config error:', configError);
+      throw new Error('Configuration de paiement non disponible');
+    }
 
     if (productError || !product) {
       console.error('❌ Product error:', productError);
@@ -131,136 +137,67 @@ serve(async (req) => {
         vendor_id: product.vendor.id
       });
 
-    // Determine which payment gateway to use based on vendor configuration
-    let paymentUrl = null;
-    let transactionId = null;
+    // Use global Moneroo configuration for all payments
+    console.log('Using global Moneroo payment gateway');
+    
+    // Prepare customer data according to Moneroo standards
+    const customerData = {
+      email: user.email || userProfile?.email || 'guest@g-startup.com',
+      first_name: userProfile?.display_name?.split(' ')[0] || 'Client',
+      last_name: userProfile?.display_name?.split(' ').slice(1).join(' ') || 'G-STARTUP'
+    };
 
-    // Check if vendor has MoneyFusion enabled and configured
-    if (product.vendor.moneyfusion_enabled && product.vendor.moneyfusion_api_url) {
-      console.log('Using MoneyFusion payment gateway for vendor:', product.vendor.id);
-      
-      // Use MoneyFusion API
-      const customerPhone = userProfile?.phone || '237000000000'; // Default fallback
-      const customerName = userProfile?.display_name || 'Client G-STARTUP';
-      
-      const moneyfusionPayload = {
-        amount: Math.round(totalAmount),
-        currency: 'XAF',
-        description: `Achat de ${product.name} - Commande #${order.order_number}`,
-        customer_name: customerName,
-        customer_phone: customerPhone,
-        return_url: `${req.headers.get("origin")}/payment-success?order=${order.id}`,
-        metadata: {
-          order_id: order.id,
-          product_id: product.id,
-          vendor_id: product.vendor.id,
-          order_number: order.order_number
-        }
-      };
-
-      console.log('Creating MoneyFusion payment with payload:', JSON.stringify(moneyfusionPayload, null, 2));
-
-      const moneyfusionResponse = await fetch(`${product.vendor.moneyfusion_api_url}/create-payment`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(moneyfusionPayload),
-      });
-
-      const moneyfusionData = await moneyfusionResponse.json();
-      console.log('MoneyFusion API response:', moneyfusionData);
-
-      if (!moneyfusionResponse.ok) {
-        console.error('MoneyFusion API error:', moneyfusionData);
-        throw new Error(`MoneyFusion API error: ${moneyfusionData.message || 'Unknown error'}`);
+    // Create Moneroo payment according to their API specification
+    const monerooPayload = {
+      amount: Math.round(totalAmount), // Ensure integer as required by Moneroo
+      currency: 'XAF', // Use XAF for Central/West Africa
+      description: `Achat de ${product.name} - Commande #${order.order_number}`,
+      return_url: `${req.headers.get("origin")}/payment-success?order=${order.id}`,
+      customer: customerData,
+      metadata: {
+        order_id: order.id,
+        product_id: product.id,
+        vendor_id: product.vendor.id,
+        order_number: order.order_number
       }
+    };
 
-      // Save MoneyFusion transaction
-      await supabaseAdmin
-        .from('moneyfusion_transactions')
-        .insert({
-          order_id: order.id,
-          token_pay: moneyfusionData.token_pay || moneyfusionData.data?.token_pay,
-          reference_code: order.order_number,
-          amount: totalAmount,
-          currency: 'XAF',
-          customer_name: customerName,
-          customer_phone: customerPhone,
-          status: 'pending',
-          moneyfusion_response: moneyfusionData
-        });
+    console.log('Creating Moneroo payment with payload:', JSON.stringify(monerooPayload, null, 2));
 
-      paymentUrl = moneyfusionData.payment_url || moneyfusionData.data?.payment_url;
-      transactionId = moneyfusionData.token_pay || moneyfusionData.data?.token_pay;
+    // Call Moneroo API endpoint according to their documentation
+    const monerooResponse = await fetch('https://api.moneroo.io/v1/payments/initialize', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${globalConfig.moneroo_api_key}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(monerooPayload),
+    });
 
-    // Check if vendor has Moneroo enabled and configured
-    } else if (product.vendor.moneroo_enabled && product.vendor.moneroo_api_key) {
-      console.log('Using Moneroo payment gateway for vendor:', product.vendor.id);
-      
-      // Prepare customer data according to Moneroo standards
-      const customerData = {
-        email: user.email || userProfile?.email || 'guest@g-startup.com',
-        first_name: userProfile?.display_name?.split(' ')[0] || 'Client',
-        last_name: userProfile?.display_name?.split(' ').slice(1).join(' ') || 'G-STARTUP'
-      };
+    const monerooData = await monerooResponse.json();
+    console.log('Moneroo API response:', monerooData);
 
-      // Create Moneroo payment according to their API specification
-      const monerooPayload = {
-        amount: Math.round(totalAmount), // Ensure integer as required by Moneroo
-        currency: 'XAF', // Use XAF for Central/West Africa
-        description: `Achat de ${product.name} - Commande #${order.order_number}`,
-        return_url: `${req.headers.get("origin")}/payment-success?order=${order.id}`,
-        customer: customerData,
-        metadata: {
-          order_id: order.id,
-          product_id: product.id,
-          vendor_id: product.vendor.id,
-          order_number: order.order_number
-        }
-      };
-
-      console.log('Creating Moneroo payment with payload:', JSON.stringify(monerooPayload, null, 2));
-
-      // Call Moneroo API endpoint according to their documentation
-      const monerooResponse = await fetch('https://api.moneroo.io/v1/payments/initialize', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${product.vendor.moneroo_api_key}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(monerooPayload),
-      });
-
-      const monerooData = await monerooResponse.json();
-      console.log('Moneroo API response:', monerooData);
-
-      if (!monerooResponse.ok) {
-        console.error('Moneroo API error:', monerooData);
-        throw new Error(`Moneroo API error: ${monerooData.message || 'Unknown error'}`);
-      }
-
-      // Save Moneroo transaction with the correct data structure
-      await supabaseAdmin
-        .from('moneroo_transactions')
-        .insert({
-          order_id: order.id,
-          transaction_id: monerooData.data.id, // Use data.id as per Moneroo response format
-          reference_code: order.order_number,
-          amount: totalAmount,
-          currency: 'XAF',
-          status: 'pending',
-          moneroo_response: monerooData
-        });
-
-      paymentUrl = monerooData.data.checkout_url;
-      transactionId = monerooData.data.id;
-
-    } else {
-      throw new Error('Aucune passerelle de paiement configurée pour ce vendeur');
+    if (!monerooResponse.ok) {
+      console.error('Moneroo API error:', monerooData);
+      throw new Error(`Moneroo API error: ${monerooData.message || 'Unknown error'}`);
     }
+
+    // Save Moneroo transaction with the correct data structure
+    await supabaseAdmin
+      .from('moneroo_transactions')
+      .insert({
+        order_id: order.id,
+        transaction_id: monerooData.data.id, // Use data.id as per Moneroo response format
+        reference_code: order.order_number,
+        amount: totalAmount,
+        currency: 'XAF',
+        status: 'pending',
+        moneroo_response: monerooData
+      });
+
+    const paymentUrl = monerooData.data.checkout_url;
+    const transactionId = monerooData.data.id;
 
     if (!paymentUrl) {
       throw new Error('URL de paiement non générée');

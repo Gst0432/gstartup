@@ -19,6 +19,8 @@ import VendorAnalytics from "./pages/VendorAnalytics";
 import VendorReviews from "./pages/VendorReviews";
 import VendorPayments from "./pages/VendorPayments";
 import VendorProfile from "./pages/VendorProfile";
+import VendorWithdrawals from "./pages/VendorWithdrawals";
+import AdminWithdrawals from "./pages/AdminWithdrawals";
 import Cart from "./pages/Cart";
 import Wishlist from "./pages/Wishlist";
 import Orders from "./pages/Orders";
@@ -107,9 +109,9 @@ const App = () => (
               <VendorReviews />
             </ProtectedRoute>
           } />
-          <Route path="/vendor/payments" element={
+          <Route path="/vendor/withdrawals" element={
             <ProtectedRoute requiredRole="vendor">
-              <VendorPayments />
+              <VendorWithdrawals />
             </ProtectedRoute>
           } />
           <Route path="/vendor/profile" element={
@@ -195,6 +197,11 @@ const App = () => (
           <Route path="/admin/settings" element={
             <ProtectedRoute requiredRole="admin">
               <AdminSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/withdrawals" element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminWithdrawals />
             </ProtectedRoute>
           } />
           <Route path="/boutique/:storeSlug" element={<StorePage />} />

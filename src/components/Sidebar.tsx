@@ -54,7 +54,7 @@ export const Sidebar = ({ role, onClose, isMobile = false }: SidebarProps) => {
     { title: 'Commandes', url: '/vendor/orders', icon: ShoppingCart },
     { title: 'Statistiques', url: '/vendor/analytics', icon: BarChart3 },
     { title: 'Avis', url: '/vendor/reviews', icon: Star },
-    { title: 'Passerelles', url: '/vendor/payments', icon: CreditCard },
+    { title: 'Retraits', url: '/vendor/withdrawals', icon: CreditCard },
     { title: 'Profil Vendeur', url: '/vendor/profile', icon: Settings },
   ];
 
@@ -66,7 +66,8 @@ export const Sidebar = ({ role, onClose, isMobile = false }: SidebarProps) => {
     { title: 'Commandes', url: '/admin/orders', icon: ShoppingCart },
     { title: 'Catégories', url: '/admin/categories', icon: Settings },
     { title: 'Images Pub', url: '/admin/advertisements', icon: Images },
-    { title: 'Paiements', url: '/admin/settings', icon: CreditCard },
+    { title: 'Retraits', url: '/admin/withdrawals', icon: CreditCard },
+    { title: 'Paramètres', url: '/admin/settings', icon: Settings },
     { title: 'Analytics', url: '/admin/analytics', icon: TrendingUp },
   ];
 

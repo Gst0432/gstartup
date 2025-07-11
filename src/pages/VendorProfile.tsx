@@ -10,7 +10,7 @@ import { VendorStatsCard } from '@/components/vendor/VendorStatsCard';
 import { VendorBasicInfoForm } from '@/components/vendor/VendorBasicInfoForm';
 import { VendorImagesSection } from '@/components/vendor/VendorImagesSection';
 import { VendorDomainSection } from '@/components/vendor/VendorDomainSection';
-import { VendorPaymentSection } from '@/components/vendor/VendorPaymentSection';
+
 import { Store, User, Save, Shield, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 

@@ -175,6 +175,39 @@ export type Database = {
           },
         ]
       }
+      global_payment_config: {
+        Row: {
+          commission_rate: number
+          created_at: string
+          id: string
+          is_active: boolean
+          moneroo_api_key: string | null
+          moneroo_secret_key: string | null
+          test_mode: boolean
+          updated_at: string
+        }
+        Insert: {
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          moneroo_api_key?: string | null
+          moneroo_secret_key?: string | null
+          test_mode?: boolean
+          updated_at?: string
+        }
+        Update: {
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          moneroo_api_key?: string | null
+          moneroo_secret_key?: string | null
+          test_mode?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       moneroo_transactions: {
         Row: {
           amount: number
@@ -839,6 +872,44 @@ export type Database = {
           },
         ]
       }
+      vendor_balances: {
+        Row: {
+          available_balance: number
+          id: string
+          pending_balance: number
+          total_earned: number
+          total_withdrawn: number
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          available_balance?: number
+          id?: string
+          pending_balance?: number
+          total_earned?: number
+          total_withdrawn?: number
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          available_balance?: number
+          id?: string
+          pending_balance?: number
+          total_earned?: number
+          total_withdrawn?: number
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_balances_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: true
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vendor_subscriptions: {
         Row: {
           amount: number
@@ -892,6 +963,61 @@ export type Database = {
           webhook_data?: Json | null
         }
         Relationships: []
+      }
+      vendor_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          order_id: string | null
+          type: string
+          vendor_id: string
+          withdrawal_request_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_id?: string | null
+          type: string
+          vendor_id: string
+          withdrawal_request_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_id?: string | null
+          type?: string
+          vendor_id?: string
+          withdrawal_request_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_transactions_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_transactions_withdrawal_request_id_fkey"
+            columns: ["withdrawal_request_id"]
+            isOneToOne: false
+            referencedRelation: "withdrawal_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vendors: {
         Row: {
@@ -1036,6 +1162,65 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      withdrawal_requests: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          bank_details: Json | null
+          created_at: string
+          id: string
+          moneroo_phone: string | null
+          moneroo_transaction_id: string | null
+          payment_method: string
+          processed_at: string | null
+          processed_by: string | null
+          rejection_reason: string | null
+          status: string
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          bank_details?: Json | null
+          created_at?: string
+          id?: string
+          moneroo_phone?: string | null
+          moneroo_transaction_id?: string | null
+          payment_method?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          rejection_reason?: string | null
+          status?: string
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          bank_details?: Json | null
+          created_at?: string
+          id?: string
+          moneroo_phone?: string | null
+          moneroo_transaction_id?: string | null
+          payment_method?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          rejection_reason?: string | null
+          status?: string
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "withdrawal_requests_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
           },
         ]
       }
