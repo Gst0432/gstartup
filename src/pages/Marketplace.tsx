@@ -94,7 +94,7 @@ export default function Marketplace() {
         .from('products')
         .select(`
           *,
-          vendor:vendors!products_vendor_id_fkey(id, business_name),
+          vendor:vendors!products_vendor_id_fkey(id, business_name, is_active, is_verified),
           category:categories!products_category_id_fkey(name)
         `)
         .eq('is_active', true)

@@ -111,7 +111,7 @@ export default function AdminVendors() {
 
       toast({
         title: "Succès",
-        description: `Statut du vendeur mis à jour avec succès`,
+        description: `Vendeur ${value ? 'activé' : 'désactivé'} avec succès. ${!value ? 'Ses produits ne seront plus visibles sur la marketplace.' : 'Ses produits sont de nouveau visibles.'}`,
       });
     } catch (error) {
       console.error('Error updating vendor status:', error);
