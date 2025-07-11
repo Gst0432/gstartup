@@ -143,8 +143,8 @@ export default function PaymentSelector({ amount, currency, orderId, vendorId, o
 
   const handleMonerooPayment = async (orderId: string, amount: number) => {
     try {
-      const { data, error } = await supabase.functions.invoke('create-moneroo-payment', {
-        body: { orderId, amount, vendorId }
+      const { data, error } = await supabase.functions.invoke('create-payment', {
+        body: { productId: orderId, quantity: 1 }
       });
 
       if (error) throw error;

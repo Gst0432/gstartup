@@ -51,12 +51,12 @@ export function MonerooPaymentButton({
     onPaymentStart?.();
 
     try {
-      const { data, error } = await supabase.functions.invoke('create-moneroo-payment', {
+      // Pour l'instant, utiliser le premier produit du panier
+      const firstItem = cartItems[0];
+      const { data, error } = await supabase.functions.invoke('create-payment', {
         body: {
-          cart_items: cartItems,
-          shipping_address: shippingAddress,
-          billing_address: billingAddress,
-          payment_method: paymentMethod
+          productId: firstItem.product_id,
+          quantity: firstItem.quantity
         }
       });
 
