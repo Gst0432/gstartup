@@ -47,10 +47,26 @@ serve(async (req) => {
     // Get user if authenticated
     const authHeader = req.headers.get("Authorization");
     let user = null;
+    let userProfile = null;
+    
     if (authHeader) {
       const token = authHeader.replace("Bearer ", "");
-      const { data } = await supabase.auth.getUser(token);
-      user = data.user;
+      const { data: authData } = await supabase.auth.getUser(token);
+      user = authData.user;
+      
+      if (user) {
+        // Get user profile for additional info
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+        userProfile = profile;
+      }
+    }
+    
+    if (!user) {
+      throw new Error('Utilisateur non connecté');
     }
 
     // Calculate total amount
@@ -58,7 +74,7 @@ serve(async (req) => {
 
     // Create order in database first
     const orderData = {
-      user_id: user?.id || null,
+      user_id: user.id,
       order_number: `ORD-${Date.now()}`,
       subtotal: totalAmount,
       total_amount: totalAmount,
@@ -99,8 +115,8 @@ serve(async (req) => {
       console.log('Using MoneyFusion payment gateway for vendor:', product.vendor.id);
       
       // Use MoneyFusion API
-      const customerPhone = user?.phone || '237000000000'; // Default fallback
-      const customerName = user?.user_metadata?.display_name || 'Client G-STARTUP';
+      const customerPhone = userProfile?.phone || '237000000000'; // Default fallback
+      const customerName = userProfile?.display_name || 'Client G-STARTUP';
       
       const moneyfusionPayload = {
         amount: Math.round(totalAmount),
@@ -160,9 +176,9 @@ serve(async (req) => {
       
       // Prepare customer data according to Moneroo standards
       const customerData = {
-        email: user?.email || 'guest@g-startup.com',
-        first_name: user?.user_metadata?.display_name?.split(' ')[0] || 'Client',
-        last_name: user?.user_metadata?.display_name?.split(' ').slice(1).join(' ') || 'G-STARTUP'
+        email: user.email || userProfile?.email || 'guest@g-startup.com',
+        first_name: userProfile?.display_name?.split(' ')[0] || 'Client',
+        last_name: userProfile?.display_name?.split(' ').slice(1).join(' ') || 'G-STARTUP'
       };
 
       // Create Moneroo payment according to their API specification
