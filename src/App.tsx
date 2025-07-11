@@ -42,6 +42,8 @@ import StorePage from "./pages/StorePage";
 import ShopsPage from "./pages/ShopsPage";
 import NotFound from "./pages/NotFound";
 import VendorPricing from "./pages/VendorPricing";
+import VendorGuide from "./pages/VendorGuide";
+import VendorSupport from "./pages/VendorSupport";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +58,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/services" element={<Services />} />
           <Route path="/vendor-pricing" element={<VendorPricing />} />
+          <Route path="/vendor-guide" element={<VendorGuide />} />
+          <Route path="/vendor-support" element={<VendorSupport />} />
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/boutiques" element={<ShopsPage />} />
           <Route path="/auth" element={<Auth />} />
