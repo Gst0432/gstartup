@@ -121,6 +121,35 @@ export default function VendorProducts() {
     }
   };
 
+  const deleteProduct = async (productId: string) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', productId);
+
+      if (error) {
+        toast({
+          title: "Erreur",
+          description: "Impossible de supprimer le produit",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setProducts(products.filter(product => product.id !== productId));
+
+      toast({
+        title: "Succès",
+        description: "Produit supprimé avec succès",
+      });
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    }
+  };
+
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.category.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -246,28 +275,37 @@ export default function VendorProducts() {
                            </p>
                          </div>
                        </div>
-                       <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                         <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
-                           <Eye className="h-4 w-4 sm:mr-0 mr-2" />
-                           <span className="sm:hidden">Voir</span>
-                         </Button>
-                         <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
-                           <Edit className="h-4 w-4 sm:mr-0 mr-2" />
-                           <span className="sm:hidden">Modifier</span>
-                         </Button>
-                         <Button
-                           variant={product.is_active ? "outline" : "default"}
-                           size="sm"
-                           onClick={() => toggleProductStatus(product.id, product.is_active)}
-                           className="flex-1 sm:flex-none text-xs sm:text-sm"
-                         >
-                           {product.is_active ? 'Désactiver' : 'Activer'}
-                         </Button>
-                         <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
-                           <Trash className="h-4 w-4 sm:mr-0 mr-2" />
-                           <span className="sm:hidden">Supprimer</span>
-                         </Button>
-                       </div>
+                        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                          <Link to={`/products/${product.id}`}>
+                            <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+                              <Eye className="h-4 w-4 sm:mr-0 mr-2" />
+                              <span className="sm:hidden">Voir</span>
+                            </Button>
+                          </Link>
+                          <Link to={`/vendor/products/${product.id}/edit`}>
+                            <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+                              <Edit className="h-4 w-4 sm:mr-0 mr-2" />
+                              <span className="sm:hidden">Modifier</span>
+                            </Button>
+                          </Link>
+                          <Button
+                            variant={product.is_active ? "outline" : "default"}
+                            size="sm"
+                            onClick={() => toggleProductStatus(product.id, product.is_active)}
+                            className="flex-1 sm:flex-none text-xs sm:text-sm"
+                          >
+                            {product.is_active ? 'Désactiver' : 'Activer'}
+                          </Button>
+                          <Button 
+                            variant="destructive" 
+                            size="sm" 
+                            onClick={() => deleteProduct(product.id)}
+                            className="flex-1 sm:flex-none"
+                          >
+                            <Trash className="h-4 w-4 sm:mr-0 mr-2" />
+                            <span className="sm:hidden">Supprimer</span>
+                          </Button>
+                        </div>
                      </div>
                   ))}
                    {paginatedProducts.length === 0 && filteredProducts.length === 0 && (
