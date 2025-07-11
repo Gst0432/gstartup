@@ -62,16 +62,60 @@ export default function Orders() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [retryOrderId, setRetryOrderId] = useState<string | null>(null);
+  const [allOrdersStats, setAllOrdersStats] = useState({
+    totalSpent: 0,
+    completedOrders: 0,
+    pendingOrders: 0
+  });
 
   useEffect(() => {
     if (profile) {
       fetchOrders();
+      fetchOrdersStats();
     }
   }, [profile]);
 
+  const fetchOrdersStats = async () => {
+    try {
+      // Récupérer TOUTES les commandes pour les statistiques
+      const { data: allOrdersData, error: statsError } = await supabase
+        .from('orders')
+        .select('id, status, payment_status, total_amount')
+        .eq('user_id', profile?.user_id);
+
+      if (statsError) {
+        console.error('Error fetching orders stats:', statsError);
+        return;
+      }
+
+      const totalSpent = allOrdersData?.reduce((sum, order) => 
+        (order.status === 'completed' || order.status === 'confirmed') && order.payment_status === 'paid' 
+          ? sum + order.total_amount 
+          : sum, 0
+      ) || 0;
+
+      const completedOrders = allOrdersData?.filter(order => 
+        (order.status === 'completed' || order.status === 'confirmed') && order.payment_status === 'paid'
+      ).length || 0;
+
+      const pendingOrders = allOrdersData?.filter(order => 
+        order.status === 'pending' || order.payment_status === 'pending'
+      ).length || 0;
+
+      setAllOrdersStats({
+        totalSpent,
+        completedOrders,
+        pendingOrders
+      });
+    } catch (error) {
+      console.error('Error fetching orders stats:', error);
+    }
+  };
+
   const fetchOrders = async () => {
     try {
-      const { data, error } = await supabase
+      // Récupérer seulement les commandes payées et terminées pour l'affichage
+      const { data: paidOrdersData, error: paidError } = await supabase
         .from('orders')
         .select(`
           *,
@@ -95,12 +139,12 @@ export default function Orders() {
         .eq('payment_status', 'paid')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching orders:', error);
+      if (paidError) {
+        console.error('Error fetching paid orders:', paidError);
         return;
       }
 
-      const transformedData = data?.map(order => ({
+      const transformedData = paidOrdersData?.map(order => ({
         ...order,
         items: order.order_items || []
       })) || [];
@@ -134,8 +178,9 @@ export default function Orders() {
         description: "L'historique de la commande a été supprimé"
       });
 
-      // Refresh orders list
+      // Refresh orders list and stats
       fetchOrders();
+      fetchOrdersStats();
     } catch (error) {
       console.error('Error deleting order:', error);
       toast({
@@ -223,11 +268,8 @@ export default function Orders() {
     return matchesSearch && matchesStatus;
   });
 
-  const totalSpent = orders.reduce((sum, order) => 
-    order.status === 'completed' ? sum + order.total_amount : sum, 0
-  );
-  const completedOrders = orders.filter(order => order.status === 'completed').length;
-  const pendingOrders = orders.filter(order => order.status === 'pending').length;
+  // Utiliser les statistiques de toutes les commandes
+  const { totalSpent, completedOrders, pendingOrders } = allOrdersStats;
 
   return (
     <DashboardLayout>
@@ -437,7 +479,8 @@ export default function Orders() {
                                           description: "Votre paiement a été relancé avec succès"
                                         });
                                         setRetryOrderId(null);
-                                        fetchOrders(); // Refresh orders
+                        fetchOrders(); // Refresh orders
+                        fetchOrdersStats(); // Refresh stats
                                       }
                                     }}
                                   />
