@@ -42,7 +42,7 @@ serve(async (req) => {
   try {
     logStep("Démarrage du processus automatique de traitement des commandes");
 
-    // 1. Récupérer toutes les commandes en attente avec des transactions Moneroo réussies
+    // 1. Récupérer toutes les commandes confirmées et payées non encore livrées
     const { data: ordersToProcess, error: ordersError } = await supabase
       .from('orders')
       .select(`
@@ -55,12 +55,14 @@ serve(async (req) => {
         order_items!inner(
           id,
           product_name,
+          vendor_id,
+          total,
           products(digital_file_url, is_digital)
-        ),
-        moneroo_transactions!inner(status)
+        )
       `)
-      .eq('payment_status', 'pending')
-      .eq('moneroo_transactions.status', 'success');
+      .eq('status', 'confirmed')
+      .eq('payment_status', 'paid')
+      .eq('fulfillment_status', 'unfulfilled');
 
     if (ordersError) {
       logStep("Erreur lors de la récupération des commandes", ordersError);

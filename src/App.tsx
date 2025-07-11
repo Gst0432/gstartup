@@ -40,6 +40,8 @@ import AdminAdvertisements from "./pages/AdminAdvertisements";
 import AdminSettings from "./pages/AdminSettings";
 import AdminReconciliation from "./pages/AdminReconciliation";
 import AdminOrdersMonitoring from "./pages/AdminOrdersMonitoring";
+import AdminAutoProcess from "./pages/AdminAutoProcess";
+import AdminPaymentRecovery from "./pages/AdminPaymentRecovery";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancelled from "./pages/PaymentCancelled";
 import VendorStore from "./pages/VendorStore";
@@ -214,6 +216,16 @@ const App = () => (
           <Route path="/admin/orders-monitoring" element={
             <ProtectedRoute requiredRole="admin">
               <AdminOrdersMonitoring />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/auto-process" element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminAutoProcess />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/payment-recovery" element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminPaymentRecovery />
             </ProtectedRoute>
           } />
           <Route path="/boutique/:storeSlug" element={<StorePage />} />

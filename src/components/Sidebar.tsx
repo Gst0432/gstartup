@@ -66,6 +66,7 @@ export const Sidebar = ({ role, onClose, isMobile = false }: SidebarProps) => {
     { title: 'Produits', url: '/admin/products', icon: Package },
     { title: 'Commandes', url: '/admin/orders', icon: ShoppingCart },
     { title: 'Surveillance', url: '/admin/orders-monitoring', icon: Monitor },
+    { title: 'Récupération', url: '/admin/payment-recovery', icon: CreditCard },
     { title: 'Catégories', url: '/admin/categories', icon: Settings },
     { title: 'Images Pub', url: '/admin/advertisements', icon: Images },
     { title: 'Retraits', url: '/admin/withdrawals', icon: CreditCard },
