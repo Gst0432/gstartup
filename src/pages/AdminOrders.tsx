@@ -29,7 +29,10 @@ import {
   Mail,
   MapPin,
   Download,
-  Edit
+  Edit,
+  FileText,
+  Upload,
+  ExternalLink
 } from 'lucide-react';
 import { generateOrderPDF } from '@/utils/pdfGenerator';
 import { supabase } from '@/integrations/supabase/client';
@@ -51,6 +54,7 @@ interface OrderItem {
 interface Order {
   id: string;
   order_number: string;
+  reference_code?: string | null;
   status: string;
   payment_status: string;
   fulfillment_status: string;
@@ -67,6 +71,13 @@ interface Order {
     phone: string | null;
   };
   order_items?: OrderItem[];
+  order_documents?: {
+    id: string;
+    document_name: string;
+    document_url: string;
+    document_type: string;
+    created_at: string;
+  }[];
 }
 
 export default function AdminOrders() {
@@ -96,6 +107,13 @@ export default function AdminOrders() {
               digital_file_url,
               is_digital
             )
+          ),
+          order_documents(
+            id,
+            document_name,
+            document_url,
+            document_type,
+            created_at
           )
         `)
         .order('created_at', { ascending: false });
@@ -477,15 +495,24 @@ export default function AdminOrders() {
                             <span>Articles: {order.order_items?.length || 0}</span>
                           </div>
                         </div>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => generateOrderPDF(order)}
-                            >
-                              <Download className="h-4 w-4 mr-1" />
-                              PDF
-                            </Button>
+                           <div className="flex items-center gap-2">
+                             <Button
+                               variant="outline"
+                               size="sm"
+                               onClick={() => generateOrderPDF(order)}
+                             >
+                               <Download className="h-4 w-4 mr-1" />
+                               PDF
+                             </Button>
+                             <Button
+                               variant="outline"
+                               size="sm"
+                               onClick={() => window.open(`/admin/order-documents?email=${order.profile?.email}&reference=${order.reference_code || order.order_number}`, '_blank')}
+                               className="bg-blue-50 hover:bg-blue-100 text-blue-700"
+                             >
+                               <Upload className="h-4 w-4 mr-1" />
+                               Documents
+                             </Button>
                             <Dialog>
                               <DialogTrigger asChild>
                                 <Button variant="outline" size="sm" onClick={() => setSelectedOrder(order)}>
@@ -570,9 +597,75 @@ export default function AdminOrders() {
                                          ))}
                                       </div>
                                     </CardContent>
-                                  </Card>
+                                   </Card>
 
-                                  {/* Actions rapides */}
+                                   {/* Documents de la commande */}
+                                   {selectedOrder.order_documents && selectedOrder.order_documents.length > 0 && (
+                                     <Card>
+                                       <CardHeader>
+                                         <CardTitle className="text-lg flex items-center gap-2">
+                                           <FileText className="h-5 w-5" />
+                                           Documents de la commande
+                                         </CardTitle>
+                                       </CardHeader>
+                                       <CardContent>
+                                         <div className="space-y-3">
+                                           {selectedOrder.order_documents.map((doc) => (
+                                             <div key={doc.id} className="flex items-center justify-between p-3 bg-muted/50 rounded">
+                                               <div className="flex items-center gap-3">
+                                                 <FileText className="h-5 w-5 text-blue-600" />
+                                                 <div>
+                                                   <p className="font-medium">{doc.document_name}</p>
+                                                   <p className="text-sm text-muted-foreground">
+                                                     Ajouté le {new Date(doc.created_at).toLocaleDateString('fr-FR')}
+                                                   </p>
+                                                 </div>
+                                               </div>
+                                               <Button
+                                                 variant="outline"
+                                                 size="sm"
+                                                 onClick={() => window.open(doc.document_url, '_blank')}
+                                               >
+                                                 <ExternalLink className="h-4 w-4 mr-1" />
+                                                 Ouvrir
+                                               </Button>
+                                             </div>
+                                           ))}
+                                         </div>
+                                         <div className="mt-4 pt-4 border-t">
+                                           <Button
+                                             variant="outline"
+                                             onClick={() => window.open(`/admin/order-documents?email=${selectedOrder.profile?.email}&reference=${selectedOrder.reference_code || selectedOrder.order_number}`, '_blank')}
+                                             className="w-full"
+                                           >
+                                             <Upload className="h-4 w-4 mr-2" />
+                                             Ajouter un document
+                                           </Button>
+                                         </div>
+                                       </CardContent>
+                                     </Card>
+                                   )}
+
+                                   {/* Section pour ajouter des documents si aucun n'existe */}
+                                   {(!selectedOrder.order_documents || selectedOrder.order_documents.length === 0) && (
+                                     <Card className="border-dashed border-2">
+                                       <CardContent className="flex flex-col items-center justify-center py-6">
+                                         <FileText className="h-12 w-12 text-muted-foreground mb-3" />
+                                         <p className="text-muted-foreground text-center mb-4">
+                                           Aucun document associé à cette commande
+                                         </p>
+                                         <Button
+                                           variant="outline"
+                                           onClick={() => window.open(`/admin/order-documents?email=${selectedOrder.profile?.email}&reference=${selectedOrder.reference_code || selectedOrder.order_number}`, '_blank')}
+                                         >
+                                           <Upload className="h-4 w-4 mr-2" />
+                                           Ajouter le premier document
+                                         </Button>
+                                       </CardContent>
+                                     </Card>
+                                   )}
+
+                                   {/* Actions rapides */}
                                   <Card>
                                     <CardHeader>
                                       <CardTitle className="text-lg">Actions Rapides</CardTitle>
