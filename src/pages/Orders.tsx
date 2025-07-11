@@ -83,8 +83,6 @@ export default function Orders() {
           )
         `)
         .eq('user_id', profile?.user_id)
-        .in('payment_status', ['paid']) // Seulement les commandes payées
-        .in('status', ['confirmed', 'processing', 'shipped', 'delivered']) // Exclure pending et cancelled
         .order('created_at', { ascending: false });
 
       if (error) {
