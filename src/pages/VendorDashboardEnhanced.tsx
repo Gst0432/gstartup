@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/DashboardLayout';
+import { DashboardHeader } from '@/components/DashboardHeader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -236,7 +237,11 @@ export default function VendorDashboard() {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="space-y-6">
+        <DashboardHeader 
+          title="Tableau de Bord Vendeur" 
+          description="Gérez votre boutique et suivez vos performances"
+        />
+        <div className="space-y-6 p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {[...Array(4)].map((_, i) => (
               <Card key={i}>
@@ -254,31 +259,12 @@ export default function VendorDashboard() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Tableau de bord vendeur</h1>
-            <p className="text-muted-foreground">
-              Bienvenue {profile?.display_name || 'Vendeur'}
-            </p>
-          </div>
-          <div className="flex items-center gap-4">
-            {stats.subscriptionStatus === 'active' ? (
-              <Badge className="bg-green-500">
-                Abonnement actif
-              </Badge>
-            ) : (
-              <Button asChild>
-                <a href="/vendor-pricing">
-                  Activer l'abonnement
-                </a>
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {/* Alertes */}
+      <DashboardHeader 
+        title="Tableau de Bord Vendeur" 
+        description="Gérez votre boutique et suivez vos performances"
+      />
+      <div className="space-y-6 p-6">
+        {/* Stats principales */}
         {stats.subscriptionStatus !== 'active' && (
           <Card className="border-orange-200 bg-orange-50">
             <CardContent className="p-4">

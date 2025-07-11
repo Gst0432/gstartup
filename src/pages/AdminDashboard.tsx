@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { DashboardLayout } from '@/components/DashboardLayout';
+import { DashboardHeader } from '@/components/DashboardHeader';
 import { 
   Users, 
   Package, 
@@ -299,27 +300,11 @@ export default function AdminDashboard() {
 
   return (
     <DashboardLayout>
+      <DashboardHeader 
+        title="Tableau de Bord Administrateur" 
+        description="Administration G-STARTUP LTD"
+      />
       <div className="min-h-screen bg-muted/30">
-        {/* Header */}
-        <header className="bg-background border-b">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold">Tableau de Bord Administrateur</h1>
-                <p className="text-muted-foreground text-sm sm:text-base">
-                  Administration G-STARTUP LTD
-                </p>
-              </div>
-              <div className="flex items-center gap-4">
-                <Badge variant="destructive" className="gap-2 text-xs sm:text-sm">
-                  <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
-                  Administrateur
-                </Badge>
-              </div>
-            </div>
-          </div>
-        </header>
-
         <div className="container mx-auto px-4 py-4 sm:py-8">
           {/* Welcome Card */}
           <Card className="mb-8 bg-gradient-to-r from-red-500 to-pink-500 text-white">
