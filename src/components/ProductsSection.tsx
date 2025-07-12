@@ -176,10 +176,6 @@ export const ProductsSection = () => {
               <div className="text-sm text-muted-foreground">Produits</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-primary">50+</div>
-              <div className="text-sm text-muted-foreground">Vendeurs</div>
-            </div>
-            <div className="text-center">
               <div className="text-2xl font-bold text-primary">{stats.totalCategories}+</div>
               <div className="text-sm text-muted-foreground">Catégories</div>
             </div>

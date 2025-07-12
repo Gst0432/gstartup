@@ -26,7 +26,6 @@ export const Header = () => {
     { key: 'services', href: '/services' },
     { key: 'portfolio', href: '/portfolio', text: 'Portfolio' },
     { key: 'marketplace', href: '/marketplace' },
-    { key: 'vendor', href: '/vendor-pricing', text: 'Devenir Vendeur' },
     { key: 'guide', href: '/vendor-guide', text: 'Guide' },
     { key: 'support', href: '/vendor-support', text: 'Support' },
   ];
