@@ -112,24 +112,26 @@ export function OrderTracker() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Input
             placeholder="Ex: ORDABC123"
             value={referenceCode}
             onChange={(e) => setReferenceCode(e.target.value.toUpperCase())}
             onKeyPress={(e) => e.key === 'Enter' && trackOrder()}
+            className="flex-1"
           />
-          <Button onClick={trackOrder} disabled={loading}>
-            <Search className="h-4 w-4" />
+          <Button onClick={trackOrder} disabled={loading} className="w-full sm:w-auto">
+            <Search className="h-4 w-4 mr-2 sm:mr-0" />
+            <span className="sm:hidden">Rechercher</span>
           </Button>
         </div>
 
         {trackedOrder && (
-          <div className="border rounded-lg p-4 space-y-3">
-            <div className="flex items-center justify-between">
+          <div className="border rounded-lg p-3 sm:p-4 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h3 className="font-medium">Commande #{trackedOrder.order_number}</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="font-medium text-sm sm:text-base">Commande #{trackedOrder.order_number}</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   {new Date(trackedOrder.created_at).toLocaleDateString('fr-FR', {
                     year: 'numeric',
                     month: 'long',
@@ -137,8 +139,8 @@ export function OrderTracker() {
                   })}
                 </p>
               </div>
-              <div className="text-right">
-                <p className="font-medium">
+              <div className="text-left sm:text-right">
+                <p className="font-medium text-sm sm:text-base">
                   {trackedOrder.total_amount.toLocaleString()} {trackedOrder.currency}
                 </p>
                 <code className="text-xs bg-muted px-2 py-1 rounded">
@@ -147,18 +149,18 @@ export function OrderTracker() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex gap-2">
-                <Badge variant={getStatusBadgeVariant(trackedOrder.status)}>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex flex-wrap gap-2">
+                <Badge variant={getStatusBadgeVariant(trackedOrder.status)} className="text-xs">
                   {getStatusLabel(trackedOrder.status)}
                 </Badge>
-                <Badge variant={getStatusBadgeVariant(trackedOrder.payment_status)}>
+                <Badge variant={getStatusBadgeVariant(trackedOrder.payment_status)} className="text-xs">
                   Paiement: {getStatusLabel(trackedOrder.payment_status)}
                 </Badge>
               </div>
               
-              <Link to={`/orders`}>
-                <Button variant="outline" size="sm">
+              <Link to={`/orders`} className="w-full sm:w-auto">
+                <Button variant="outline" size="sm" className="w-full sm:w-auto">
                   <Eye className="h-4 w-4 mr-1" />
                   Voir détails
                 </Button>

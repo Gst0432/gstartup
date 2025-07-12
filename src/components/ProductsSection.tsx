@@ -170,20 +170,20 @@ export const ProductsSection = () => {
           </div>
           
           {/* Stats */}
-          <div className="flex justify-center gap-8 mt-8 flex-wrap">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">{stats.totalProducts}+</div>
-              <div className="text-sm text-muted-foreground">Produits</div>
+          <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mt-6 sm:mt-8">
+            <div className="text-center p-4 sm:p-6 bg-muted/30 rounded-lg">
+              <div className="text-xl sm:text-2xl font-bold text-primary">{stats.totalProducts}+</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">Produits</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">{stats.totalCategories}+</div>
-              <div className="text-sm text-muted-foreground">Catégories</div>
+            <div className="text-center p-4 sm:p-6 bg-muted/30 rounded-lg">
+              <div className="text-xl sm:text-2xl font-bold text-primary">{stats.totalCategories}+</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">Catégories</div>
             </div>
           </div>
         </div>
 
         {/* Products Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12">
           {loading ? (
             // Loading skeleton
             Array.from({ length: 6 }).map((_, index) => (
@@ -212,12 +212,12 @@ export const ProductsSection = () => {
                         aspectRatio="landscape"
                         quality="medium"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        className="h-48 transition-transform duration-300 group-hover:scale-105"
+                        className="h-40 sm:h-48 transition-transform duration-300 group-hover:scale-105"
                         loading="lazy"
                       />
                     ) : (
-                      <div className="w-full h-48 bg-gradient-primary/10 flex items-center justify-center aspect-[16/9]">
-                        <div className="text-4xl font-bold text-primary/30">
+                      <div className="w-full h-40 sm:h-48 bg-gradient-primary/10 flex items-center justify-center aspect-[16/9]">
+                        <div className="text-2xl sm:text-4xl font-bold text-primary/30">
                           {product.name.charAt(0)}
                         </div>
                       </div>
@@ -228,42 +228,42 @@ export const ProductsSection = () => {
                   </div>
                 </CardHeader>
                 
-                <CardContent className="p-6 flex-1 flex flex-col">
-                  <h3 className="font-semibold text-lg mb-2 line-clamp-2 min-h-[3.5rem]">
+                <CardContent className="p-4 sm:p-6 flex-1 flex flex-col">
+                  <h3 className="font-semibold text-base sm:text-lg mb-2 line-clamp-2 min-h-[2.5rem] sm:min-h-[3.5rem]">
                     {product.name}
                   </h3>
                   
                   <TranslatableText
                     originalText={product.description}
                     sourceLanguage="fr"
-                    className="text-muted-foreground text-sm mb-4 line-clamp-3 flex-1 prose prose-sm max-w-none"
+                    className="text-muted-foreground text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2 sm:line-clamp-3 flex-1 prose prose-sm max-w-none"
                     showTranslateButton={true}
                   >
                     <div dangerouslySetInnerHTML={{ __html: product.description }} />
                   </TranslatableText>
 
-                  <div className="text-sm text-muted-foreground mb-2">
+                  <div className="text-xs sm:text-sm text-muted-foreground mb-2">
                     <span>{t('by')} {product.vendor?.business_name}</span>
                   </div>
 
-                  <div className="text-2xl font-bold text-primary">
+                  <div className="text-lg sm:text-2xl font-bold text-primary">
                     {formatPrice(product.price)}
                   </div>
                 </CardContent>
 
-                <CardFooter className="p-6 pt-0 flex gap-2">
+                <CardFooter className="p-4 sm:p-6 pt-0 flex flex-col sm:flex-row gap-2">
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="flex-1 gap-2"
+                    className="w-full sm:flex-1 gap-2 text-xs sm:text-sm"
                     onClick={() => window.open(`/product/${product.id}`, '_self')}
                   >
-                    <Eye className="h-4 w-4" />
+                    <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
                     {t('viewDetails')}
                   </Button>
                   <Button 
                     size="sm" 
-                    className="flex-1 gap-2"
+                    className="w-full sm:flex-1 gap-2 text-xs sm:text-sm"
                     onClick={async () => {
                       if (!isAuthenticated) {
                         // Sauvegarder l'intention d'achat et rediriger vers l'authentification
@@ -293,7 +293,7 @@ export const ProductsSection = () => {
                       }
                     }}
                   >
-                    <ShoppingCart className="h-4 w-4" />
+                    <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4" />
                     {t('buy')}
                   </Button>
                 </CardFooter>

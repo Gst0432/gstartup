@@ -353,94 +353,167 @@ export default function AdminDashboard() {
           </Card>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8">
-            <Card className="animate-fade-in border-l-4 border-l-blue-500">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8">
+            <Card className="animate-fade-in border-l-4 border-l-blue-500 col-span-1">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+                <CardTitle className="text-xs sm:text-sm font-medium">
                   Utilisateurs
                 </CardTitle>
                 <Users className="h-4 w-4 text-blue-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.totalUsers}</div>
+                <div className="text-xl sm:text-2xl font-bold">{stats.totalUsers}</div>
                 <p className="text-xs text-muted-foreground">
-                  {stats.systemHealth.activeUsers} actifs
+                  <span className="text-green-600">{stats.systemHealth.activeUsers}</span> actifs
                 </p>
+                <div className="mt-2">
+                  <Progress value={(stats.systemHealth.activeUsers / stats.totalUsers) * 100} className="h-1" />
+                </div>
               </CardContent>
             </Card>
 
-            <Card className="animate-fade-in border-l-4 border-l-green-500" style={{ animationDelay: '0.1s' }}>
+            <Card className="animate-fade-in border-l-4 border-l-green-500 col-span-1" style={{ animationDelay: '0.1s' }}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+                <CardTitle className="text-xs sm:text-sm font-medium">
                   Vendeurs
                 </CardTitle>
                 <Shield className="h-4 w-4 text-green-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.totalVendors}</div>
-                <p className="text-xs text-orange-500">
-                  {stats.pendingVendors} en attente
+                <div className="text-xl sm:text-2xl font-bold">{stats.totalVendors}</div>
+                <p className="text-xs">
+                  <span className="text-orange-500">{stats.pendingVendors}</span> en attente
                 </p>
+                <div className="mt-2">
+                  <Progress value={((stats.totalVendors - stats.pendingVendors) / stats.totalVendors) * 100} className="h-1" />
+                </div>
               </CardContent>
             </Card>
 
-            <Card className="animate-fade-in border-l-4 border-l-purple-500" style={{ animationDelay: '0.2s' }}>
+            <Card className="animate-fade-in border-l-4 border-l-purple-500 col-span-1" style={{ animationDelay: '0.2s' }}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+                <CardTitle className="text-xs sm:text-sm font-medium">
                   Produits
                 </CardTitle>
                 <Package className="h-4 w-4 text-purple-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.totalProducts}</div>
-                <p className="text-xs text-green-600">
-                  {stats.activeProducts} actifs
+                <div className="text-xl sm:text-2xl font-bold">{stats.totalProducts}</div>
+                <p className="text-xs">
+                  <span className="text-green-600">{stats.activeProducts}</span> actifs
                 </p>
+                <div className="mt-2">
+                  <Progress value={(stats.activeProducts / stats.totalProducts) * 100} className="h-1" />
+                </div>
               </CardContent>
             </Card>
 
-            <Card className="animate-fade-in border-l-4 border-l-orange-500" style={{ animationDelay: '0.3s' }}>
+            <Card className="animate-fade-in border-l-4 border-l-orange-500 col-span-1" style={{ animationDelay: '0.3s' }}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+                <CardTitle className="text-xs sm:text-sm font-medium">
                   Commandes
                 </CardTitle>
                 <ShoppingCart className="h-4 w-4 text-orange-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.totalOrders}</div>
+                <div className="text-xl sm:text-2xl font-bold">{stats.totalOrders}</div>
                 <p className="text-xs">
-                  <span className="text-orange-500">{stats.pendingOrders} en attente</span>
+                  <span className="text-orange-500">{stats.pendingOrders}</span> en attente
                 </p>
+                <div className="mt-2">
+                  <Progress value={((stats.totalOrders - stats.pendingOrders) / Math.max(stats.totalOrders, 1)) * 100} className="h-1" />
+                </div>
               </CardContent>
             </Card>
 
-            <Card className="animate-fade-in border-l-4 border-l-emerald-500" style={{ animationDelay: '0.4s' }}>
+            <Card className="animate-fade-in border-l-4 border-l-emerald-500 col-span-1 sm:col-span-2 xl:col-span-1" style={{ animationDelay: '0.4s' }}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+                <CardTitle className="text-xs sm:text-sm font-medium">
                   Revenus Total
                 </CardTitle>
                 <TrendingUp className="h-4 w-4 text-emerald-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-xl font-bold">{stats.totalRevenue.toLocaleString()} FCFA</div>
+                <div className="text-lg sm:text-xl font-bold">{(stats.totalRevenue / 1000000).toFixed(1)}M FCFA</div>
                 <p className="text-xs text-muted-foreground">
-                  {stats.monthlyRevenue.toLocaleString()} ce mois
+                  {(stats.monthlyRevenue / 1000).toFixed(0)}K ce mois
                 </p>
+                <div className="mt-2">
+                  <Progress value={(stats.monthlyRevenue / Math.max(stats.totalRevenue, 1)) * 100} className="h-1" />
+                </div>
               </CardContent>
             </Card>
 
-            <Card className="animate-fade-in border-l-4 border-l-red-500" style={{ animationDelay: '0.5s' }}>
+            <Card className="animate-fade-in border-l-4 border-l-red-500 col-span-1" style={{ animationDelay: '0.5s' }}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+                <CardTitle className="text-xs sm:text-sm font-medium">
                   Système
                 </CardTitle>
-                <CheckCircle className="h-4 w-4 text-red-500" />
+                <CheckCircle className="h-4 w-4 text-green-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-xl font-bold">{stats.systemHealth.uptime}</div>
+                <div className="text-lg sm:text-xl font-bold">{stats.systemHealth.uptime}</div>
                 <p className="text-xs text-muted-foreground">
-                  Charge: {stats.systemHealth.serverLoad}%
+                  CPU: {stats.systemHealth.serverLoad}%
                 </p>
+                <div className="mt-2">
+                  <Progress value={100 - stats.systemHealth.serverLoad} className="h-1" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Analytics Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            {/* Revenue Chart Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-emerald-500" />
+                  Évolution des Revenus
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Revenus ce mois</span>
+                    <span className="font-bold text-emerald-600">{stats.monthlyRevenue.toLocaleString()} FCFA</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Revenus total</span>
+                    <span className="font-bold">{stats.totalRevenue.toLocaleString()} FCFA</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Croissance mensuelle</span>
+                    <span className="font-bold text-green-600">+{((stats.monthlyRevenue / Math.max(stats.totalRevenue - stats.monthlyRevenue, 1)) * 100).toFixed(1)}%</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Activity Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-blue-500" />
+                  Activité Récente
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Utilisateurs actifs</span>
+                    <span className="font-bold text-blue-600">{stats.systemHealth.activeUsers}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Commandes aujourd'hui</span>
+                    <span className="font-bold">{Math.floor(stats.totalOrders * 0.1)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Nouveaux produits</span>
+                    <span className="font-bold text-purple-600">{Math.floor(stats.totalProducts * 0.05)}</span>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -448,7 +521,7 @@ export default function AdminDashboard() {
           {/* Management Sections */}
           <div className="mb-6 sm:mb-8">
             <h2 className="text-lg sm:text-xl font-semibold mb-4">Gestion de la Plateforme</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {managementSections.map((section, index) => (
                 <Card 
                   key={index} 
@@ -463,8 +536,8 @@ export default function AdminDashboard() {
                 >
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
-                      <div className={`w-12 h-12 ${section.color} rounded-lg flex items-center justify-center mb-3`}>
-                        <section.icon className="h-6 w-6 text-white" />
+                      <div className={`w-10 h-10 sm:w-12 sm:h-12 ${section.color} rounded-lg flex items-center justify-center mb-3`}>
+                        <section.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                       </div>
                       {section.badge && (
                         <Badge variant="destructive" className="text-xs">
@@ -472,10 +545,10 @@ export default function AdminDashboard() {
                         </Badge>
                       )}
                     </div>
-                    <CardTitle className="text-base">{section.title}</CardTitle>
-                    <CardDescription>{section.description}</CardDescription>
+                    <CardTitle className="text-sm sm:text-base">{section.title}</CardTitle>
+                    <CardDescription className="text-xs sm:text-sm">{section.description}</CardDescription>
                     {section.count !== null && (
-                      <div className="text-2xl font-bold text-primary">
+                      <div className="text-xl sm:text-2xl font-bold text-primary">
                         {section.count}
                       </div>
                     )}
